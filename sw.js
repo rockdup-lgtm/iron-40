@@ -1,4 +1,4 @@
-const CACHE = 'iron40-v8';
+const CACHE = 'iron40-v9';
 const CORE = ['./', 'index.html', 'exercises.js', 'manifest.json'];
 const IMAGES = ['hero', 'onboard', 'icon-192', 'icon-512', 'apple-touch-icon',
   'db-bench', 'incline-db', 'bb-ohp', 'db-shoulder', 'db-row', 'bb-row', 'cs-row', 'db-pullover',

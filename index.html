@@ -289,6 +289,18 @@ details summary::-webkit-details-marker { display: none; }
 .modal.open { display: flex; animation: fade .3s ease; }
 .modal .card { max-width: 480px; width: 100%; margin-bottom: env(safe-area-inset-bottom); background: var(--surface-solid); border-color: var(--line-strong); border-radius: 30px; padding: 22px; }
 .modal .seg { display: flex; gap: 8px; }
+.tile2.locked { opacity: .72; }
+.tile2 .lock, .unlock-link .lock, .paywall .lock { width: 16px; height: 16px; flex: none; color: var(--muted); }
+.tile2 .lock { margin-left: auto; align-self: flex-start; }
+.unlock-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--accent); }
+.unlock-link .lock { color: var(--accent); width: 14px; height: 14px; }
+.paywall .lock { width: 40px; height: 40px; color: var(--accent); }
+.paywall .btn { margin-top: 16px; }
+.perks { list-style: none; display: grid; gap: 8px; font-size: 14px; }
+.perks li { padding-left: 24px; position: relative; }
+.perks li::before { content: '✓'; position: absolute; left: 0; color: var(--ok); font-weight: 700; }
+.lic { flex: 1; min-width: 0; height: 52px; border-radius: 16px; border: 1px solid var(--line-strong); background: var(--surface); padding: 0 14px; font: 500 15px Inter, sans-serif; color: var(--text); }
+.lic:focus { outline: none; border-color: color-mix(in srgb, var(--accent) 70%, transparent); box-shadow: 0 0 0 4px var(--accent-soft); }
 .modal .seg .chip { flex: 1; justify-content: center; padding: 12px 14px; font-size: 15px; }
 #profileBtn { width: 38px; height: 38px; border-radius: 13px; }
 #profileBtn .icon { width: 18px; height: 18px; }
@@ -393,6 +405,12 @@ let log = store.get('iron40_log', []);          // [{date, day, mins, ex:[{id, s
 let active = store.get('iron40_active', null);  // in-progress workout
 let profile = store.get('iron40_profile', null); // {sex: 'm'|'f', age: '30'|'40'} — tailors photos, tips, recovery
 const P = () => profile || { sex: 'm', age: '40' };
+// ---- $10 unlock: Workout A, the exercise library and profiles are free; the rest needs a license key ----
+const SHOP = { price: '$10', checkoutUrl: '' }; // set checkoutUrl to the Lemon Squeezy buy link
+let license = store.get('iron40_license', null); // {key, id, at} once activated
+const FREE_DAYS = ['A'];
+const isLocked = (key) => !license && !FREE_DAYS.includes(key);
+const LOCK = '<svg class="icon lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 const photo = (id) => `img/${P().sex === 'f' ? 'f/' : ''}${id}.jpg`;
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -417,7 +435,11 @@ const ICON = {
 // Gym days alternate A/B; calisthenics sessions don't shift the rotation.
 const nextDay = () => { const g = log.findLast((l) => l.day === 'A' || l.day === 'B'); return g && g.day === 'A' ? 'B' : 'A'; };
 let pick = store.get('iron40_pick', null); // workout chosen on the Today screen (null = A/B rotation)
-const upNext = () => (active ? active.day : pick && PROGRAM[pick] ? pick : nextDay());
+const upNext = () => {
+  if (active) return active.day;
+  const d = pick && PROGRAM[pick] ? pick : nextDay();
+  return isLocked(d) ? 'A' : d; // free users stay on the free workout
+};
 
 function lastFor(id) {
   for (let i = log.length - 1; i >= 0; i--) {
@@ -527,19 +549,24 @@ function renderToday() {
 
   // ---- switch focus: gym rotation or a calisthenics area ----
   const cali = Object.keys(PROGRAM).filter((k) => PROGRAM[k].cali);
-  const gym = nextDay();
+  const gym = isLocked(nextDay()) ? 'A' : nextDay();
   const tile = (key, label, sub, wide) => {
     const lv = progLevels(key), back = Object.keys(lv).every((m) => BACK_VIEW.has(m));
+    if (isLocked(key)) return `<button class="tile2 locked ${wide ? 'wide' : ''}" data-lock="${key}" aria-label="${label} (locked)">
+      <span class="map">${MuscleMap.svg(lv, { views: back ? 'back' : 'front' })}</span><span><b>${label}</b><small>${sub}</small></span>${LOCK}</button>`;
     return `<button class="tile2 ${wide ? 'wide' : ''} ${(pick || '') === (key === gym ? '' : key) ? 'on' : ''}" data-pick="${key === gym ? '' : key}" aria-pressed="${(pick || '') === (key === gym ? '' : key)}">
       <span class="map">${MuscleMap.svg(lv, { views: back ? 'back' : 'front' })}</span><span><b>${label}</b><small>${sub}</small></span></button>`;
   };
-  $('#focus').innerHTML = active ? '' : `<div class="eyebrow">Switch focus</div>
-    <div class="tiles">${tile(gym, `Gym · ${PROGRAM[gym].name}`, 'Alternates dumbbell & barbell days', true)}
+  $('#focus').innerHTML = active ? '' : `<div class="row" style="justify-content:space-between"><div class="eyebrow">Switch focus</div>
+      ${license ? '' : `<button class="unlock-link" data-lock="all">${LOCK}Unlock everything · ${SHOP.price}</button>`}</div>
+    <div class="tiles">${tile(gym, license ? `Gym · ${PROGRAM[gym].name}` : 'Gym · Workout A', license ? 'Alternates dumbbell & barbell days' : 'Free · full-body dumbbell day', true)}
+      ${license ? '' : tile('B', 'Gym · Workout B', 'Barbell day', true)}
       ${cali.map((k) => tile(k, esc(PROGRAM[k].chip), `~${PROGRAM[k].mins} min · bodyweight`)).join('')}</div>`;
 
   mountMedia($('#nextCard')); mountMedia($('#exList'));
   $('#s-today').onclick = (e) => {
     if (e.target.closest('#startBtn')) return startWorkout();
+    if (e.target.closest('[data-lock]')) return openUnlock();
     const p = e.target.closest('[data-pick]');
     if (p) { pick = p.dataset.pick || null; pick ? store.set('iron40_pick', pick) : store.del('iron40_pick'); renderToday(); return window.scrollTo({ top: 0, behavior: 'smooth' }); }
     const b = e.target.closest('[data-ex]'); if (b) openDetail(b.dataset.ex);
@@ -833,7 +860,12 @@ function recoveryState() {
   return out;
 }
 
+function lockedCard(title, body) {
+  return `<div class="card empty paywall">${LOCK}<h3>${title}</h3><div>${body}</div>
+    <button class="btn btn-primary" data-lock="all" onclick="openUnlock()">Unlock everything · ${SHOP.price}</button></div>`;
+}
 function renderRecovery() {
+  if (!license) { $('#recovBody').innerHTML = lockedCard('Recovery tracking', 'See which muscles are fresh and which are still recovering, based on what you trained.'); return; }
   const fresh = recoveryState();
   const lastTs = log.length ? log[log.length - 1].ts || new Date(log[log.length - 1].date + 'T18:00').getTime() : null;
   const days = lastTs == null ? '–' : Math.floor((Date.now() - lastTs) / 864e5);
@@ -867,6 +899,7 @@ function renderRecovery() {
 // HISTORY
 // =====================================================
 function renderHistory() {
+  if (!license) { $('#histBody').innerHTML = lockedCard('Your training log', `Every workout you finish is saved${log.length ? ` (${log.length} so far)` : ''}. Unlock to see your lifts, bests and history.`); return; }
   if (!log.length) {
     $('#histBody').innerHTML = `<div class="card empty"><svg class="icon" viewBox="0 0 24 24" style="width:44px;height:44px;color:var(--accent)"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg><h3 style="margin-top:8px">No workouts yet</h3><div>Finish your first workout and your lifts show up here.</div>
       <button class="btn btn-primary" style="margin-top:16px" onclick="showTab('today')">Go to Today</button></div>`;
@@ -907,6 +940,38 @@ function openModal(html, onAction) {
     $('#modal').classList.remove('open'); onAction?.(b ? b.dataset.m : null);
   };
 }
+// Unlock sheet: buy, or paste the license key from the purchase email
+function openUnlock() {
+  if (license) return;
+  openModal(`
+    <div class="row" style="justify-content:space-between"><h2 class="display">Unlock Iron 40</h2><b class="num" style="font-size:22px">${SHOP.price}</b></div>
+    <div class="small muted">One-time purchase. No subscription.</div>
+    <ul class="perks"><li>Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core</li><li>Recovery tracking for every muscle</li><li>Your full training log, lifts and personal bests</li></ul>
+    ${SHOP.checkoutUrl ? `<a class="btn btn-primary btn-block" href="${SHOP.checkoutUrl}" target="_blank" rel="noopener">Buy for ${SHOP.price}</a>` : ''}
+    <div><div class="eyebrow" style="margin-bottom:8px">Already bought it?</div>
+      <div class="row"><input id="licKey" class="lic" placeholder="Paste your license key" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn btn-ghost" id="licGo">Activate</button></div>
+      <div class="small" id="licMsg" style="margin-top:8px"></div></div>
+    <button class="btn btn-block" data-m="close" style="color:var(--muted)">Not now</button>`);
+  $('#licGo').onclick = activateLicense;
+  $('#licKey').onkeydown = (e) => { if (e.key === 'Enter') activateLicense(); };
+}
+async function activateLicense() {
+  const key = $('#licKey').value.trim(), msg = $('#licMsg');
+  if (!key) { msg.textContent = 'Paste the key from your purchase email.'; return; }
+  msg.className = 'small muted'; msg.textContent = 'Checking…'; $('#licGo').disabled = true;
+  try {
+    const res = await fetch('api/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'That key didn’t work.');
+    license = { key, id: data.id, at: Date.now() }; store.set('iron40_license', license);
+    $('#modal').classList.remove('open');
+    showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'today');
+  } catch (err) {
+    msg.className = 'small'; msg.style.color = 'var(--danger)';
+    msg.textContent = err.message === 'Failed to fetch' ? 'You need to be online to activate. Try again with a connection.' : err.message;
+  } finally { $('#licGo').disabled = false; }
+}
+
 // Profile picker: first launch (with the safety note) and from the profile button
 function openProfile(first) {
   const cur = { ...P() };

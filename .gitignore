@@ -1,3 +1,5 @@
 brag-output/
 .DS_Store
 img-original-backup/
+brag-output-*/
+_site/
