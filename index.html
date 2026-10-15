@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Iron 40" />
+<meta name="theme-color" content="#09080d" />
+<title>Iron 40</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #09080d; --bg-2: #110e19; --surface: rgba(255,255,255,.035); --surface-solid: #15121e; --surface-2: rgba(255,255,255,.06);
+  --line: rgba(255,255,255,.07); --line-strong: rgba(255,255,255,.12);
+  --text: #f6f3fa; --muted: #8f879f; --faint: #5d566c;
+  --accent: #ff3d6b; --accent-2: #ff7a59; --accent-ink: #ffffff;
+  --grad: linear-gradient(135deg, #ff3d6b 0%, #ff6a5c 100%);
+  --accent-soft: rgba(255,61,107,.12); --ok: #4ade9b; --danger: #ff5a6e; --gold: #e9c48a;
+  --mus: #ff3d6b; --mus-sec: #a3477a; --mm-base: #2c2738; --mm-line: #0f0d15;
+  --body-a: #8c84a3; --body-b: #3b3550; --body-far-a: #4a445c; --body-far-b: #25212f;
+  --mus-a: #ff6b8a; --mus-b: #d0164a; --sec-a: #b9608f; --sec-b: #5e2a4b;
+  --body: #5a5370; --bench: #262230; --plate: #1d1a25; --plate-ring: #9d96ad; --path: rgba(255,61,107,.45);
+  --radius: 24px; --tab-h: 62px;
+  --shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 20px 40px -24px rgba(0,0,0,.8);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f6f4f8; --bg-2: #ffffff; --surface: rgba(255,255,255,.85); --surface-solid: #ffffff; --surface-2: rgba(20,14,35,.05);
+    --line: rgba(20,14,35,.08); --line-strong: rgba(20,14,35,.14);
+    --text: #15111f; --muted: #6e677c; --faint: #a39cb0;
+    --accent: #e8285a; --accent-soft: rgba(232,40,90,.09); --ok: #13a565; --danger: #d63c4f; --gold: #a67b35;
+    --grad: linear-gradient(135deg, #e8285a 0%, #f2604a 100%);
+    --mus: #e8285a; --mus-sec: #ef93ad; --mm-base: #d9d3e3; --mm-line: #f6f4f8;
+    --body-a: #c9c1d8; --body-b: #9b91b0; --body-far-a: #e2dcea; --body-far-b: #c6bfd2;
+    --mus-a: #ff6b8a; --mus-b: #d0164a; --sec-a: #f4b3c6; --sec-b: #e07c9b;
+    --body: #b2a9c4; --bench: #d6d0e0; --plate: #2b2638; --plate-ring: #15111f; --path: rgba(232,40,90,.5);
+    --shadow: 0 1px 2px rgba(20,14,35,.05), 0 18px 40px -26px rgba(20,14,35,.35);
+    color-scheme: light;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  background: radial-gradient(120% 60% at 50% -10%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%), var(--bg);
+  color: var(--text);
+  font: 15px/1.5 Inter, system-ui, -apple-system, sans-serif; font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased; overscroll-behavior: none;
+}
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; transition: transform .15s ease, background .2s, opacity .2s; }
+button:active { transform: scale(.97); }
+input { font: inherit; color: inherit; }
+.display { font-family: Sora, Inter, sans-serif; font-weight: 600; letter-spacing: -.03em; }
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.num { font-family: Sora, Inter, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+
+/* ---------- layout ---------- */
+.screen { display: none; padding: calc(env(safe-area-inset-top) + 20px) 20px calc(var(--tab-h) + env(safe-area-inset-bottom) + 44px); max-width: 640px; margin: 0 auto; }
+.screen.active { display: block; animation: fade .45s cubic-bezier(.2,.8,.2,1); }
+@keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+h1 { font-size: 34px; line-height: 1.05; }
+h2 { font-size: 24px; line-height: 1.15; }
+h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.card { background: var(--surface); border-radius: var(--radius); padding: 18px; border: 1px solid var(--line); box-shadow: var(--shadow); }
+.stack > * + * { margin-top: 16px; }
+.row { display: flex; align-items: center; gap: 10px; }
+.spacer { flex: 1; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; padding: 0 24px; border-radius: 18px; font-weight: 600; font-size: 16px; letter-spacing: -.01em; }
+.btn-primary { background: var(--grad); color: var(--accent-ink);
+  box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 12px 30px -10px color-mix(in srgb, var(--accent) 70%, transparent); }
+.btn-ghost { background: var(--surface-2); border: 1px solid var(--line); }
+.btn-block { width: 100%; }
+.chip { display: inline-flex; align-items: center; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 500; white-space: nowrap; color: var(--muted); }
+.chip.on { background: var(--text); color: var(--bg); border-color: transparent; }
+.icon { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.pagehead { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-top: 4px; }
+
+/* ---------- floating tab bar ---------- */
+.tabs { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom) + 12px); z-index: 20; display: flex;
+  width: min(420px, calc(100% - 32px)); padding: 6px; border-radius: 26px;
+  background: color-mix(in srgb, var(--bg-2) 72%, transparent); backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--line-strong); box-shadow: 0 20px 50px -18px rgba(0,0,0,.7); }
+.tabs button { flex: 1; height: var(--tab-h); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 10.5px; font-weight: 600; letter-spacing: .02em; color: var(--faint); }
+.tabs button.on { color: var(--text); background: var(--surface-2); }
+.tabs button.on .icon { color: var(--accent); }
+
+/* ---------- today ---------- */
+.hero { position: relative; border-radius: 30px; overflow: hidden; min-height: 248px; display: flex; align-items: flex-end; padding: 24px;
+  background:
+    radial-gradient(70% 80% at 90% 0%, rgba(255,61,107,.55), transparent 60%),
+    radial-gradient(60% 70% at 0% 100%, rgba(120,80,255,.35), transparent 60%),
+    linear-gradient(160deg, #1d1729, #0b0910);
+  color: #fff; border: 1px solid rgba(255,255,255,.08); box-shadow: 0 30px 60px -30px rgba(255,61,107,.35); }
+.hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero::before { content: ''; position: absolute; inset: 0; opacity: .5; background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px); background-size: 18px 18px; mask-image: linear-gradient(180deg, #000, transparent 70%); -webkit-mask-image: linear-gradient(180deg, #000, transparent 70%); }
+.hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 25%, rgba(5,4,8,.85)); }
+.hero > div { position: relative; z-index: 1; }
+.hero h1 { font-size: 46px; line-height: .95; letter-spacing: -.045em; margin: 6px 0 8px; }
+.hero h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .tag { color: rgba(255,255,255,.75); }
+.hero .tag::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 8px; vertical-align: 2px; box-shadow: 0 0 10px var(--accent); }
+.today-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font-size: 26px; margin-top: 2px; }
+.brand em { font-style: normal; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.pill { display: inline-flex; align-items: center; gap: 7px; padding: 8px 13px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.dots { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 14px; text-align: center; font-size: 11px; font-weight: 600; color: var(--faint); }
+.dots i { display: block; height: 5px; border-radius: 3px; background: var(--surface-2); margin-top: 6px; }
+.dots .train { color: var(--muted); }
+.dots .done { color: var(--text); } .dots .done i { background: var(--grad); box-shadow: 0 0 10px -2px var(--accent); }
+.dots .today { color: var(--text); } .dots .today i { outline: 1px solid var(--accent); outline-offset: 1px; }
+.up-hero { display: block; min-height: 0; padding: 22px; }
+.up-hero h1 { font-size: 40px; }
+.up-hero .meta { color: rgba(255,255,255,.72); font-size: 13.5px; }
+.up-hero .row2 { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0; }
+.up-hero .row2 .small { color: rgba(255,255,255,.7); text-align: right; }
+.up-hero .note { margin-top: 10px; text-align: center; font-size: 12.5px; color: rgba(255,255,255,.6); }
+.avatars { display: flex; }
+.avatars .mini { width: 42px; height: 42px; border-radius: 14px; overflow: hidden; position: relative; flex: none; border: 2px solid #15111f;
+  background: radial-gradient(80% 70% at 50% 35%, color-mix(in srgb, var(--accent) 12%, #15121e), #15121e); }
+.avatars .mini img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.avatars .mini .rigbox { position: absolute; inset: 2px; }
+.avatars > * + * { margin-left: -10px; }
+.avatars .more { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font: 600 12px Sora, sans-serif; background: #241f30; border: 2px solid #15111f; color: rgba(255,255,255,.7); }
+#exList summary { font-size: 14px; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.tile2 { text-align: left; padding: 12px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); display: flex; gap: 10px; align-items: center; min-height: 66px; }
+.tile2 .map { width: 34px; height: 46px; flex: none; }
+.tile2 b { display: block; font-size: 14px; font-weight: 600; }
+.tile2 small { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+.tile2.on { border-color: color-mix(in srgb, var(--accent) 65%, transparent); background: var(--accent-soft); }
+.tile2.wide { grid-column: span 2; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 16px 14px; box-shadow: var(--shadow); }
+.stat b { display: block; font-family: Sora, sans-serif; font-weight: 500; font-size: 30px; line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.stat b small { font-size: 15px; color: var(--faint); font-weight: 400; }
+.stat span { display: block; margin-top: 8px; font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.ex-line { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+.ex-line:first-of-type { border-top: 0; }
+.ex-line .media { width: 72px; height: 72px; border-radius: 18px; }
+.ex-line .chev { color: var(--faint); margin-left: auto; }
+.recov-head { display: grid; grid-template-columns: 1fr 1px 1fr; text-align: center; gap: 10px; align-items: center; }
+.recov-head i { width: 1px; height: 64px; background: var(--line-strong); }
+.recov-head b { display: block; font-family: Sora, sans-serif; font-weight: 500; font-size: 52px; line-height: 1; letter-spacing: -.05em; }
+.recov-head span { display: block; margin-top: 8px; font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.recov-map { max-width: 420px; margin: 0 auto; padding: 8px 0; background: radial-gradient(50% 45% at 50% 50%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%); }
+.recov-list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+.meter { height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden; margin-top: 6px; }
+.meter i { display: block; height: 100%; border-radius: 2px; background: linear-gradient(90deg, #2bbf7f, var(--ok)); }
+.meter i.low { background: var(--grad); } .meter i.mid { background: linear-gradient(90deg, #f29b3a, #f7c35c); }
+
+/* ---------- rig (mannequin) ---------- */
+.rig { width: 100%; height: 100%; display: block; overflow: visible; }
+.rig .ground { stroke: none; }
+.rig .m { fill: url(#g-body); stroke: var(--mm-line); stroke-width: .7; stroke-linejoin: round; }
+.rig .m.joint, .rig .m.head { stroke: none; }
+.rig .m.on { fill: url(#g-mus); }
+.rig .m.sec { fill: url(#g-sec); }
+.rig .far .m { fill: url(#g-body-far); }
+.rig .far .m.on { fill: var(--mus-b); opacity: .75; }
+.rig .far .m.sec { fill: var(--sec-b); }
+.rig .neck { stroke: var(--body); stroke-width: 9; stroke-linecap: round; }
+.stage .rig .near .m.on { filter: url(#f-glow); }
+.rig .bench, .rig .bench-leg { fill: url(#g-bench); }
+.rig .bench-pad { stroke: var(--bench); stroke-width: 9; stroke-linecap: round; }
+.rig .plate { fill: url(#g-plate); stroke: var(--plate-ring); stroke-width: 1.5; stroke-opacity: .8; }
+.rig .bar .plate { stroke-width: 2.5; }
+.rig .hub { fill: var(--plate-ring); }
+.rig .far-prop { opacity: .5; }
+.rig .wpath { fill: none; stroke: var(--path); stroke-width: 1.5; stroke-dasharray: 2 5; stroke-linecap: round; }
+.rig .ghost { opacity: .18; }
+.rig .floor { fill: url(#g-floor); }
+
+/* ---------- muscle map ---------- */
+.musclemap { display: block; width: 100%; height: 100%; overflow: visible; }
+.musclemap .mm, .musclemap .mm-base { fill: var(--mm-base); stroke: var(--mm-line); stroke-width: .7; stroke-linejoin: round; }
+.recov-map .musclemap .mm, .recov-map .musclemap .mm-base, .detailmap .musclemap .mm, .detailmap .musclemap .mm-base { fill: url(#g-map); }
+.mapwrap { position: relative; }
+.bubble { position: absolute; transform: translate(-50%, -115%); padding: 4px 9px; border-radius: 999px; background: rgba(20,14,28,.75); border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  color: #fff; font: 600 11.5px/1 Sora, sans-serif; letter-spacing: -.01em; white-space: nowrap; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 6px 16px -6px var(--accent); }
+.media { position: relative; border-radius: 18px; overflow: hidden; flex: none;
+  background: radial-gradient(80% 70% at 50% 35%, color-mix(in srgb, var(--accent) 10%, var(--surface-solid)), var(--surface-solid)); }
+.media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.media .rigbox { position: absolute; inset: 4px; }
+.media .inset { position: absolute; right: 4px; bottom: 4px; width: 32%; height: 44%; border-radius: 10px; padding: 3px;
+  background: rgba(12,10,18,.72); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.stage { position: relative; border-radius: 28px; aspect-ratio: 240 / 228; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow);
+  background: radial-gradient(60% 55% at 50% 45%, color-mix(in srgb, var(--accent) 14%, var(--bg-2)), var(--bg) 85%); }
+.stage::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: 0; height: 30%; pointer-events: none;
+  background: radial-gradient(50% 60% at 50% 100%, rgba(255,255,255,.06), transparent 70%); }
+.stage .phase { position: absolute; left: 14px; top: 14px; z-index: 1; padding: 7px 12px 7px 10px; border-radius: 999px; background: rgba(12,10,18,.6); border: 1px solid var(--line-strong);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--text); font-weight: 600; font-size: 12.5px; display: inline-flex; align-items: center; gap: 8px; }
+.stage .phase::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+.stage .ctrls { position: absolute; right: 12px; top: 12px; z-index: 1; display: flex; gap: 6px; }
+.stage .ctrls button { width: 38px; height: 38px; border-radius: 13px; background: rgba(12,10,18,.6); border: 1px solid var(--line-strong); display: grid; place-items: center; font-size: 12px; font-weight: 600; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.stage .ctrls button.on { background: var(--text); color: var(--bg); }
+.photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 28px; display: block; }
+
+/* ---------- library ---------- */
+.filters { display: flex; gap: 8px; overflow-x: auto; margin: 0 -20px; padding: 0 20px 4px; scrollbar-width: none; }
+.filters::-webkit-scrollbar { display: none; }
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; text-align: left; display: flex; flex-direction: column; box-shadow: var(--shadow); }
+.tile .media { aspect-ratio: 1; border-radius: 0; }
+.tile .meta { padding: 12px 14px 14px; }
+.tile h3 { font-size: 14px; line-height: 1.3; }
+.tile .small { font-size: 12px; margin-top: 2px; }
+
+/* ---------- sheet / overlays ---------- */
+.overlay { position: fixed; inset: 0; z-index: 40; background: var(--bg); overflow-y: auto; display: none;
+  padding: calc(env(safe-area-inset-top) + 14px) 20px calc(env(safe-area-inset-bottom) + 28px); }
+.overlay.open { display: block; animation: rise .4s cubic-bezier(.2,.8,.2,1); }
+@keyframes rise { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.overlay .inner { max-width: 640px; margin: 0 auto; }
+.topbar { display: flex; align-items: center; gap: 12px; min-height: 44px; margin-bottom: 10px; }
+.iconbtn { width: 44px; height: 44px; border-radius: 15px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; flex: none; }
+.cues { counter-reset: cue; list-style: none; }
+.cues li { counter-increment: cue; display: flex; gap: 12px; margin-top: 12px; }
+.cues li::before { content: counter(cue); flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 600 12px/1 Sora, sans-serif; background: var(--surface-2); border: 1px solid var(--line-strong); }
+.callout { padding: 14px 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.callout::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 0 3px 3px 0; background: var(--grad); }
+.callout b { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.callout.warn b { color: var(--danger); }
+.callout.warn::before { background: var(--danger); }
+.swap { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.swap div { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; font-weight: 500; }
+.swap .small { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+
+/* ---------- workout ---------- */
+.progress { height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden; flex: 1; }
+.progress i { display: block; height: 100%; background: var(--grad); transition: width .5s cubic-bezier(.2,.8,.2,1); box-shadow: 0 0 12px var(--accent); }
+.sets { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+.sets th { font-size: 10.5px; color: var(--muted); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; text-align: center; padding: 0 6px; }
+.sets td { padding: 0 4px; }
+.sets td:first-child { width: 40px; text-align: center; color: var(--faint); font: 500 15px Sora, sans-serif; }
+.sets input { width: 100%; height: 54px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); text-align: center; font: 500 20px Sora, sans-serif; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.sets input:focus { outline: none; border-color: color-mix(in srgb, var(--accent) 70%, transparent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.check { width: 54px; height: 54px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; color: var(--faint); }
+.check.on { background: linear-gradient(135deg, #3fe39a, #1fb877); border-color: transparent; color: #03200f; box-shadow: 0 8px 20px -8px rgba(63,227,154,.7); }
+tr.done input { opacity: .55; }
+.hint { font-size: 13px; padding: 12px 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); }
+.hint.up { background: color-mix(in srgb, var(--ok) 10%, transparent); border-color: color-mix(in srgb, var(--ok) 30%, transparent); color: var(--ok); font-weight: 600; }
+.wu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.wu-grid .stage { border-radius: 20px; }
+.footer-nav { position: sticky; bottom: 0; display: flex; gap: 10px; padding: 18px 0 6px; background: linear-gradient(transparent, var(--bg) 35%); }
+.footer-nav .btn { flex: 1; }
+.footer-nav .btn-ghost { flex: .55; }
+details summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+details summary::after { content: '+'; font: 300 22px/1 Sora, sans-serif; color: var(--muted); transition: transform .2s; }
+details[open] summary::after { transform: rotate(45deg); }
+details summary::-webkit-details-marker { display: none; }
+
+/* rest timer */
+.rest { position: fixed; inset: 0; z-index: 60; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+  background: radial-gradient(60% 40% at 50% 45%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%), color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 24px; }
+.rest.open { display: flex; animation: fade .3s ease; }
+.ring { width: 260px; height: 260px; position: relative; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+.ring circle { fill: none; stroke-width: 6; }
+.ring .track { stroke: var(--surface-2); }
+.ring .bar { stroke: url(#g-ring); stroke-linecap: round; transition: stroke-dashoffset .25s linear; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 70%, transparent)); }
+.ring .num { position: absolute; inset: 0; display: grid; place-items: center; font: 300 84px/1 Sora, sans-serif; letter-spacing: -.06em; font-variant-numeric: tabular-nums; }
+
+/* history */
+.hist { display: flex; gap: 14px; align-items: center; padding: 4px 0; }
+.hist .badge { width: 48px; height: 48px; border-radius: 16px; background: var(--grad); color: #fff; display: grid; place-items: center; font: 600 18px Sora, sans-serif; flex: none; box-shadow: 0 8px 20px -10px var(--accent); }
+.lifts td { padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.lifts tr:first-child td { border-top: 0; }
+.lifts td:last-child { text-align: right; font: 500 17px Sora, sans-serif; letter-spacing: -.02em; }
+.lifts { width: 100%; border-collapse: collapse; }
+.empty { text-align: center; padding: 44px 20px; color: var(--muted); }
+
+/* modal */
+.modal { position: fixed; inset: 0; z-index: 80; display: none; align-items: flex-end; justify-content: center; background: rgba(4,3,8,.6); padding: 16px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.modal.open { display: flex; animation: fade .3s ease; }
+.modal .card { max-width: 480px; width: 100%; margin-bottom: env(safe-area-inset-bottom); background: var(--surface-solid); border-color: var(--line-strong); border-radius: 30px; padding: 22px; }
+.modal img { width: 100%; border-radius: 20px; aspect-ratio: 16/9; object-fit: cover; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--body-a)"/><stop offset="1" style="stop-color:var(--body-b)"/></linearGradient>
+    <linearGradient id="g-body-far" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--body-far-a)"/><stop offset="1" style="stop-color:var(--body-far-b)"/></linearGradient>
+    <linearGradient id="g-mus" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--mus-a)"/><stop offset="1" style="stop-color:var(--mus-b)"/></linearGradient>
+    <linearGradient id="g-sec" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--sec-a)"/><stop offset="1" style="stop-color:var(--sec-b)"/></linearGradient>
+    <linearGradient id="g-map" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:color-mix(in srgb, var(--mm-base) 80%, #fff)"/><stop offset="1" style="stop-color:var(--mm-base)"/></linearGradient>
+    <linearGradient id="g-bench" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:color-mix(in srgb, var(--bench) 70%, #fff)"/><stop offset=".25" style="stop-color:var(--bench)"/><stop offset="1" style="stop-color:color-mix(in srgb, var(--bench) 70%, #000)"/></linearGradient>
+    <radialGradient id="g-plate" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#4a4456"/><stop offset=".6" stop-color="#1b1822"/><stop offset="1" stop-color="#0c0b10"/></radialGradient>
+    <radialGradient id="g-floor" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <linearGradient id="g-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3d6b"/><stop offset="1" stop-color="#ff8a5c"/></linearGradient>
+    <filter id="f-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 .2 0 0 0  0 0 .35 0 0  0 0 0 .7 0" result="c"/><feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+</svg>
+
+<!-- ============ TODAY ============ -->
+<section class="screen active" id="s-today">
+  <div class="stack">
+    <div>
+      <div class="today-top">
+        <div><div class="eyebrow" id="todayTag">Today</div><h2 class="display brand">Iron <em>40</em></h2></div>
+        <div class="pill" id="streakPill"></div>
+      </div>
+      <div class="dots" id="week"></div>
+    </div>
+    <div class="hero up-hero" id="nextCard"></div>
+    <details class="card" id="exList"></details>
+    <div id="focus"></div>
+  </div>
+</section>
+
+<!-- ============ LIBRARY ============ -->
+<section class="screen" id="s-library">
+  <div class="stack">
+    <div class="pagehead"><div><div class="eyebrow">Library</div><h1 class="display">Exercises</h1></div><div class="small muted" id="exCount"></div></div>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- ============ RECOVERY ============ -->
+<section class="screen" id="s-recovery">
+  <div class="stack">
+    <div class="pagehead"><div><div class="eyebrow">Readiness</div><h1 class="display">Recovery</h1></div></div>
+    <div id="recovBody"></div>
+  </div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section class="screen" id="s-history">
+  <div class="stack">
+    <div class="pagehead"><div><div class="eyebrow">Training log</div><h1 class="display">Progress</h1></div></div>
+    <div id="histBody"></div>
+  </div>
+</section>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="today" class="on"><svg class="icon" viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg>Workout</button>
+  <button data-tab="recovery"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 7v5l3 2"/></svg>Recovery</button>
+  <button data-tab="library"><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Exercises</button>
+  <button data-tab="history"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>Log</button>
+</nav>
+
+<!-- exercise detail -->
+<div class="overlay" id="detail"><div class="inner" id="detailInner"></div></div>
+<!-- workout -->
+<div class="overlay" id="workout"><div class="inner" id="workoutInner"></div></div>
+
+<!-- rest timer -->
+<div class="rest" id="rest">
+  <div class="eyebrow">Recover · breathe</div>
+  <div class="ring">
+    <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52"/><circle class="bar" id="restBar" cx="60" cy="60" r="52"/></svg>
+    <div class="num" id="restNum">90</div>
+  </div>
+  <div class="muted" id="restNext"></div>
+  <div class="row"><button class="btn btn-ghost" id="restAdd">+15 sec</button><button class="btn btn-primary" id="restSkip">Skip rest</button></div>
+</div>
+
+<!-- modal -->
+<div class="modal" id="modal"><div class="card stack" id="modalBody"></div></div>
+
+<script src="exercises.js"></script>
+<script>
+// =====================================================
+// Storage (wrapped: private mode / blocked storage must not break the app)
+// =====================================================
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+};
+let log = store.get('iron40_log', []);          // [{date, day, mins, ex:[{id, sets:[{w,r,done}]}]}]
+let active = store.get('iron40_active', null);  // in-progress workout
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const TRAIN_DAYS = [1, 3, 5];
+const dayKey = (d) => d.toISOString().slice(0, 10);
+const localKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const imgTag = (id, cls = '') => `<img class="${cls}" src="img/${id}.jpg" alt="" loading="lazy" onerror="this.remove()">`;
+
+const ICON = {
+  check: '<svg class="icon" viewBox="0 0 24 24"><path d="M5 12.5 10 17l9-10"/></svg>',
+  close: '<svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  back: '<svg class="icon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+  play: '<svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M7 5v14l11-7z" fill="currentColor"/></svg>',
+  pause: '<svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M8 5v14M16 5v14" stroke-width="3"/></svg>',
+};
+
+// =====================================================
+// Program logic
+// =====================================================
+// Gym days alternate A/B; calisthenics sessions don't shift the rotation.
+const nextDay = () => { const g = log.findLast((l) => l.day === 'A' || l.day === 'B'); return g && g.day === 'A' ? 'B' : 'A'; };
+let pick = store.get('iron40_pick', null); // workout chosen on the Today screen (null = A/B rotation)
+const upNext = () => (active ? active.day : pick && PROGRAM[pick] ? pick : nextDay());
+
+function lastFor(id) {
+  for (let i = log.length - 1; i >= 0; i--) {
+    const e = log[i].ex.find((x) => x.id === id && x.sets.some((s) => s.done));
+    if (e) return e;
+  }
+  return null;
+}
+// Double progression: once every set hits the top of the range, add weight.
+// Bodyweight moves progress by reps, then by moving to the harder variation.
+function suggest(item) {
+  const last = lastFor(item.id), ex = EX_BY_ID[item.id];
+  const unit = item.timed ? 'sec' : 'reps';
+  if (ex.bw && !last) return { w: '', text: `Aim for ${item.lo}–${item.hi} clean ${unit}. Too hard? ${ex.easier}.` };
+  if (!last) return { w: '', text: `First time: choose a weight you could do for ~3 more ${unit} than the target.` };
+  const done = last.sets.filter((s) => s.done);
+  const w = Math.max(0, ...done.map((s) => +s.w || 0));
+  const hitTop = done.length >= item.sets && done.every((s) => +s.r >= item.hi);
+  if (ex.bw && !w) {
+    if (hitTop) return { w: '', up: true, text: `You hit ${item.hi} ${unit} on every set last time — level up: ${ex.harder}.` };
+    return { w: '', text: `Last time best ${Math.max(...done.map((s) => +s.r || 0))} ${unit}. Stay here until every set reaches ${item.hi}.` };
+  }
+  if (hitTop && w > 0) return { w: w + 5, up: true, text: `You hit ${item.hi} ${unit} on every set last time — go up to ${w + 5} lb (+5).` };
+  return { w: w || '', text: w ? `Last time ${w} lb. Stay here until all sets reach ${item.hi} ${unit}.` : '' };
+}
+
+// =====================================================
+// Tabs
+// =====================================================
+function showTab(name) {
+  document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.id === 's-' + name));
+  document.querySelectorAll('#tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
+  store.set('iron40_tab', name);
+  if (name === 'today') renderToday();
+  if (name === 'library') renderLibrary();
+  if (name === 'history') renderHistory();
+  if (name === 'recovery') renderRecovery();
+  window.scrollTo(0, 0);
+}
+$('#tabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) showTab(b.dataset.tab); });
+
+// photo (if generated) over a still mannequin, with a muscle-map inset
+function mediaHtml(id, cls = '') {
+  return `<div class="media ${cls}" data-media="${id}"><div class="rigbox"></div>${imgTag(id)}<div class="inset">${MuscleMap.forExercise(EX_BY_ID[id])}</div></div>`;
+}
+function mountMedia(root) {
+  root.querySelectorAll('[data-media] .rigbox').forEach((b) => { if (!b.firstChild) IronRig.create(b, EX_BY_ID[b.parentElement.dataset.media], { static: true }); });
+}
+
+// =====================================================
+// TODAY
+// =====================================================
+// muscle-map levels for a workout: every primary muscle it trains
+const progLevels = (key) => Object.fromEntries(PROGRAM[key].items.flatMap((it) => EX_BY_ID[it.id].mus.p).map((m) => [m, 1]));
+const progTitle = (prog) => (prog.cali ? esc(prog.chip) : esc(prog.name).replace(/ (\w)$/, ' <em>$1</em>'));
+
+function renderToday() {
+  const now = new Date();
+  const doneDates = new Set(log.map((l) => l.date));
+  const monday = new Date(now); monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  let weekDone = 0, weekHtml = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const k = localKey(d), done = doneDates.has(k);
+    if (done) weekDone++;
+    const cls = [TRAIN_DAYS.includes(d.getDay()) ? 'train' : '', done ? 'done' : '', k === localKey(now) ? 'today' : ''].join(' ');
+    weekHtml += `<div class="${cls}" aria-label="${DAYS[d.getDay()]} ${d.getDate()}${done ? ', trained' : ''}">${DAYS[d.getDay()][0]}<i></i></div>`;
+  }
+  $('#week').innerHTML = weekHtml;
+
+  // streak = consecutive weeks (ending this or last week) with 3+ workouts
+  const weeks = {};
+  log.forEach((l) => { const d = new Date(l.date + 'T12:00'); const m = new Date(d); m.setDate(d.getDate() - ((d.getDay() + 6) % 7)); const k = localKey(m); weeks[k] = (weeks[k] || 0) + 1; });
+  let streak = 0; const w = new Date(monday);
+  if ((weeks[localKey(w)] || 0) < 3) w.setDate(w.getDate() - 7);
+  while ((weeks[localKey(w)] || 0) >= 3) { streak++; w.setDate(w.getDate() - 7); }
+  $('#streakPill').textContent = streak ? `${streak}-week streak` : log.length ? `${log.length} workout${log.length === 1 ? '' : 's'}` : 'Start your streak';
+
+  const isTrain = TRAIN_DAYS.includes(now.getDay());
+  const trainedToday = doneDates.has(localKey(now));
+  $('#todayTag').textContent = trainedToday ? 'Done for today — nice work' : isTrain ? `${DAYS[now.getDay()]} · training day` : `${DAYS[now.getDay()]} · rest day`;
+
+  // ---- the hero is the workout: what's next, and Start ----
+  const day = upNext(), prog = PROGRAM[day];
+  const first = EX_BY_ID[prog.items[0].id];
+  const shown = prog.items.slice(0, 3);
+  $('#nextCard').innerHTML = `<div>
+    <div class="tag eyebrow">${active ? 'In progress' : trainedToday ? 'Next session' : 'Up next'} · ${Math.min(weekDone + (trainedToday || active ? 0 : 1), 3)} of 3 this week</div>
+    <h1 class="display">${progTitle(prog)}</h1>
+    <div class="meta">${prog.cali ? 'Calisthenics · ' : ''}${esc(prog.focus)} · ${prog.items.length} exercises · ~${prog.mins || 45} min</div>
+    <div class="row2">
+      <div class="avatars">${shown.map((it) => `<div class="mini" data-media="${it.id}"><div class="rigbox"></div>${imgTag(it.id)}</div>`).join('')}${prog.items.length > 3 ? `<div class="more">+${prog.items.length - 3}</div>` : ''}</div>
+      <span class="small">${esc(first.name)} first</span>
+    </div>
+    <button class="btn btn-primary btn-block" id="startBtn">${active ? 'Resume workout' : 'Start workout'}</button>
+    ${!isTrain && !active ? '<div class="note">Plan: Mon · Wed · Fri — rest days help, but you can train anytime.</div>' : ''}
+  </div>`;
+
+  // ---- full exercise list, one tap away ----
+  $('#exList').innerHTML = `<summary>See all ${prog.items.length} exercises</summary>
+    <div style="margin-top:6px">${prog.items.map((it) => `
+      <button class="ex-line" style="width:100%;text-align:left" data-ex="${it.id}">
+        ${mediaHtml(it.id)}
+        <div><h3>${esc(EX_BY_ID[it.id].name)}</h3><div class="small muted">${it.sets} sets · ${it.lo}–${it.hi}${it.timed ? ' sec' : ' reps'}${it.perSide ? ' / side' : ''}</div></div>
+        <svg class="icon chev" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M9 6l6 6-6 6"/></svg>
+      </button>`).join('')}</div>`;
+
+  // ---- switch focus: gym rotation or a calisthenics area ----
+  const cali = Object.keys(PROGRAM).filter((k) => PROGRAM[k].cali);
+  const gym = nextDay();
+  const tile = (key, label, sub, wide) => {
+    const lv = progLevels(key), back = Object.keys(lv).every((m) => BACK_VIEW.has(m));
+    return `<button class="tile2 ${wide ? 'wide' : ''} ${(pick || '') === (key === gym ? '' : key) ? 'on' : ''}" data-pick="${key === gym ? '' : key}" aria-pressed="${(pick || '') === (key === gym ? '' : key)}">
+      <span class="map">${MuscleMap.svg(lv, { views: back ? 'back' : 'front' })}</span><span><b>${label}</b><small>${sub}</small></span></button>`;
+  };
+  $('#focus').innerHTML = active ? '' : `<div class="eyebrow">Switch focus</div>
+    <div class="tiles">${tile(gym, `Gym · ${PROGRAM[gym].name}`, 'Alternates dumbbell & barbell days', true)}
+      ${cali.map((k) => tile(k, esc(PROGRAM[k].chip), `~${PROGRAM[k].mins} min · bodyweight`)).join('')}</div>`;
+
+  mountMedia($('#nextCard')); mountMedia($('#exList'));
+  $('#s-today').onclick = (e) => {
+    if (e.target.closest('#startBtn')) return startWorkout();
+    const p = e.target.closest('[data-pick]');
+    if (p) { pick = p.dataset.pick || null; pick ? store.set('iron40_pick', pick) : store.del('iron40_pick'); renderToday(); return window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    const b = e.target.closest('[data-ex]'); if (b) openDetail(b.dataset.ex);
+  };
+}
+
+// =====================================================
+// LIBRARY
+// =====================================================
+const FILTERS = ['All', ...Object.keys(AREAS), 'Bodyweight', 'Dumbbell', 'Barbell'];
+let filter = store.get('iron40_filter', 'All');
+if (!FILTERS.includes(filter)) filter = 'All';
+function renderLibrary() {
+  $('#filters').innerHTML = FILTERS.map((f) => `<button class="chip ${f === filter ? 'on' : ''}" data-f="${f}">${f}</button>`).join('');
+  const list = EXERCISES.filter((e) => filter === 'All' || e.equip.includes(filter) || AREAS[filter]?.some((m) => e.mus.p.includes(m)));
+  $('#exCount').textContent = `${list.length} movements`;
+  $('#grid').innerHTML = list.map((e) => `
+    <button class="tile" data-ex="${e.id}">
+      ${mediaHtml(e.id)}
+      <div class="meta"><h3>${esc(e.name)}</h3><div class="small muted">${esc(e.mus.p.map((m) => MUSCLES[m]).join(' · '))}</div></div>
+    </button>`).join('');
+  mountMedia($('#grid'));
+}
+$('#filters').addEventListener('click', (e) => { const b = e.target.closest('[data-f]'); if (!b) return; filter = b.dataset.f; store.set('iron40_filter', filter); renderLibrary(); });
+$('#grid').addEventListener('click', (e) => { const b = e.target.closest('[data-ex]'); if (b) openDetail(b.dataset.ex); });
+
+// animated stage with phase label + play/pause + slow-mo
+function mountStage(container, ex, small) {
+  container.innerHTML = `<div class="stage">${small ? '' : `<div class="phase">…</div>
+    <div class="ctrls"><button data-c="pp" aria-label="Pause">${ICON.pause}</button><button data-c="slow" aria-label="Slow motion">½×</button></div>`}</div>`;
+  const stage = container.firstElementChild, phase = $('.phase', stage);
+  const anim = IronRig.create(stage, ex, { fit: !small, onPhase: (l, d) => { if (phase) phase.textContent = d ? `${l} · ${d} sec` : l; } });
+  stage.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-c]'); if (!b) return;
+    if (b.dataset.c === 'pp') { anim.isPlaying() ? anim.pause() : anim.play(); b.innerHTML = anim.isPlaying() ? ICON.pause : ICON.play; }
+    if (b.dataset.c === 'slow') { b.classList.toggle('on'); anim.setSpeed(b.classList.contains('on') ? 0.5 : 1); }
+  });
+  return anim;
+}
+
+function exInfo(ex) {
+  const last = lastFor(ex.id);
+  const best = log.flatMap((l) => l.ex.filter((x) => x.id === ex.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => +s.w || 0)));
+  const bestReps = Math.max(0, ...log.flatMap((l) => l.ex.filter((x) => x.id === ex.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => +s.r || 0))));
+  const bestTxt = ex.bw && !Math.max(...best) ? `Best ${bestReps} ${ex.timed ? 'sec' : 'reps'}` : `Best ${Math.max(...best)} lb`;
+  return `
+    <div class="small muted">${esc(ex.equip.join(' · '))}</div>
+    <div><b>Works:</b> ${esc(ex.muscles)}</div>
+    ${last ? `<div class="hint">Last: ${esc(last.sets.filter((s) => s.done).map((s) => `${s.w || 0}×${s.r}`).join(', '))} · ${bestTxt}</div>` : ''}
+    <div><h3>How to do it</h3><ol class="cues">${ex.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ol></div>
+    <div class="callout"><b>40+ tip</b>${esc(ex.tip40)}</div>
+    <div class="callout warn"><b>Avoid</b>${esc(ex.mistake)}</div>
+    <div class="swap"><div><div class="small muted">Easier</div>${esc(ex.easier)}</div><div><div class="small muted">Harder</div>${esc(ex.harder)}</div></div>`;
+}
+
+function openDetail(id) {
+  const ex = EX_BY_ID[id];
+  $('#detailInner').innerHTML = `
+    <div class="topbar"><button class="iconbtn" id="detailClose" aria-label="Close">${ICON.back}</button><div class="spacer"></div></div>
+    <div class="stack">
+      <h2 class="display" style="font-size:32px">${esc(ex.name)}</h2>
+      <div id="detailStage"></div>
+      ${imgTag(ex.id, 'photo')}
+      <div class="card"><div class="row" style="align-items:center;gap:16px">
+        <div class="detailmap" style="width:150px;flex:none">${MuscleMap.svg(Object.fromEntries([...ex.mus.s.map((m) => [m, .35]), ...ex.mus.p.map((m) => [m, 1])]))}</div>
+        <div class="small"><div class="muted">Primary</div><b>${ex.mus.p.map((m) => MUSCLES[m]).join(', ')}</b>
+          ${ex.mus.s.length ? `<div class="muted" style="margin-top:8px">Also works</div><b>${ex.mus.s.map((m) => MUSCLES[m]).join(', ')}</b>` : ''}</div>
+      </div></div>
+      ${exInfo(ex)}
+    </div>`;
+  mountStage($('#detailStage'), ex);
+  $('#detail').classList.add('open'); $('#detail').scrollTop = 0;
+  $('#detailClose').onclick = () => { $('#detail').classList.remove('open'); $('#detailInner').innerHTML = ''; };
+}
+
+// =====================================================
+// WORKOUT
+// =====================================================
+let wakeLock = null;
+async function keepAwake(on) {
+  try {
+    if (on && 'wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+    else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+  } catch {}
+}
+
+function startWorkout() {
+  if (!active) {
+    const day = upNext();
+    active = {
+      day, start: Date.now(), step: 0,
+      ex: PROGRAM[day].items.map((it) => {
+        const s = suggest(it);
+        return { id: it.id, sets: Array.from({ length: it.sets }, () => ({ w: s.w, r: it.hi, done: false })) };
+      }),
+    };
+    saveActive();
+  }
+  $('#workout').classList.add('open');
+  keepAwake(true);
+  renderStep();
+}
+const saveActive = () => store.set('iron40_active', active);
+
+function renderStep() {
+  const prog = PROGRAM[active.day], total = prog.items.length + 1, step = active.step;
+  const head = `
+    <div class="topbar">
+      <button class="iconbtn" id="wClose" aria-label="Close">${ICON.close}</button>
+      <div class="progress"><i style="width:${Math.min(1, step / (total - 1)) * 100}%"></i></div>
+      <div class="small muted" style="min-width:42px;text-align:right">${Math.min(step, total - 1)}/${total - 1}</div>
+    </div>`;
+
+  if (step === 0) {
+    $('#workoutInner').innerHTML = head + `
+      <div class="stack">
+        <div><div class="small muted">${prog.name}</div><h2 class="display" style="font-size:32px">Warm-up · 5 min</h2></div>
+        <div class="muted">Older joints need a proper warm-up. Do each move, then 1 light set of your first exercise.</div>
+        <div class="wu-grid">${WARMUPS.map((w) => `<div><div data-wu="${w.id}"></div><div class="small" style="margin-top:6px;font-weight:600">${w.name}</div><div class="small muted">${w.note}</div></div>`).join('')}</div>
+        <div class="footer-nav"><button class="btn btn-primary" id="wNext">Start lifting</button></div>
+      </div>`;
+    document.querySelectorAll('[data-wu]').forEach((d) => mountStage(d, EX_BY_ID[d.dataset.wu], true));
+  } else if (step <= prog.items.length) {
+    const it = prog.items[step - 1], ex = EX_BY_ID[it.id], rec = active.ex[step - 1], s = suggest(it);
+    const unit = it.timed ? 'sec' : 'reps';
+    $('#workoutInner').innerHTML = head + `
+      <div class="stack">
+        <div><div class="small muted">Exercise ${step} of ${prog.items.length}</div>
+          <h2 class="display" style="font-size:30px">${esc(ex.name)}</h2>
+          <div class="small muted">${it.sets} sets × ${it.lo}–${it.hi} ${unit}${it.perSide ? ' each side' : ''} · rest ${it.rest}s · effort: 2–3 ${unit} left in the tank</div></div>
+        <div class="media" style="aspect-ratio:16/10;display:none" id="wPhoto"><img src="img/${ex.id}.jpg" alt="${esc(ex.name)} demonstration photo" onload="this.parentElement.style.display=''" onerror="this.parentElement.remove()"><div class="inset" style="width:24%;height:52%">${MuscleMap.forExercise(ex)}</div></div>
+        <div id="wStage"></div>
+        ${s.text ? `<div class="hint ${s.up ? 'up' : ''}">${s.up ? '↑ ' : ''}${esc(s.text)}</div>` : ''}
+        <table class="sets"><thead><tr><th>Set</th><th>${ex.bw ? '+lb' : 'lb'}</th><th>${unit}</th><th></th></tr></thead><tbody>
+          ${rec.sets.map((st, i) => `<tr class="${st.done ? 'done' : ''}" data-i="${i}">
+            <td>${i + 1}</td>
+            <td><input inputmode="decimal" data-k="w" value="${esc(st.w)}" placeholder="${ex.bw ? 'BW' : '0'}" aria-label="Set ${i + 1} ${ex.bw ? 'added ' : ''}weight"></td>
+            <td><input inputmode="numeric" data-k="r" value="${esc(st.r)}" aria-label="Set ${i + 1} ${unit}"></td>
+            <td><button class="check ${st.done ? 'on' : ''}" data-done aria-label="Complete set ${i + 1}">${ICON.check}</button></td></tr>`).join('')}
+        </tbody></table>
+        <details class="card"><summary>Form tips</summary><div class="stack" style="margin-top:12px">${exInfo(ex)}</div></details>
+        <div class="footer-nav">
+          <button class="btn btn-ghost" id="wPrev">Back</button>
+          <button class="btn btn-primary" id="wNext">${step === prog.items.length ? 'Finish' : 'Next exercise'}</button>
+        </div>
+      </div>`;
+    mountStage($('#wStage'), ex);
+    const tbody = $('.sets tbody');
+    tbody.addEventListener('input', (e) => {
+      const tr = e.target.closest('tr'), i = +tr.dataset.i;
+      rec.sets[i][e.target.dataset.k] = e.target.value;
+      // carry weight forward to later unfinished sets
+      if (e.target.dataset.k === 'w') rec.sets.forEach((st, j) => { if (j > i && !st.done) { st.w = e.target.value; tbody.rows[j].querySelector('[data-k=w]').value = e.target.value; } });
+      saveActive();
+    });
+    tbody.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-done]'); if (!b) return;
+      const tr = b.closest('tr'), i = +tr.dataset.i, st = rec.sets[i];
+      st.done = !st.done; b.classList.toggle('on', st.done); tr.classList.toggle('done', st.done);
+      saveActive();
+      if (st.done) {
+        const more = rec.sets.some((x) => !x.done);
+        const nextName = more ? `Next: set ${rec.sets.findIndex((x) => !x.done) + 1}` : step < prog.items.length ? `Next: ${EX_BY_ID[prog.items[step].id].name}` : 'Last set done!';
+        startRest(it.rest, nextName);
+      }
+    });
+    $('#wPrev').onclick = () => { active.step--; saveActive(); renderStep(); };
+  } else {
+    renderSummary(head);
+    return;
+  }
+  $('#wNext').onclick = () => { active.step++; saveActive(); renderStep(); $('#workout').scrollTop = 0; };
+  $('#wClose').onclick = () => openModal(`
+    <h3>Leave workout?</h3><div class="muted">Your progress is saved — you can resume from the Today tab.</div>
+    <button class="btn btn-ghost btn-block" data-m="keep">Keep going</button>
+    <button class="btn btn-ghost btn-block" data-m="pause">Pause &amp; exit</button>
+    <button class="btn btn-block" style="color:var(--danger)" data-m="discard">Discard workout</button>`,
+    (a) => {
+      if (a === 'pause' || a === 'discard') {
+        if (a === 'discard') { active = null; store.del('iron40_active'); }
+        closeWorkout();
+      }
+    });
+}
+
+function renderSummary(head) {
+  const prog = PROGRAM[active.day];
+  const sets = active.ex.flatMap((e) => e.sets.filter((s) => s.done));
+  const volume = active.ex.reduce((sum, e, i) => sum + (prog.items[i].timed ? 0 : e.sets.filter((s) => s.done).reduce((a, s) => a + (+s.w || 0) * (+s.r || 0), 0)), 0);
+  const reps = active.ex.reduce((sum, e, i) => sum + (prog.items[i].timed ? 0 : e.sets.filter((s) => s.done).reduce((a, s) => a + (+s.r || 0), 0)), 0);
+  const mins = Math.max(1, Math.round((Date.now() - active.start) / 60000));
+  $('#workoutInner').innerHTML = head + `
+    <div class="stack" style="text-align:center;padding-top:24px">
+      <div style="width:84px;height:84px;margin:0 auto;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 18px 40px -12px var(--accent)"><svg class="icon" viewBox="0 0 24 24" style="width:40px;height:40px;color:#fff;stroke-width:2.2"><path d="M5 12.5 10 17l9-10"/></svg></div>
+      <h2 class="display" style="font-size:38px">${prog.name} complete</h2>
+      <div class="stats" style="text-align:left">
+        <div class="stat"><b>${sets.length}</b><span>Sets</span></div>
+        ${volume ? `<div class="stat"><b>${volume.toLocaleString()}</b><span>lb lifted</span></div>` : `<div class="stat"><b>${reps}</b><span>Reps</span></div>`}
+        <div class="stat"><b>${mins}</b><span>Minutes</span></div>
+      </div>
+      ${sets.length ? '' : '<div class="callout warn" style="text-align:left">No sets were checked off. Tap ✓ after each set to log it.</div>'}
+      <div class="footer-nav"><button class="btn btn-ghost" id="wPrev">Back</button><button class="btn btn-primary" id="wSave">Save workout</button></div>
+    </div>`;
+  $('#wPrev').onclick = () => { active.step--; saveActive(); renderStep(); };
+  $('#wClose').onclick = () => closeWorkout();
+  $('#wSave').onclick = () => {
+    log.push({ date: localKey(new Date()), ts: Date.now(), day: active.day, mins, ex: active.ex.map((e) => ({ id: e.id, sets: e.sets.map((s) => ({ w: +s.w || 0, r: +s.r || 0, done: s.done })) })) });
+    store.set('iron40_log', log);
+    active = null; store.del('iron40_active');
+    pick = null; store.del('iron40_pick');
+    closeWorkout(); showTab('history');
+  };
+}
+
+function closeWorkout() {
+  $('#workout').classList.remove('open'); $('#workoutInner').innerHTML = '';
+  keepAwake(false); stopRest(); renderToday();
+}
+
+// ---------- rest timer ----------
+let restEnd = 0, restTotal = 0, restInt = 0;
+const CIRC = 2 * Math.PI * 52;
+$('#restBar').style.strokeDasharray = CIRC;
+function startRest(sec, nextLabel) {
+  restTotal = sec; restEnd = Date.now() + sec * 1000;
+  $('#restNext').textContent = nextLabel;
+  $('#rest').classList.add('open');
+  clearInterval(restInt); tickRest(); restInt = setInterval(tickRest, 250);
+}
+function tickRest() {
+  const left = Math.max(0, Math.ceil((restEnd - Date.now()) / 1000));
+  $('#restNum').textContent = left;
+  $('#restBar').style.strokeDashoffset = CIRC * (1 - left / restTotal);
+  if (left <= 0) { beep(); navigator.vibrate?.([200, 100, 200]); stopRest(); }
+}
+function stopRest() { clearInterval(restInt); $('#rest').classList.remove('open'); }
+$('#restSkip').onclick = stopRest;
+$('#restAdd').onclick = () => { restEnd += 15000; restTotal += 15; tickRest(); };
+let audio;
+function beep() {
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.25].forEach((t) => {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(audio.destination);
+      g.gain.setValueAtTime(0.25, audio.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + t + 0.2);
+      o.start(audio.currentTime + t); o.stop(audio.currentTime + t + 0.22);
+    });
+  } catch {}
+}
+
+// =====================================================
+// RECOVERY — primary muscles need ~72h, secondary ~48h
+// =====================================================
+function recoveryState() {
+  const now = Date.now(), state = {};
+  log.forEach((l) => {
+    const t = l.ts || new Date(l.date + 'T18:00').getTime();
+    l.ex.forEach((e) => {
+      if (!e.sets.some((s) => s.done)) return;
+      const ex = EX_BY_ID[e.id];
+      const mark = (m, need) => { const cur = state[m]; const left = t + need * 3.6e6; if (!cur || left > cur.t + cur.need * 3.6e6) state[m] = { t, need }; };
+      ex.mus.s.forEach((m) => mark(m, 48));
+      ex.mus.p.forEach((m) => mark(m, 72));
+    });
+  });
+  const out = {};
+  Object.keys(MUSCLES).forEach((m) => {
+    const st = state[m];
+    out[m] = st ? Math.min(100, Math.round(((now - st.t) / 3.6e6 / st.need) * 100)) : 100;
+  });
+  return out;
+}
+
+function renderRecovery() {
+  const fresh = recoveryState();
+  const lastTs = log.length ? log[log.length - 1].ts || new Date(log[log.length - 1].date + 'T18:00').getTime() : null;
+  const days = lastTs == null ? '–' : Math.floor((Date.now() - lastTs) / 864e5);
+  const freshCount = Object.values(fresh).filter((v) => v >= 100).length;
+  const levels = Object.fromEntries(Object.entries(fresh).filter(([, v]) => v < 100).map(([m, v]) => [m, 1 - v / 100]));
+  // label only the four least-recovered muscles so bubbles never pile up
+  const bubbles = Object.entries(fresh).filter(([, v]) => v < 100).sort((a, b) => a[1] - b[1]).slice(0, 4).map(([m, v]) => {
+    const [x, y, side] = MuscleMap.ANCHOR[m], ox = side === 'b' ? 110 : 0;
+    return `<div class="bubble" style="left:${((x + ox) / 210) * 100}%;top:${(y / 222) * 100}%">${v}%</div>`;
+  }).join('');
+  const order = Object.keys(MUSCLES).sort((a, b) => fresh[a] - fresh[b]);
+  $('#recovBody').innerHTML = `
+    <div class="card stack">
+      <div class="recov-head">
+        <div><b>${days}</b><span>${days === 1 ? 'Day' : 'Days'} since your<br>last workout</span></div><i></i>
+        <div><b>${freshCount}</b><span>Fresh muscle<br>groups</span></div>
+      </div>
+      <div class="mapwrap recov-map">${MuscleMap.svg(levels)}${bubbles}</div>
+      <div class="row small muted" style="justify-content:center;gap:18px"><span>Front</span><span style="width:40%"></span><span>Back</span></div>
+    </div>
+    <div class="card">
+      <h3>Muscle readiness</h3>
+      <div class="small muted" style="margin-bottom:10px">${log.length ? 'Red = still recovering. Train fresh muscles hardest.' : 'Finish a workout to start tracking recovery.'}</div>
+      <div class="recov-list">${order.map((m) => `<div class="small"><div class="row"><span>${MUSCLES[m]}</span><span class="spacer"></span><b>${fresh[m]}%</b></div>
+        <div class="meter"><i class="${fresh[m] < 50 ? 'low' : fresh[m] < 100 ? 'mid' : ''}" style="width:${fresh[m]}%"></i></div></div>`).join('')}</div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="showTab('today')">Next: ${PROGRAM[upNext()].name}</button>`;
+}
+
+// =====================================================
+// HISTORY
+// =====================================================
+function renderHistory() {
+  if (!log.length) {
+    $('#histBody').innerHTML = `<div class="card empty"><svg class="icon" viewBox="0 0 24 24" style="width:44px;height:44px;color:var(--accent)"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg><h3 style="margin-top:8px">No workouts yet</h3><div>Finish your first workout and your lifts show up here.</div>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="showTab('today')">Go to Today</button></div>`;
+    return;
+  }
+  const lifts = EXERCISES.map((e) => {
+    const last = lastFor(e.id); if (!last) return null;
+    const best = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.w))));
+    const lw = Math.max(...last.sets.filter((s) => s.done).map((s) => s.w));
+    if (e.bw && !best) {
+      const u = e.timed ? 'sec' : 'reps', lr = Math.max(...last.sets.filter((s) => s.done).map((s) => s.r));
+      const br = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.r))));
+      return `<tr><td>${esc(e.name)}<div class="small muted">Best ${br} ${u}</div></td><td>${lr} ${u}</td></tr>`;
+    }
+    return `<tr><td>${esc(e.name)}<div class="small muted">Best ${best} lb</div></td><td>${lw} lb</td></tr>`;
+  }).filter(Boolean).join('');
+  $('#histBody').innerHTML = `
+    <div class="card"><h3>Your lifts</h3><div class="small muted">Latest working set</div><table class="lifts" style="margin-top:8px">${lifts}</table></div>
+    <div class="card stack"><h3>Workouts</h3>
+      ${log.slice().reverse().map((l) => {
+        const sets = l.ex.reduce((a, e) => a + e.sets.filter((s) => s.done).length, 0);
+        const vol = l.ex.reduce((a, e) => a + (EX_BY_ID[e.id].timed ? 0 : e.sets.filter((s) => s.done).reduce((b, s) => b + s.w * s.r, 0)), 0);
+        const d = new Date(l.date + 'T12:00');
+        return `<div class="hist"><div class="badge" style="${(PROGRAM[l.day]?.badge || l.day).length > 1 ? 'font-size:15px' : ''}">${esc(PROGRAM[l.day]?.badge || l.day)}</div><div><b>${d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</b>
+          <div class="small muted">${sets} sets · ${vol ? vol.toLocaleString() + ' lb' : l.ex.reduce((a, e) => a + (EX_BY_ID[e.id].timed ? 0 : e.sets.filter((s) => s.done).reduce((b, s) => b + s.r, 0)), 0) + ' reps'} · ${l.mins || '—'} min</div></div></div>`;
+      }).join('')}
+    </div>`;
+}
+
+// =====================================================
+// Modal + first-launch disclaimer
+// =====================================================
+function openModal(html, onAction) {
+  $('#modalBody').innerHTML = html; $('#modal').classList.add('open');
+  $('#modal').onclick = (e) => {
+    const b = e.target.closest('[data-m]');
+    if (!b && e.target !== $('#modal')) return;
+    $('#modal').classList.remove('open'); onAction?.(b ? b.dataset.m : null);
+  };
+}
+if (!store.get('iron40_ack', false)) {
+  openModal(`
+    <img src="img/onboard.jpg" alt="" onerror="this.remove()">
+    <h2 class="display">Welcome to Iron 40</h2>
+    <div>A 3-day full-body free-weight plan built for lifters over 40, plus bodyweight workouts for legs, chest, back, shoulders, arms and core: joint-friendly moves, animated form demos, and automatic progression.</div>
+    <div class="callout warn small">Check with your doctor before starting a new exercise program, especially with heart, blood pressure, or joint issues. Stop any exercise that causes sharp pain.</div>
+    <button class="btn btn-primary btn-block" data-m="ok">I understand — let's lift</button>`,
+    () => store.set('iron40_ack', true));
+}
+
+showTab(store.get('iron40_tab', 'today'));
+if (active) renderToday();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
