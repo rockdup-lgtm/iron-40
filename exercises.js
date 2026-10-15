@@ -600,7 +600,6 @@ const AREAS = {
 const IronRig = (() => {
   const NS = 'http://www.w3.org/2000/svg';
   const L = { thigh: 42, shin: 42, torso: 54, upper: 32, fore: 32, neck: 7, head: 10 };
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   const el = (tag, attrs, parent) => {
     const e = document.createElementNS(NS, tag);
@@ -829,8 +828,9 @@ const IronRig = (() => {
       anchorPath.setAttribute('d', 'M' + pts.map((p) => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L'));
     }
 
-    const isStatic = opts.static || reduceMotion.matches;
-    if (isStatic) {
+    // Thumbnails are static; the demo stages always animate. They are content the
+    // user opened on purpose, so they play even with Reduce Motion (iPhone setting) on.
+    if (opts.static) {
       // Ghost of the end position behind the start position
       const ghostIdx = Math.floor(ex.frames.length / 2);
       const gg = el('g', { class: 'ghost' }, svg);
@@ -849,6 +849,7 @@ const IronRig = (() => {
       const { pose, phase, index } = poseAt(ex, time);
       drawFigure(fig, ex, pose);
       if (index !== lastPhase) { lastPhase = index; opts.onPhase?.(phase.label, phase.dur); }
+      opts.onTime?.(((time % cyc) + cyc) % cyc, cyc);
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
@@ -857,6 +858,8 @@ const IronRig = (() => {
       pause() { playing = false; },
       setSpeed(s) { speed = s; },
       isPlaying: () => playing,
+      seek(t) { time = t; },   // jump to any point in the rep (seconds into one cycle)
+      cycle: cyc,
       destroy() { cancelAnimationFrame(raf); svg.remove(); },
     };
   }
@@ -944,3 +947,45 @@ const MuscleMap = (() => {
   }
   return { svg, forExercise, ANCHOR };
 })();
+
+// ---------------------------------------------------------------------------
+// Coaching tips for the 30s profile (the 40+ profile uses each exercise's tip40)
+// ---------------------------------------------------------------------------
+const TIP30 = {
+  'db-bench': 'Build the habit of a full, controlled range now — it keeps your shoulders healthy for decades.',
+  'incline-db': 'Upper chest is the most common weak spot. Prioritise it early and your pressing stays balanced.',
+  'bb-ohp': 'Strict overhead pressing builds shoulders that can handle load later. Skip the leg drive until you own it.',
+  'db-shoulder': 'Neutral grip now means healthy rotator cuffs later. Treat it as a habit, not just a fix.',
+  'db-row': 'Aim to row as much as you press. Desk-job shoulders need the extra pulling.',
+  'bb-row': 'Use a weight you can row with a still torso. Heaving teaches your back bad habits.',
+  'cs-row': 'Great for chasing heavy back volume without tiring out your lower back.',
+  'db-pullover': 'A shoulder-mobility bonus disguised as a lat exercise. Keep it in your rotation.',
+  'goblet-squat': 'Groove a perfect squat pattern here before chasing heavy barbell numbers.',
+  'back-squat': 'This is your decade to build a big base of leg strength. Add weight slowly and steadily.',
+  'db-rdl': 'Your 30s are the best time to bulletproof your back. Strong hamstrings are part of that.',
+  'bb-rdl': 'Film a set once in a while — rounding creeps in as the weights climb.',
+  'split-squat': 'Single-leg work catches left/right imbalances early, before they turn into injuries.',
+  'hip-thrust': 'Strong glutes protect your knees and back. Load this one up progressively.',
+  'db-curl': 'Slow lowering builds stronger tendons, not just bigger arms.',
+  'skull-crusher': 'Keep the reps smooth. Healthy elbows are easier to keep than to fix.',
+  'farmer-carry': 'Grip strength you build now pays off for decades. Carry heavy, walk tall.',
+  'push-up': 'Master 20 strict push-ups and you have a strength baseline for life.',
+  'incline-pushup': 'A great high-rep finisher on days your chest needs volume without strain.',
+  'decline-pushup': 'Raise your feet a little more every few weeks — that’s progressive overload with no gym.',
+  'diamond-pushup': 'Great triceps builder that needs no equipment. Keep your elbows tucked.',
+  'pike-pushup': 'This is the first step toward handstand push-ups. Build it patiently.',
+  'pull-up': 'If you only master one bodyweight lift this decade, make it the strict pull-up.',
+  'chin-up': 'Great for arm and back size together. Chase clean reps, not kipping reps.',
+  'inverted-row': 'Lower the bar over time to keep progressing toward pull-ups.',
+  'superman': 'Cheap insurance for a lower back that spends all day sitting.',
+  'y-raise': 'Balances all the pressing. Healthy shoulders start with strong rear delts.',
+  'shoulder-tap': 'Builds the anti-rotation core strength that heavy lifts rely on.',
+  'bench-dip': 'Stop at 90° even when it feels easy — that keeps the front of your shoulder happy.',
+  'bw-squat': 'Use high reps here as conditioning, and practise a deep, controlled bottom position.',
+  'reverse-lunge': 'Add a knee drive at the top to train balance and power together.',
+  'glute-bridge': 'Do a few sets on rest days to undo the effects of long hours sitting.',
+  'wall-sit': 'A great finisher. Add time each week instead of adding weight.',
+  'plank': 'Once 60 seconds is easy, make it harder — don’t just hold longer.',
+  'dead-bug': 'Teaches the core bracing you’ll use in every heavy squat and deadlift.',
+  'knee-raise': 'Progress to straight-leg raises — a sign of real core strength.',
+};

@@ -202,6 +202,11 @@ h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
 .stage .ctrls { position: absolute; right: 12px; top: 12px; z-index: 1; display: flex; gap: 6px; }
 .stage .ctrls button { width: 38px; height: 38px; border-radius: 13px; background: rgba(12,10,18,.6); border: 1px solid var(--line-strong); display: grid; place-items: center; font-size: 12px; font-weight: 600; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .stage .ctrls button.on { background: var(--text); color: var(--bg); }
+.scrub { margin-top: 12px; padding: 0 2px; }
+.scrub input { width: 100%; height: 28px; margin: 0; accent-color: var(--accent); cursor: grab; touch-action: none; }
+.scrub-labels { display: flex; gap: 4px; margin-top: 2px; }
+.scrub-labels span { font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--muted); padding-top: 6px; border-top: 2px solid var(--line-strong); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scrub-hint { text-align: center; margin-top: 6px; font-size: 12px; }
 .photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 28px; display: block; }
 
 /* ---------- library ---------- */
@@ -283,6 +288,10 @@ details summary::-webkit-details-marker { display: none; }
 .modal { position: fixed; inset: 0; z-index: 80; display: none; align-items: flex-end; justify-content: center; background: rgba(4,3,8,.6); padding: 16px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .modal.open { display: flex; animation: fade .3s ease; }
 .modal .card { max-width: 480px; width: 100%; margin-bottom: env(safe-area-inset-bottom); background: var(--surface-solid); border-color: var(--line-strong); border-radius: 30px; padding: 22px; }
+.modal .seg { display: flex; gap: 8px; }
+.modal .seg .chip { flex: 1; justify-content: center; padding: 12px 14px; font-size: 15px; }
+#profileBtn { width: 38px; height: 38px; border-radius: 13px; }
+#profileBtn .icon { width: 18px; height: 18px; }
 .modal img { width: 100%; border-radius: 20px; aspect-ratio: 16/9; object-fit: cover; }
 </style>
 </head>
@@ -308,7 +317,8 @@ details summary::-webkit-details-marker { display: none; }
     <div>
       <div class="today-top">
         <div><div class="eyebrow" id="todayTag">Today</div><h2 class="display brand">Iron <em>40</em></h2></div>
-        <div class="pill" id="streakPill"></div>
+        <div class="row" style="gap:8px"><div class="pill" id="streakPill"></div>
+          <button class="iconbtn" id="profileBtn" aria-label="Your profile"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></button></div>
       </div>
       <div class="dots" id="week"></div>
     </div>
@@ -381,6 +391,9 @@ const store = {
 };
 let log = store.get('iron40_log', []);          // [{date, day, mins, ex:[{id, sets:[{w,r,done}]}]}]
 let active = store.get('iron40_active', null);  // in-progress workout
+let profile = store.get('iron40_profile', null); // {sex: 'm'|'f', age: '30'|'40'} — tailors photos, tips, recovery
+const P = () => profile || { sex: 'm', age: '40' };
+const photo = (id) => `img/${P().sex === 'f' ? 'f/' : ''}${id}.jpg`;
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -388,7 +401,7 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const TRAIN_DAYS = [1, 3, 5];
 const dayKey = (d) => d.toISOString().slice(0, 10);
 const localKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const imgTag = (id, cls = '') => `<img class="${cls}" src="img/${id}.jpg" alt="" loading="lazy" onerror="this.remove()">`;
+const imgTag = (id, cls = '') => `<img class="${cls}" src="${photo(id)}" alt="" loading="lazy" onerror="this.remove()">`;
 
 const ICON = {
   check: '<svg class="icon" viewBox="0 0 24 24"><path d="M5 12.5 10 17l9-10"/></svg>',
@@ -554,16 +567,34 @@ $('#filters').addEventListener('click', (e) => { const b = e.target.closest('[da
 $('#grid').addEventListener('click', (e) => { const b = e.target.closest('[data-ex]'); if (b) openDetail(b.dataset.ex); });
 
 // animated stage with phase label + play/pause + slow-mo
+// animated stage with phase label, play/pause, slow-mo and a range-of-motion scrubber
 function mountStage(container, ex, small) {
   container.innerHTML = `<div class="stage">${small ? '' : `<div class="phase">…</div>
-    <div class="ctrls"><button data-c="pp" aria-label="Pause">${ICON.pause}</button><button data-c="slow" aria-label="Slow motion">½×</button></div>`}</div>`;
-  const stage = container.firstElementChild, phase = $('.phase', stage);
-  const anim = IronRig.create(stage, ex, { fit: !small, onPhase: (l, d) => { if (phase) phase.textContent = d ? `${l} · ${d} sec` : l; } });
+    <div class="ctrls"><button data-c="pp" aria-label="Pause">${ICON.pause}</button><button data-c="slow" aria-label="Slow motion">½×</button></div>`}</div>
+    ${small ? '' : `<div class="scrub">
+      <input type="range" min="0" max="1000" value="0" aria-label="Drag through the full range of motion">
+      <div class="scrub-labels">${ex.tempo.map((p) => `<span style="flex:${p.dur}">${esc(p.label)}</span>`).join('')}</div>
+      <div class="small muted scrub-hint">Drag to move through the full range of motion</div>
+    </div>`}`;
+  const stage = container.firstElementChild, phase = $('.phase', stage), pp = $('[data-c=pp]', stage), range = $('.scrub input', container);
+  let dragging = false;
+  const anim = IronRig.create(stage, ex, {
+    fit: !small,
+    onPhase: (l, d) => { if (phase) phase.textContent = d ? `${l} · ${d} sec` : l; },
+    onTime: (t, cyc) => { if (range && !dragging) range.value = Math.round((t / cyc) * 1000); },
+  });
+  const setPlaying = (on) => { on ? anim.play() : anim.pause(); if (pp) pp.innerHTML = on ? ICON.pause : ICON.play; };
   stage.addEventListener('click', (e) => {
     const b = e.target.closest('[data-c]'); if (!b) return;
-    if (b.dataset.c === 'pp') { anim.isPlaying() ? anim.pause() : anim.play(); b.innerHTML = anim.isPlaying() ? ICON.pause : ICON.play; }
+    if (b.dataset.c === 'pp') setPlaying(!anim.isPlaying());
     if (b.dataset.c === 'slow') { b.classList.toggle('on'); anim.setSpeed(b.classList.contains('on') ? 0.5 : 1); }
   });
+  if (range) {
+    // scrubbing pauses the demo; Play resumes from wherever you let go
+    range.addEventListener('pointerdown', () => { dragging = true; setPlaying(false); });
+    range.addEventListener('input', () => { setPlaying(false); anim.seek((range.value / 1000) * anim.cycle); });
+    ['pointerup', 'pointercancel', 'change'].forEach((ev) => range.addEventListener(ev, () => { dragging = false; }));
+  }
   return anim;
 }
 
@@ -577,7 +608,7 @@ function exInfo(ex) {
     <div><b>Works:</b> ${esc(ex.muscles)}</div>
     ${last ? `<div class="hint">Last: ${esc(last.sets.filter((s) => s.done).map((s) => `${s.w || 0}×${s.r}`).join(', '))} · ${bestTxt}</div>` : ''}
     <div><h3>How to do it</h3><ol class="cues">${ex.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ol></div>
-    <div class="callout"><b>40+ tip</b>${esc(ex.tip40)}</div>
+    <div class="callout"><b>${P().age === '30' ? '30s tip' : '40+ tip'}</b>${esc(P().age === '30' ? TIP30[ex.id] : ex.tip40)}</div>
     <div class="callout warn"><b>Avoid</b>${esc(ex.mistake)}</div>
     <div class="swap"><div><div class="small muted">Easier</div>${esc(ex.easier)}</div><div><div class="small muted">Harder</div>${esc(ex.harder)}</div></div>`;
 }
@@ -644,7 +675,7 @@ function renderStep() {
     $('#workoutInner').innerHTML = head + `
       <div class="stack">
         <div><div class="small muted">${prog.name}</div><h2 class="display" style="font-size:32px">Warm-up · 5 min</h2></div>
-        <div class="muted">Older joints need a proper warm-up. Do each move, then 1 light set of your first exercise.</div>
+        <div class="muted">${P().age === '30' ? 'A proper warm-up primes your joints and lets you lift heavier.' : 'Older joints need a proper warm-up.'} Do each move, then 1 light set of your first exercise.</div>
         <div class="wu-grid">${WARMUPS.map((w) => `<div><div data-wu="${w.id}"></div><div class="small" style="margin-top:6px;font-weight:600">${w.name}</div><div class="small muted">${w.note}</div></div>`).join('')}</div>
         <div class="footer-nav"><button class="btn btn-primary" id="wNext">Start lifting</button></div>
       </div>`;
@@ -657,7 +688,7 @@ function renderStep() {
         <div><div class="small muted">Exercise ${step} of ${prog.items.length}</div>
           <h2 class="display" style="font-size:30px">${esc(ex.name)}</h2>
           <div class="small muted">${it.sets} sets × ${it.lo}–${it.hi} ${unit}${it.perSide ? ' each side' : ''} · rest ${it.rest}s · effort: 2–3 ${unit} left in the tank</div></div>
-        <div class="media" style="aspect-ratio:16/10;display:none" id="wPhoto"><img src="img/${ex.id}.jpg" alt="${esc(ex.name)} demonstration photo" onload="this.parentElement.style.display=''" onerror="this.parentElement.remove()"><div class="inset" style="width:24%;height:52%">${MuscleMap.forExercise(ex)}</div></div>
+        <div class="media" style="aspect-ratio:16/10;display:none" id="wPhoto"><img src="${photo(ex.id)}" alt="${esc(ex.name)} demonstration photo" onload="this.parentElement.style.display=''" onerror="this.parentElement.remove()"><div class="inset" style="width:24%;height:52%">${MuscleMap.forExercise(ex)}</div></div>
         <div id="wStage"></div>
         ${s.text ? `<div class="hint ${s.up ? 'up' : ''}">${s.up ? '↑ ' : ''}${esc(s.text)}</div>` : ''}
         <table class="sets"><thead><tr><th>Set</th><th>${ex.bw ? '+lb' : 'lb'}</th><th>${unit}</th><th></th></tr></thead><tbody>
@@ -779,7 +810,7 @@ function beep() {
 }
 
 // =====================================================
-// RECOVERY — primary muscles need ~72h, secondary ~48h
+// RECOVERY — 40+: primary muscles need ~72h, secondary ~48h; 30s: ~48h / ~36h
 // =====================================================
 function recoveryState() {
   const now = Date.now(), state = {};
@@ -789,8 +820,9 @@ function recoveryState() {
       if (!e.sets.some((s) => s.done)) return;
       const ex = EX_BY_ID[e.id];
       const mark = (m, need) => { const cur = state[m]; const left = t + need * 3.6e6; if (!cur || left > cur.t + cur.need * 3.6e6) state[m] = { t, need }; };
-      ex.mus.s.forEach((m) => mark(m, 48));
-      ex.mus.p.forEach((m) => mark(m, 72));
+      const [pri, sec] = P().age === '30' ? [48, 36] : [72, 48];
+      ex.mus.s.forEach((m) => mark(m, sec));
+      ex.mus.p.forEach((m) => mark(m, pri));
     });
   });
   const out = {};
@@ -875,15 +907,31 @@ function openModal(html, onAction) {
     $('#modal').classList.remove('open'); onAction?.(b ? b.dataset.m : null);
   };
 }
-if (!store.get('iron40_ack', false)) {
+// Profile picker: first launch (with the safety note) and from the profile button
+function openProfile(first) {
+  const cur = { ...P() };
+  const seg = (k, opts) => `<div class="seg">${opts.map(([v, l]) => `<button class="chip ${cur[k] === v ? 'on' : ''}" data-${k}="${v}">${l}</button>`).join('')}</div>`;
   openModal(`
-    <img src="img/onboard.jpg" alt="" onerror="this.remove()">
-    <h2 class="display">Welcome to Iron 40</h2>
-    <div>A 3-day full-body free-weight plan built for lifters over 40, plus bodyweight workouts for legs, chest, back, shoulders, arms and core: joint-friendly moves, animated form demos, and automatic progression.</div>
-    <div class="callout warn small">Check with your doctor before starting a new exercise program, especially with heart, blood pressure, or joint issues. Stop any exercise that causes sharp pain.</div>
-    <button class="btn btn-primary btn-block" data-m="ok">I understand — let's lift</button>`,
-    () => store.set('iron40_ack', true));
+    <h2 class="display">${first ? 'Welcome to Iron 40' : 'Your profile'}</h2>
+    ${first ? '<div>Free-weight and bodyweight training for men and women in their 30s and 40+: animated form demos, joint-smart tips and automatic progression.</div>' : ''}
+    <div><div class="eyebrow" style="margin-bottom:8px">Show me</div>${seg('sex', [['m', 'Men'], ['f', 'Women']])}</div>
+    <div><div class="eyebrow" style="margin-bottom:8px">Age group</div>${seg('age', [['30', '30s'], ['40', '40+']])}</div>
+    <div class="small muted">Sets the photos, coaching tips and recovery times. You can change it anytime from the profile button.</div>
+    ${first ? '<div class="callout warn small">Check with your doctor before starting a new exercise program, especially with heart, blood pressure, or joint issues. Stop any exercise that causes sharp pain.</div>' : ''}
+    <button class="btn btn-primary btn-block" data-m="ok">${first ? "I understand — let's lift" : 'Save'}</button>`,
+    (a) => {
+      if (a !== 'ok') return;
+      profile = cur; store.set('iron40_profile', profile); store.set('iron40_ack', true);
+      showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'today');
+    });
+  $('#modalBody').onclick = (e) => {
+    const b = e.target.closest('[data-sex],[data-age]'); if (!b) return;
+    const k = b.dataset.sex ? 'sex' : 'age'; cur[k] = b.dataset[k];
+    b.parentElement.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c === b));
+  };
 }
+$('#profileBtn').addEventListener('click', () => openProfile(false));
+if (!profile) openProfile(!store.get('iron40_ack', false));
 
 showTab(store.get('iron40_tab', 'today'));
 if (active) renderToday();

@@ -1,7 +1,7 @@
 {
   "name": "Iron 40",
   "short_name": "Iron 40",
-  "description": "Free-weight and calisthenics workouts for men over 40, with animated form demos",
+  "description": "Free-weight and calisthenics workouts for men and women in their 30s and 40+, with animated form demos",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#150f26",
