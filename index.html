@@ -297,6 +297,15 @@ details summary::-webkit-details-marker { display: none; }
 .vid-meta { margin-top: 8px; }
 .vid-off { display: none; margin-top: 8px; }
 .vid.offline .yt { display: none; } .vid.offline .vid-off { display: block; }
+.locked-stage { aspect-ratio: 240 / 160; }
+.locked-stage .rig { position: absolute; inset: 8px; width: auto; height: auto; filter: blur(3px); opacity: .45; }
+.lock-over { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; padding: 20px; }
+.lock-over .lock { width: 28px; height: 28px; color: var(--accent); }
+.lock-over b { font: 600 18px Sora, sans-serif; }
+.lock-over .small { color: var(--muted); max-width: 260px; }
+.lock-over .btn { margin-top: 8px; min-height: 46px; }
+.vid-locked { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 10px; padding: 14px 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); text-align: left; font-size: 14px; color: var(--muted); }
+.vid-locked .lock { width: 18px; height: 18px; color: var(--accent); flex: none; }
 .chart { margin-top: 10px; }
 .chart svg { width: 100%; height: auto; display: block; overflow: visible; }
 .chart .grid { stroke: var(--line); stroke-width: 1; }
@@ -461,6 +470,9 @@ const SHOP = { price: '$7.99', checkoutUrl: 'https://digitalrougex.lemonsqueezy.
 let license = store.get('iron40_license', null); // {key, id, at} once activated
 const FREE_DAYS = ['A'];
 const isLocked = (key) => !license && !FREE_DAYS.includes(key);
+// Free sample: Workout A's exercises are fully free; every other move's animated demo, scrubber and video need the unlock
+const FREE_EX = new Set(FREE_DAYS.flatMap((d) => PROGRAM[d].items.map((i) => i.id)));
+const exLocked = (id) => !license && !FREE_EX.has(id);
 const LOCK = '<svg class="icon lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 const photo = (id) => `img/${P().sex === 'f' ? 'f/' : ''}${id}.jpg`;
 
@@ -798,7 +810,8 @@ function exInfo(ex) {
     ${last ? `<div class="hint">Last: ${esc(last.sets.filter((s) => s.done).map((s) => `${s.w || 0}×${s.r}`).join(', '))} · ${bestTxt}</div>` : ''}
     ${license && liftHistory(ex.id).length > 1 ? `<div class="card"><h3>Your progress</h3><div class="small muted">${liftHistory(ex.id)[0].weighted ? 'Estimated 1-rep max per session (lb)' : `Best set per session (${ex.timed ? 'sec' : 'reps'})`}</div>${chartSvg(liftHistory(ex.id), ex)}</div>` : ''}
     <div><h3>How to do it</h3><ol class="cues">${ex.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ol></div>
-    ${VIDEOS[ex.id] ? `<div class="vid"><h3>Watch it done</h3>
+    ${VIDEOS[ex.id] && exLocked(ex.id) ? `<div class="vid"><h3>Watch it done</h3><button class="vid-locked" onclick="openUnlock()">${LOCK}<span>Video demo by ${esc(VIDEOS[ex.id].by)} · unlock to watch</span></button></div>` : ''}
+    ${VIDEOS[ex.id] && !exLocked(ex.id) ? `<div class="vid"><h3>Watch it done</h3>
       <button class="yt" data-yt="${VIDEOS[ex.id].id}" aria-label="Play video: ${esc(VIDEOS[ex.id].title)}">
         <img src="https://i.ytimg.com/vi/${VIDEOS[ex.id].id}/hqdefault.jpg" alt="" loading="lazy" onerror="this.closest('.vid').classList.add('offline')">
         <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>
@@ -809,6 +822,7 @@ function exInfo(ex) {
     <div class="swap"><div><div class="small muted">Easier</div>${esc(ex.easier)}</div><div><div class="small muted">Harder</div>${esc(ex.harder)}</div></div>`;
 }
 
+let detailId = null;
 function openDetail(id) {
   const ex = EX_BY_ID[id];
   $('#detailInner').innerHTML = `
@@ -824,7 +838,13 @@ function openDetail(id) {
       </div></div>
       ${exInfo(ex)}
     </div>`;
-  mountStage($('#detailStage'), ex);
+  if (exLocked(ex.id)) {
+    $('#detailStage').innerHTML = `<div class="stage locked-stage"><div class="lock-over">${LOCK}<b>Animated form demo</b>
+      <span class="small">Watch every rep and drag through the full range of motion.</span>
+      <button class="btn btn-primary" onclick="openUnlock()">Unlock · ${SHOP.price}</button></div></div>`;
+    IronRig.create($('#detailStage .stage'), ex, { static: true });
+  } else mountStage($('#detailStage'), ex);
+  detailId = ex.id;
   $('#detail').classList.add('open'); $('#detail').scrollTop = 0;
   $('#detailClose').onclick = () => { $('#detail').classList.remove('open'); $('#detailInner').innerHTML = ''; };
 }
@@ -1130,7 +1150,7 @@ function openUnlock() {
   openModal(`
     <div class="row" style="justify-content:space-between"><h2 class="display">Unlock Iron 40</h2><b class="num" style="font-size:22px">${SHOP.price}</b></div>
     <div class="small muted">One-time purchase. No subscription.</div>
-    <ul class="perks"><li>Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core</li><li>Recovery tracking for every muscle</li><li>Your full training log, lifts and personal bests</li></ul>
+    <ul class="perks"><li>Animated form demos, the rep scrubber and video demos for all 39 exercises</li><li>Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core</li><li>Recovery tracking for every muscle</li><li>Your full training log, lifts and personal bests</li></ul>
     ${SHOP.checkoutUrl ? `<a class="btn btn-primary btn-block" href="${SHOP.checkoutUrl}" target="_blank" rel="noopener">Buy for ${SHOP.price}</a>` : ''}
     <div><div class="eyebrow" style="margin-bottom:8px">Already bought it?</div>
       <div class="row"><input id="licKey" class="lic" placeholder="Paste your license key" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn btn-ghost" id="licGo">Activate</button></div>
@@ -1149,6 +1169,7 @@ async function activateLicense() {
     if (!data.ok) throw new Error(data.error || 'That key didn’t work.');
     license = { key, id: data.id, at: Date.now() }; store.set('iron40_license', license);
     $('#modal').classList.remove('open');
+    if ($('#detail').classList.contains('open') && detailId) openDetail(detailId);
     showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'today');
   } catch (err) {
     msg.className = 'small'; msg.style.color = 'var(--danger)';
