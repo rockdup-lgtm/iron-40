@@ -243,8 +243,8 @@ Object.assign(I18N.es, {
   // ---- unlock ----
   'Unlock Iron 40': 'Desbloquea Iron 40',
   'One-time purchase. No subscription.': 'Pago único. Sin suscripción.',
-  'Animated form demos, the rep scrubber and video demos for all 39 exercises':
-    'Demos animadas de técnica, el control de repetición y videos para los 39 ejercicios',
+  'Animated form demos, the rep scrubber and video demos for all {n} exercises':
+    'Demos animadas de técnica, el control de repetición y videos para los {n} ejercicios',
   'Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core':
     'Rutina B y las 7 rutinas de calistenia — piernas, pecho, espalda, hombros, brazos, core',
   'Recovery tracking for every muscle': 'Seguimiento de recuperación de cada músculo',
@@ -535,8 +535,8 @@ Object.assign(I18N.pt, {
   // ---- unlock ----
   'Unlock Iron 40': 'Desbloqueie o Iron 40',
   'One-time purchase. No subscription.': 'Pagamento único. Sem assinatura.',
-  'Animated form demos, the rep scrubber and video demos for all 39 exercises':
-    'Demonstrações animadas, o controle de repetição e vídeos dos 39 exercícios',
+  'Animated form demos, the rep scrubber and video demos for all {n} exercises':
+    'Demonstrações animadas, o controle de repetição e vídeos dos {n} exercícios',
   'Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core':
     'Treino B e os 7 treinos de calistenia — pernas, peito, costas, ombros, braços, core',
   'Recovery tracking for every muscle': 'Acompanhamento da recuperação de cada músculo',
@@ -613,4 +613,34 @@ Object.assign(I18N.pt, {
   "Everything is open on this phone for 30 days: all demos, videos, recovery, progress and your log.": "Tudo liberado neste celular por 30 dias: demonstrações, vídeos, recuperação, progresso e seu histórico.",
   "Trial: 1 day left": "Teste: falta 1 dia",
   "Trial: {n} days left": "Teste: faltam {n} dias",
+});
+
+// Stretching routines
+Object.assign(I18N.es, {
+  'Stretching': 'Estiramientos',
+  'Stretch': 'Estiramiento',
+  'Stretches': 'Estiramientos',
+  'Start stretching': 'Empezar a estirar',
+  '~{n} min · stretch': '~{n} min · estiramiento',
+  'Stretch it · {n}': 'Para estirarlo · {n}',
+  'Stretch · no equipment needed': 'Estiramiento · no necesitas equipo',
+  'Ease into mild tension and breathe. Never bounce.': 'Entra poco a poco hasta sentir una tensión suave y respira. Nunca rebotes.',
+  'Stretch gently': 'Estira con suavidad',
+  'Stretch when your muscles are warm — after a workout or a 5-minute walk.': 'Estira con los músculos calientes: después de entrenar o de caminar 5 minutos.',
+  'Ease into mild tension, hold and breathe. Never bounce, and stop if anything hurts.': 'Llega a una tensión suave, sostén y respira. Nunca rebotes, y detente si algo te duele.',
+  '4 stretching routines — full body, lower back, legs, arms & shoulders': '4 rutinas de estiramiento: cuerpo completo, zona lumbar, piernas, brazos y hombros',
+});
+Object.assign(I18N.pt, {
+  'Stretching': 'Alongamento',
+  'Stretch': 'Alongamento',
+  'Stretches': 'Alongamentos',
+  'Start stretching': 'Começar a alongar',
+  '~{n} min · stretch': '~{n} min · alongamento',
+  'Stretch it · {n}': 'Para alongar · {n}',
+  'Stretch · no equipment needed': 'Alongamento · sem equipamento',
+  'Ease into mild tension and breathe. Never bounce.': 'Vá devagar até sentir uma tensão leve e respire. Nunca balance.',
+  'Stretch gently': 'Alongue com calma',
+  'Stretch when your muscles are warm — after a workout or a 5-minute walk.': 'Alongue com os músculos aquecidos: depois do treino ou de 5 minutos de caminhada.',
+  'Ease into mild tension, hold and breathe. Never bounce, and stop if anything hurts.': 'Chegue a uma tensão leve, segure e respire. Nunca balance, e pare se algo doer.',
+  '4 stretching routines — full body, lower back, legs, arms & shoulders': '4 rotinas de alongamento: corpo inteiro, lombar, pernas, braços e ombros',
 });

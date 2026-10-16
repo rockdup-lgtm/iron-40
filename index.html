@@ -653,7 +653,7 @@ function whyNot(e) {
 // Best replacements: same main muscles first, then shared secondary muscles and the same movement group
 function alternatives(id, timed) {
   const o = EX_BY_ID[id];
-  return EXERCISES.filter((e) => e.id !== id && fits(e) && !!e.timed === !!timed)
+  return EXERCISES.filter((e) => e.id !== id && fits(e) && !!e.timed === !!timed && !!e.stretch === !!o.stretch)
     .map((e) => ({ e, score: e.mus.p.filter((m) => o.mus.p.includes(m)).length * 3 + e.mus.s.filter((m) => o.mus.s.includes(m) || o.mus.p.includes(m)).length + (e.group === o.group ? 1 : 0) }))
     .filter((x) => x.score >= 3).sort((a, b) => b.score - a.score).map((x) => x.e);
 }
@@ -661,6 +661,7 @@ function personalize(item, used = new Set()) {
   const e = EX_BY_ID[item.id];
   if (fits(e)) return { id: item.id };
   const alt = alternatives(item.id, item.timed).find((x) => !used.has(x.id));
+  if (e.stretch) return alt ? { id: alt.id } : { id: item.id }; // stretches: quiet swap to a gentler stretch, no warnings
   return alt ? { id: alt.id, why: t('Swapped from {name}: {why}', { name: e.name, why: whyNot(e) }) } : { id: item.id, warn: t('Go light: {why}', { why: whyNot(e) }) };
 }
 
@@ -671,7 +672,7 @@ const weekOf = (dateKey) => { const d = new Date(dateKey + 'T12:00'); d.setDate(
 function easyWeek() {
   const now = weekOf(localKey(new Date())), last = store.get('iron40_lastEasy', null);
   if (last === now) return log.some((l) => l.easy && weekOf(l.date) === now) || false; // already did (or skipped) this week
-  const weeks = new Set(log.filter((l) => !last || weekOf(l.date) > last).map((l) => weekOf(l.date)));
+  const weeks = new Set(log.filter((l) => !PROGRAM[l.day]?.stretch && (!last || weekOf(l.date) > last)).map((l) => weekOf(l.date)));
   weeks.delete(now);
   return weeks.size >= (P().age === '30' ? 5 : 4);
 }
@@ -684,6 +685,7 @@ function personalizePlan(items) {
 // Bodyweight moves progress by reps, then by moving to the harder variation.
 function suggest(item) {
   const last = lastFor(item.id), ex = EX_BY_ID[item.id];
+  if (ex.stretch) return { w: '', text: t('Ease into mild tension and breathe. Never bounce.') };
   const unit = item.timed ? t('sec') : t('reps');
   if (ex.bw && !last) return { w: '', text: t('Aim for {lo}–{hi} clean {unit}. Too hard? {easier}.', { lo: item.lo, hi: item.hi, unit, easier: ex.easier }) };
   if (!last) return { w: '', text: t('First time: choose a weight you could do for ~3 more {unit} than the target.', { unit }) };
@@ -737,7 +739,7 @@ function mountMedia(root) {
 // =====================================================
 // muscle-map levels for a workout: every primary muscle it trains
 const progLevels = (key) => Object.fromEntries(PROGRAM[key].items.flatMap((it) => EX_BY_ID[it.id].mus.p).map((m) => [m, 1]));
-const progTitle = (prog) => (prog.cali ? esc(prog.chip) : esc(prog.name).replace(/ (\w)$/, ' <em>$1</em>'));
+const progTitle = (prog) => (prog.cali || prog.stretch ? esc(prog.chip) : esc(prog.name).replace(/ (\w)$/, ' <em>$1</em>'));
 
 function renderToday() {
   const now = new Date();
@@ -768,7 +770,7 @@ function renderToday() {
   const plan = active ? active.ex.map((x, i) => ({ ...prog.items[i], id: x.id, why: x.why })) : personalizePlan(prog.items).map((pe, i) => ({ ...prog.items[i], id: pe.id, why: pe.why || pe.warn }));
   const first = EX_BY_ID[plan[0].id];
   const shown = plan.slice(0, 3);
-  const easy = active ? active.easy : easyWeek();
+  const easy = active ? active.easy : !prog.stretch && easyWeek();
   $('#easyCard').innerHTML = easy ? `<div class="card easy-card"><div class="row" style="justify-content:space-between;align-items:flex-start;gap:12px">
       <div><div class="eyebrow" style="color:var(--ok)">${t('Easy week')}</div><h3 style="margin-top:4px">${t('Recover to get stronger')}</h3>
       <div class="small muted">${t("You've trained hard for {n} weeks. This week: one fewer set and 10% less weight on everything. Joints and tendons catch up, and you come back stronger.", { n: P().age === '30' ? 5 : 4 })}</div></div></div>
@@ -776,12 +778,12 @@ function renderToday() {
   $('#nextCard').innerHTML = `<div>
     <div class="tag eyebrow">${active ? t('In progress') : trainedToday ? t('Next session') : t('Up next')} · ${t('{n} of 3 this week', { n: Math.min(weekDone + (trainedToday || active ? 0 : 1), 3) })}</div>
     <h1 class="display">${progTitle(prog)}</h1>
-    <div class="meta">${prog.cali ? t('Calisthenics') + ' · ' : ''}${esc(prog.focus)} · ${t('{n} exercises', { n: prog.items.length })} · ~${prog.mins || 45} min</div>
+    <div class="meta">${prog.cali ? t('Calisthenics') + ' · ' : prog.stretch ? t('Stretching') + ' · ' : ''}${esc(prog.focus)} · ${t('{n} exercises', { n: prog.items.length })} · ~${prog.mins || 45} min</div>
     <div class="row2">
       <div class="avatars">${shown.map((it) => `<div class="mini" data-media="${it.id}"><div class="rigbox"></div>${imgTag(it.id)}</div>`).join('')}${prog.items.length > 3 ? `<div class="more">+${prog.items.length - 3}</div>` : ''}</div>
       <span class="small">${esc(t('{name} first', { name: first.name }))}</span>
     </div>
-    <button class="btn btn-primary btn-block" id="startBtn">${active ? t('Resume workout') : t('Start workout')}</button>
+    <button class="btn btn-primary btn-block" id="startBtn">${active ? t('Resume workout') : prog.stretch ? t('Start stretching') : t('Start workout')}</button>
     ${!isTrain && !active ? `<div class="note">${t('Plan: Mon · Wed · Fri — rest days help, but you can train anytime.')}</div>` : ''}
   </div>`;
 
@@ -796,6 +798,7 @@ function renderToday() {
 
   // ---- switch focus: gym rotation or a calisthenics area ----
   const cali = Object.keys(PROGRAM).filter((k) => PROGRAM[k].cali);
+  const stretch = Object.keys(PROGRAM).filter((k) => PROGRAM[k].stretch);
   const gym = isLocked(nextDay()) ? 'A' : nextDay();
   const tile = (key, label, sub, wide) => {
     const lv = progLevels(key), back = Object.keys(lv).every((m) => BACK_VIEW.has(m));
@@ -808,7 +811,9 @@ function renderToday() {
       ${license ? '' : `<button class="unlock-link" data-lock="all">${LOCK}${t('Unlock everything · {price}', { price: SHOP.price })}</button>`}</div>
     <div class="tiles">${tile(gym, t('Gym · {name}', { name: license ? PROGRAM[gym].name : PROGRAM.A.name }), license ? esc(t('Alternates dumbbell & barbell days')) : t('Free · full-body dumbbell day'), true)}
       ${license ? '' : tile('B', t('Gym · {name}', { name: PROGRAM.B.name }), t('Barbell day'), true)}
-      ${cali.map((k) => tile(k, esc(PROGRAM[k].chip), t('~{n} min · bodyweight', { n: PROGRAM[k].mins }))).join('')}</div>`;
+      ${cali.map((k) => tile(k, esc(PROGRAM[k].chip), t('~{n} min · bodyweight', { n: PROGRAM[k].mins }))).join('')}</div>
+    <div class="eyebrow" style="margin-top:18px">${t('Stretching')}</div>
+    <div class="tiles">${stretch.map((k) => tile(k, esc(PROGRAM[k].chip), t('~{n} min · stretch', { n: PROGRAM[k].mins }))).join('')}</div>`;
 
   mountMedia($('#nextCard')); mountMedia($('#exList'));
   $('#s-today').onclick = (e) => {
@@ -831,7 +836,7 @@ const SET_TARGET = { chest: 10, back: 10, delts: 10, quads: 10, glutes: 10, hams
 function weekSets() {
   const now = weekOf(localKey(new Date())), out = Object.fromEntries(Object.keys(MUSCLES).map((m) => [m, 0]));
   log.filter((l) => weekOf(l.date) === now).forEach((l) => l.ex.forEach((x) => {
-    const e = EX_BY_ID[x.id], n = x.sets.filter((st) => st.done).length; if (!e || !n) return;
+    const e = EX_BY_ID[x.id], n = x.sets.filter((st) => st.done).length; if (!e || !n || e.stretch) return;
     e.mus.p.forEach((m) => (out[m] += n)); e.mus.s.forEach((m) => (out[m] += n / 2));
   }));
   Object.keys(out).forEach((m) => (out[m] = Math.round(out[m] * 2) / 2));
@@ -861,10 +866,11 @@ function renderBody() {
   if (!bodyPick) {
     $('#bodyPick').innerHTML = `<div class="card small muted" style="text-align:center">${t('Tap any muscle on the body (or a name above) to see the exercises that train it, with animated form demos.')}</div>`;
   } else {
-    const main = EXERCISES.filter((e) => e.mus.p.includes(bodyPick));
-    const also = EXERCISES.filter((e) => !e.mus.p.includes(bodyPick) && e.mus.s.includes(bodyPick));
+    const main = EXERCISES.filter((e) => !e.stretch && e.mus.p.includes(bodyPick));
+    const also = EXERCISES.filter((e) => !e.stretch && !e.mus.p.includes(bodyPick) && e.mus.s.includes(bodyPick));
+    const str = EXERCISES.filter((e) => e.stretch && e.mus.p.includes(bodyPick));
     const line = (e) => `<button class="ex-line" style="width:100%;text-align:left" data-ex="${e.id}">${mediaHtml(e.id)}
-      <div><h3>${esc(e.name)}</h3><div class="small muted">${esc(e.equip.map((q) => t(q)).join(' · '))}</div></div>
+      <div><h3>${esc(e.name)}</h3><div class="small muted">${e.stretch ? t('Stretch') : esc(e.equip.map((q) => t(q)).join(' · '))}</div></div>
       <svg class="icon chev" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M9 6l6 6-6 6"/></svg></button>`;
     const rec = fresh ? `<span class="pill">${fresh[bodyPick] >= 100 ? t('Fresh · ready to train') : t('{n}% recovered', { n: fresh[bodyPick] })}</span>`
       : sets ? `<span class="pill">${t('{n} of {target} sets this week', { n: sets[bodyPick], target: SET_TARGET[bodyPick] })}</span>` : '';
@@ -872,6 +878,7 @@ function renderBody() {
       <div class="row" style="justify-content:space-between"><div><div class="eyebrow">${t('Trains your')}</div><h2 class="display">${MUSCLES[bodyPick]}</h2></div>${rec}</div>
       ${main.length ? `<div class="eyebrow" style="margin-top:12px">${t('Main focus · {n}', { n: main.length })}</div>${main.map(line).join('')}` : ''}
       ${also.length ? `<div class="eyebrow" style="margin-top:12px">${t('Also works it · {n}', { n: also.length })}</div>${also.map(line).join('')}` : ''}
+      ${str.length ? `<div class="eyebrow" style="margin-top:12px">${t('Stretch it · {n}', { n: str.length })}</div>${str.map(line).join('')}` : ''}
     </div>`;
     mountMedia($('#bodyPick'));
   }
@@ -893,12 +900,12 @@ function renderBody() {
 // =====================================================
 // LIBRARY
 // =====================================================
-const FILTERS = ['All', 'Fits me', ...Object.keys(AREAS), 'Bodyweight', 'Dumbbell', 'Barbell'];
+const FILTERS = ['All', 'Fits me', 'Stretch', ...Object.keys(AREAS), 'Bodyweight', 'Dumbbell', 'Barbell'];
 let filter = store.get('iron40_filter', 'All');
 if (!FILTERS.includes(filter)) filter = 'All';
 function renderLibrary() {
   $('#filters').innerHTML = FILTERS.map((f) => `<button class="chip ${f === filter ? 'on' : ''}" data-f="${f}">${esc(t(f))}</button>`).join('');
-  const list = EXERCISES.filter((e) => filter === 'All' || (filter === 'Fits me' ? fits(e) : e.equip.includes(filter) || AREAS[filter]?.some((m) => e.mus.p.includes(m))));
+  const list = EXERCISES.filter((e) => filter === 'All' || (filter === 'Fits me' ? fits(e) : filter === 'Stretch' ? e.stretch : e.equip.includes(filter) || AREAS[filter]?.some((m) => e.mus.p.includes(m))));
   $('#exCount').textContent = t('{n} movements', { n: list.length });
   $('#grid').innerHTML = list.map((e) => `
     <button class="tile" data-ex="${e.id}">
@@ -1009,10 +1016,11 @@ function exInfo(ex) {
   const bestReps = Math.max(0, ...log.flatMap((l) => l.ex.filter((x) => x.id === ex.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => +s.r || 0))));
   const bestTxt = ex.bw && !Math.max(...best) ? t('Best {n} {unit}', { n: bestReps, unit: ex.timed ? t('sec') : t('reps') }) : t('Best {n} lb', { n: Math.max(...best) });
   return `
-    <div class="small muted">${esc(ex.equip.map((q) => t(q)).join(' · '))}</div>
+    <div class="small muted">${ex.stretch ? t('Stretch · no equipment needed') : esc(ex.equip.map((q) => t(q)).join(' · '))}</div>
     <div><b>${t('Works:')}</b> ${esc(ex.muscles)}</div>
-    ${last ? `<div class="hint">${t('Last:')} ${esc(last.sets.filter((s) => s.done).map((s) => `${s.w || 0}×${s.r}`).join(', '))} · ${bestTxt}</div>` : ''}
-    ${license && liftHistory(ex.id).length > 1 ? `<div class="card"><h3>${t('Your progress')}</h3><div class="small muted">${liftHistory(ex.id)[0].weighted ? t('Estimated 1-rep max per session (lb)') : t('Best set per session ({unit})', { unit: ex.timed ? t('sec') : t('reps') })}</div>${chartSvg(liftHistory(ex.id), ex)}</div>` : ''}
+    ${last && ex.stretch ? `<div class="hint">${t('Last:')} ${esc(last.sets.filter((s) => s.done).map((s) => `${s.r} ${ex.timed ? t('sec') : t('reps')}`).join(', '))}</div>` : ''}
+    ${last && !ex.stretch ? `<div class="hint">${t('Last:')} ${esc(last.sets.filter((s) => s.done).map((s) => `${s.w || 0}×${s.r}`).join(', '))} · ${bestTxt}</div>` : ''}
+    ${license && !ex.stretch && liftHistory(ex.id).length > 1 ? `<div class="card"><h3>${t('Your progress')}</h3><div class="small muted">${liftHistory(ex.id)[0].weighted ? t('Estimated 1-rep max per session (lb)') : t('Best set per session ({unit})', { unit: ex.timed ? t('sec') : t('reps') })}</div>${chartSvg(liftHistory(ex.id), ex)}</div>` : ''}
     <div><h3>${t('How to do it')}</h3><ol class="cues">${ex.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ol></div>
     ${VIDEOS[ex.id] && exLocked(ex.id) ? `<div class="vid"><h3>${t('Watch it done')}</h3><button class="vid-locked" onclick="openUnlock()">${LOCK}<span>${esc(t('Video demo by {by} · unlock to watch', { by: VIDEOS[ex.id].by }))}</span></button></div>` : ''}
     ${VIDEOS[ex.id] && !exLocked(ex.id) ? `<div class="vid"><h3>${t('Watch it done')}</h3>
@@ -1066,7 +1074,7 @@ async function keepAwake(on) {
 
 function startWorkout() {
   if (!active) {
-    const day = upNext(), easy = easyWeek();
+    const day = upNext(), easy = !PROGRAM[day].stretch && easyWeek();
     active = {
       day, start: Date.now(), step: 0, easy,
       ex: personalizePlan(PROGRAM[day].items).map((pe, i) => {
@@ -1094,7 +1102,14 @@ function renderStep() {
       <div class="small muted" style="min-width:42px;text-align:right">${Math.min(step, total - 1)}/${total - 1}</div>
     </div>`;
 
-  if (step === 0) {
+  if (step === 0 && prog.stretch) {
+    $('#workoutInner').innerHTML = head + `
+      <div class="stack">
+        <div><div class="small muted">${esc(prog.name)}</div><h2 class="display" style="font-size:32px">${t('Stretch gently')}</h2></div>
+        <div class="muted">${t('Stretch when your muscles are warm — after a workout or a 5-minute walk.')} ${t('Ease into mild tension, hold and breathe. Never bounce, and stop if anything hurts.')}</div>
+        <div class="footer-nav"><button class="btn btn-primary" id="wNext">${t('Start stretching')}</button></div>
+      </div>`;
+  } else if (step === 0) {
     $('#workoutInner').innerHTML = head + `
       <div class="stack">
         <div><div class="small muted">${prog.name}</div><h2 class="display" style="font-size:32px">${t('Warm-up · 5 min')}</h2></div>
@@ -1105,7 +1120,7 @@ function renderStep() {
     document.querySelectorAll('[data-wu]').forEach((d) => mountStage(d, EX_BY_ID[d.dataset.wu], true));
   } else if (step <= prog.items.length) {
     const it = prog.items[step - 1], rec = active.ex[step - 1], ex = EX_BY_ID[rec.id], s = suggest({ ...it, id: rec.id });
-    const unit = it.timed ? t('sec') : t('reps');
+    const unit = it.timed ? t('sec') : t('reps'), str = !!ex.stretch;
     $('#workoutInner').innerHTML = head + `
       <div class="stack">
         <div><div class="small muted">${t('Exercise {n} of {total}', { n: step, total: prog.items.length })}</div>
@@ -1113,14 +1128,14 @@ function renderStep() {
             <button class="btn btn-ghost swap-btn" id="wSwap">${t('Swap')}</button></div>
           ${rec.why ? `<div class="small swap-note">${esc(rec.why)}</div>` : ''}
           ${active.easy ? `<div class="small swap-note">${t('Easy week · 10% lighter, one fewer set')}</div>` : ''}
-          <div class="small muted">${t('{n} sets', { n: it.sets })} × ${it.lo}–${it.hi} ${unit}${it.perSide ? ' ' + t('each side') : ''} · ${t('rest {n}s', { n: it.rest })} · ${t('effort: 2–3 {unit} left in the tank', { unit })}</div></div>
+          <div class="small muted">${t('{n} sets', { n: it.sets })} × ${it.lo}–${it.hi} ${unit}${it.perSide ? ' ' + t('each side') : ''} · ${t('rest {n}s', { n: it.rest })}${str ? '' : ' · ' + t('effort: 2–3 {unit} left in the tank', { unit })}</div></div>
         <div class="media" style="aspect-ratio:16/10;display:none" id="wPhoto"><img src="${photo(ex.id)}" alt="${esc(t('{name} demonstration photo', { name: ex.name }))}" onload="this.parentElement.style.display=''" onerror="this.parentElement.remove()"><div class="inset" style="width:24%;height:52%">${MuscleMap.forExercise(ex)}</div></div>
         <div id="wStage"></div>
         ${s.text ? `<div class="hint ${s.up ? 'up' : ''}">${s.up ? '↑ ' : ''}${esc(s.text)}</div>` : ''}
-        <table class="sets"><thead><tr><th>${t('Set')}</th><th>${ex.bw ? '+lb' : 'lb'}</th><th>${unit}</th><th></th></tr></thead><tbody>
+        <table class="sets"><thead><tr><th>${t('Set')}</th>${str ? '' : `<th>${ex.bw ? '+lb' : 'lb'}</th>`}<th>${unit}</th><th></th></tr></thead><tbody>
           ${rec.sets.map((st, i) => `<tr class="${st.done ? 'done' : ''}" data-i="${i}">
             <td>${i + 1}</td>
-            <td><input inputmode="decimal" readonly data-k="w" value="${esc(st.w)}" placeholder="${ex.bw ? t('BW') : '0'}" aria-label="${ex.bw ? t('Set {n} added weight', { n: i + 1 }) : t('Set {n} weight', { n: i + 1 })}"></td>
+            ${str ? '' : `<td><input inputmode="decimal" readonly data-k="w" value="${esc(st.w)}" placeholder="${ex.bw ? t('BW') : '0'}" aria-label="${ex.bw ? t('Set {n} added weight', { n: i + 1 }) : t('Set {n} weight', { n: i + 1 })}"></td>`}
             <td><input inputmode="numeric" readonly data-k="r" value="${esc(st.r)}" aria-label="${t('Set {n} {unit}', { n: i + 1, unit })}"></td>
             <td><button class="check ${st.done ? 'on' : ''}" data-done aria-label="${t('Complete set {n}', { n: i + 1 })}">${ICON.check}</button></td></tr>`).join('')}
         </tbody></table>
@@ -1149,8 +1164,9 @@ function renderStep() {
       if (st.done) {
         const more = rec.sets.some((x) => !x.done);
         const nextName = more ? t('Next: set {n}', { n: rec.sets.findIndex((x) => !x.done) + 1 }) : step < prog.items.length ? t('Next: {name}', { name: EX_BY_ID[active.ex[step].id].name }) : t('Last set done!');
-        startRest(active.easy ? Math.max(45, it.rest - 15) : it.rest, nextName, st);
-        const pr = prCheck(rec.id, st, ex);
+        // stretching: no effort rating and no PRs — holds aren't a performance
+        startRest(active.easy ? Math.max(45, it.rest - 15) : it.rest, nextName, str ? null : st);
+        const pr = !str && prCheck(rec.id, st, ex);
         if (pr) celebratePR(pr, ex);
       }
     });
@@ -1199,19 +1215,20 @@ function renderSummary(head) {
   const volume = active.ex.reduce((sum, e, i) => sum + (prog.items[i].timed ? 0 : e.sets.filter((s) => s.done).reduce((a, s) => a + (+s.w || 0) * (+s.r || 0), 0)), 0);
   const reps = active.ex.reduce((sum, e, i) => sum + (prog.items[i].timed ? 0 : e.sets.filter((s) => s.done).reduce((a, s) => a + (+s.r || 0), 0)), 0);
   const mins = Math.max(1, Math.round((Date.now() - active.start) / 60000));
+  const stretched = active.ex.filter((e) => e.sets.some((s) => s.done)).length;
   $('#workoutInner').innerHTML = head + `
     <div class="stack" style="text-align:center;padding-top:24px">
       <div style="width:84px;height:84px;margin:0 auto;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 18px 40px -12px var(--accent)"><svg class="icon" viewBox="0 0 24 24" style="width:40px;height:40px;color:#fff;stroke-width:2.2"><path d="M5 12.5 10 17l9-10"/></svg></div>
       <h2 class="display" style="font-size:38px">${esc(t('{name} complete', { name: prog.name }))}</h2>
       <div class="stats" style="text-align:left">
         <div class="stat"><b>${sets.length}</b><span>${t('Sets')}</span></div>
-        ${volume ? `<div class="stat"><b>${volume.toLocaleString(LOCALE)}</b><span>${t('lb lifted')}</span></div>` : `<div class="stat"><b>${reps}</b><span>${t('Reps')}</span></div>`}
+        ${prog.stretch ? `<div class="stat"><b>${stretched}</b><span>${t('Stretches')}</span></div>` : volume ? `<div class="stat"><b>${volume.toLocaleString(LOCALE)}</b><span>${t('lb lifted')}</span></div>` : `<div class="stat"><b>${reps}</b><span>${t('Reps')}</span></div>`}
         <div class="stat"><b>${mins}</b><span>${t('Minutes')}</span></div>
       </div>
       ${sets.length ? '' : `<div class="callout warn" style="text-align:left">${t('No sets were checked off. Tap ✓ after each set to log it.')}</div>`}
       ${(() => { // compare today's best sets with everything logged before
         const news = active.ex.map((e) => {
-          const ex = EX_BY_ID[e.id], done = e.sets.filter((s) => s.done && +s.r > 0); if (!done.length) return null;
+          const ex = EX_BY_ID[e.id], done = e.sets.filter((s) => s.done && +s.r > 0); if (!done.length || ex.stretch) return null;
           const weighted = done.some((s) => +s.w > 0), v = Math.max(...done.map((s) => (weighted ? e1rm(+s.w, +s.r) : +s.r)));
           const prev = liftHistory(e.id).filter((p) => p.weighted === weighted).reduce((m, p) => Math.max(m, p.v), 0);
           return prev && v > prev ? `<div class="pr-row"><span class="pr-badge">${t('PR')}</span><span><b>${esc(ex.name)}</b><span class="small muted">${weighted ? t('est. 1RM {v} lb (was {prev})', { v, prev }) : t('{v} {unit} (was {prev})', { v, unit: ex.timed ? t('sec') : t('reps'), prev })}</span></span></div>` : null;
@@ -1433,28 +1450,30 @@ let wheelCtx = null;
 function openWheel(tbody, i, ex, it, focusKey) {
   const tr = tbody.rows[i], wIn = tr.querySelector('[data-k=w]'), rIn = tr.querySelector('[data-k=r]');
   wheelCtx = { tbody, i, wIn, rIn, bw: ex.bw };
+  $('#wsW').parentElement.style.display = wIn ? '' : 'none'; // stretches log time/reps only
+  $('#wsW').closest('.ws-cols').style.gridTemplateColumns = wIn ? '' : '1fr';
   $('#wsTitle').textContent = t('{name} · set {n}', { name: ex.name, n: i + 1 });
   $('#wsWL').textContent = ex.bw ? t('added lb') : 'lb';
   $('#wsRL').textContent = it.timed ? t('seconds') : t('reps');
   const ws = []; for (let v = 0; v <= (ex.bw ? 100 : 400); v += 2.5) ws.push(v);
   const rs = []; for (let v = 0; v <= (it.timed ? 300 : 50); v += it.timed ? 5 : 1) rs.push(v);
   $('#wsheet').classList.add('open');
-  fillWheel($('#wsW'), ws, +wIn.value || 0, (v) => (ex.bw && !v ? t('BW') : fmtW(v)));
+  if (wIn) fillWheel($('#wsW'), ws, +wIn.value || 0, (v) => (ex.bw && !v ? t('BW') : fmtW(v)));
   fillWheel($('#wsR'), rs, +rIn.value || it.hi, String);
   $('#wsLog').hidden = tr.classList.contains('done');
-  $(focusKey === 'r' ? '#wsR' : '#wsW').focus({ preventScroll: true });
+  $(focusKey === 'r' || !wIn ? '#wsR' : '#wsW').focus({ preventScroll: true });
 }
 function saveWheel() {
-  const { wIn, rIn, bw } = wheelCtx, w = wheelVal($('#wsW')), r = wheelVal($('#wsR'));
-  wIn.value = bw && !w ? '' : fmtW(w); wIn.dispatchEvent(new Event('input', { bubbles: true }));
+  const { wIn, rIn, bw } = wheelCtx, w = wIn ? wheelVal($('#wsW')) : 0, r = wheelVal($('#wsR'));
+  if (wIn) { wIn.value = bw && !w ? '' : fmtW(w); wIn.dispatchEvent(new Event('input', { bubbles: true })); }
   rIn.value = String(r); rIn.dispatchEvent(new Event('input', { bubbles: true }));
   $('#wsheet').classList.remove('open');
 }
 $('#wsSave').onclick = saveWheel;
 $('#wsLog').onclick = () => { const { tbody, i } = wheelCtx; saveWheel(); tbody.rows[i].querySelector('[data-done]').click(); };
 $('#wsType').onclick = () => {
-  const { tbody, wIn } = wheelCtx; $('#wsheet').classList.remove('open');
-  tbody.querySelectorAll('input[readonly]').forEach((x) => x.removeAttribute('readonly')); wIn.focus(); wIn.select();
+  const { tbody, wIn, rIn } = wheelCtx, f = wIn || rIn; $('#wsheet').classList.remove('open');
+  tbody.querySelectorAll('input[readonly]').forEach((x) => x.removeAttribute('readonly')); f.focus(); f.select();
 };
 $('#wsheet').addEventListener('click', (e) => { if (e.target.id === 'wsheet') saveWheel(); });
 
@@ -1533,8 +1552,8 @@ function recoveryState() {
   log.forEach((l) => {
     const t = l.ts || new Date(l.date + 'T18:00').getTime();
     l.ex.forEach((e) => {
-      if (!e.sets.some((s) => s.done)) return;
       const ex = EX_BY_ID[e.id];
+      if (!ex || ex.stretch || !e.sets.some((s) => s.done)) return; // stretching isn't training load
       const mark = (m, need) => { const cur = state[m]; const left = t + need * 3.6e6; if (!cur || left > cur.t + cur.need * 3.6e6) state[m] = { t, need }; };
       const [pri, sec] = P().age === '30' ? [48, 36] : [72, 48];
       ex.mus.s.forEach((m) => mark(m, sec));
@@ -1594,11 +1613,11 @@ function renderHistory() {
       <button class="btn btn-primary" style="margin-top:16px" onclick="showTab('today')">${t('Go to Today')}</button></div>`;
     return;
   }
-  const prs = EXERCISES.flatMap((e) => liftHistory(e.id).filter((p, i) => p.pr && i > 0).map((p) => ({ ...p, ex: e })))
+  const prs = EXERCISES.filter((e) => !e.stretch).flatMap((e) => liftHistory(e.id).filter((p, i) => p.pr && i > 0).map((p) => ({ ...p, ex: e })))
     .sort((a, b) => b.ts - a.ts).slice(0, 6);
   const prCard = prs.length ? `<div class="card"><h3>${t('Recent personal records')}</h3>${prs.map((p) => `<button class="pr-row" data-ex="${p.ex.id}"><span class="pr-badge">${t('PR')}</span><span><b>${esc(p.ex.name)}</b><span class="small muted">${fmtDate(p.date)} · ${pointText(p, p.ex)}</span></span></button>`).join('')}</div>` : '';
   const lifts = EXERCISES.map((e) => {
-    const last = lastFor(e.id); if (!last) return null;
+    const last = !e.stretch && lastFor(e.id); if (!last) return null;
     const h = liftHistory(e.id), top = h.reduce((b, p) => (p.v > b.v ? p : b), h[0]);
     if (top && top.weighted) return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">${h.length > 1 ? t('Est. 1RM {v} lb · {n} sessions', { v: top.v, n: h.length }) : t('Est. 1RM {v} lb · {n} session', { v: top.v, n: h.length })}</div></td><td>${Math.max(...last.sets.filter((s) => s.done).map((s) => s.w))} lb</td></tr>`;
     const best = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.w))));
@@ -1643,7 +1662,7 @@ function openUnlock() {
     <div class="row" style="justify-content:space-between"><h2 class="display">${t('Unlock Iron 40')}</h2><b class="num" style="font-size:22px">${SHOP.price}</b></div>
     ${store.get('iron40_trialEnded', false) ? `<div class="callout warn" style="text-align:left">${t('Your 30-day trial has ended. Unlock to keep everything.')}</div>` : ''}
     <div class="small muted">${t('One-time purchase. No subscription.')}</div>
-    <ul class="perks"><li>${t('Animated form demos, the rep scrubber and video demos for all 39 exercises')}</li><li>${t('Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core')}</li><li>${t('Recovery tracking for every muscle')}</li><li>${t('Your full training log, lifts and personal bests')}</li></ul>
+    <ul class="perks"><li>${t('Animated form demos, the rep scrubber and video demos for all {n} exercises', { n: EXERCISES.length })}</li><li>${t('Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core')}</li><li>${t('4 stretching routines — full body, lower back, legs, arms & shoulders')}</li><li>${t('Recovery tracking for every muscle')}</li><li>${t('Your full training log, lifts and personal bests')}</li></ul>
     ${SHOP.checkoutUrl ? `<a class="btn btn-primary btn-block" href="${SHOP.checkoutUrl}" target="_blank" rel="noopener">${t('Buy for {price}', { price: SHOP.price })}</a>` : ''}
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Already bought it?')}</div>
       <div class="row"><input id="licKey" class="lic" placeholder="${t('License key or friend code')}" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn btn-ghost" id="licGo">${t('Activate')}</button></div>
