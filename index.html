@@ -1624,10 +1624,10 @@ async function activateLicense() {
   } finally { $('#licGo').disabled = false; }
 }
 
-// Owner link: iron-40.pages.dev/#unlock=KEY activates this device, then strips the key from the address bar
+// Owner link: iron-40.pages.dev/?unlock=KEY (or #unlock=KEY) activates this device, then strips the key from the address bar
 (async () => {
-  const m = location.hash.match(/^#unlock=([A-Za-z0-9-]{8,80})$/); if (!m) return;
-  history.replaceState(null, '', location.pathname + location.search);
+  const m = (location.search + location.hash).match(/[?&#]unlock=([A-Za-z0-9-]{8,80})/); if (!m) return;
+  history.replaceState(null, '', location.pathname);
   if (license) return;
   try {
     const res = await fetch('api/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: m[1] }) });
