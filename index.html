@@ -581,7 +581,19 @@ let profile = store.get('iron40_profile', null); // {sex: 'm'|'f', age: '30'|'40
 const P = () => profile || { sex: 'm', age: '40' };
 // ---- $7.99 unlock: Workout A, the exercise library and profiles are free; the rest needs a license key ----
 const SHOP = { price: '$7.99', checkoutUrl: 'https://digitalrougex.lemonsqueezy.com/checkout/buy/67f0e0af-4df0-453f-9b9e-728914e781c8' }; // set checkoutUrl to the Lemon Squeezy buy link
-let license = store.get('iron40_license', null); // {key, id, at} once activated
+let license = store.get('iron40_license', null); // {key, id, at, expires?} once activated
+// Friend trials expire; the start date stays so the same phone can't restart the trial
+if (license && license.expires && Date.now() > license.expires) { license = null; store.del('iron40_license'); store.set('iron40_trialEnded', true); }
+const trialDaysLeft = () => (license && license.expires ? Math.max(0, Math.ceil((license.expires - Date.now()) / 864e5)) : null);
+// Build a license from a successful activation; trial codes get an expiry (and are refused if this phone already used one)
+function licenseFrom(key, data) {
+  if (data.id !== 'trial') return { key, id: data.id, at: Date.now() };
+  const started = store.get('iron40_trialStart', null);
+  if (started && Date.now() - started > 864e5) throw new Error(t('This phone has already used its free trial.'));
+  const at = started || Date.now();
+  store.set('iron40_trialStart', at);
+  return { key, id: 'trial', at, expires: at + data.days * 864e5 };
+}
 const FREE_DAYS = ['A'];
 const isLocked = (key) => !license && !FREE_DAYS.includes(key);
 // Free sample: Workout A's exercises are fully free; every other move's animated demo, scrubber and video need the unlock
@@ -749,6 +761,7 @@ function renderToday() {
   const isTrain = TRAIN_DAYS.includes(now.getDay());
   const trainedToday = doneDates.has(localKey(now));
   $('#todayTag').textContent = trainedToday ? t('Done for today — nice work') : isTrain ? t('{day} · training day', { day: DAYS[now.getDay()] }) : t('{day} · rest day', { day: DAYS[now.getDay()] });
+  if (trialDaysLeft() !== null) $('#todayTag').textContent += ' · ' + (trialDaysLeft() === 1 ? t('Trial: 1 day left') : t('Trial: {n} days left', { n: trialDaysLeft() }));
 
   // ---- the hero is the workout: what's next, and Start ----
   const day = upNext(), prog = PROGRAM[day];
@@ -1628,11 +1641,12 @@ function openUnlock() {
   if (license) return;
   openModal(`
     <div class="row" style="justify-content:space-between"><h2 class="display">${t('Unlock Iron 40')}</h2><b class="num" style="font-size:22px">${SHOP.price}</b></div>
+    ${store.get('iron40_trialEnded', false) ? `<div class="callout warn" style="text-align:left">${t('Your 30-day trial has ended. Unlock to keep everything.')}</div>` : ''}
     <div class="small muted">${t('One-time purchase. No subscription.')}</div>
     <ul class="perks"><li>${t('Animated form demos, the rep scrubber and video demos for all 39 exercises')}</li><li>${t('Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core')}</li><li>${t('Recovery tracking for every muscle')}</li><li>${t('Your full training log, lifts and personal bests')}</li></ul>
     ${SHOP.checkoutUrl ? `<a class="btn btn-primary btn-block" href="${SHOP.checkoutUrl}" target="_blank" rel="noopener">${t('Buy for {price}', { price: SHOP.price })}</a>` : ''}
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Already bought it?')}</div>
-      <div class="row"><input id="licKey" class="lic" placeholder="${t('Paste your license key')}" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn btn-ghost" id="licGo">${t('Activate')}</button></div>
+      <div class="row"><input id="licKey" class="lic" placeholder="${t('License key or friend code')}" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn btn-ghost" id="licGo">${t('Activate')}</button></div>
       <div class="small" id="licMsg" style="margin-top:8px"></div></div>
     <button class="btn btn-block" data-m="close" style="color:var(--muted)">${t('Not now')}</button>`);
   $('#licGo').onclick = activateLicense;
@@ -1646,7 +1660,7 @@ async function activateLicense() {
     const res = await fetch('api/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || t('That key didn’t work.'));
-    license = { key, id: data.id, at: Date.now() }; store.set('iron40_license', license);
+    license = licenseFrom(key, data); store.set('iron40_license', license); store.del('iron40_trialEnded');
     $('#modal').classList.remove('open');
     if ($('#detail').classList.contains('open') && detailId) openDetail(detailId);
     showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'today');
@@ -1665,9 +1679,9 @@ async function activateLicense() {
     const res = await fetch('api/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: m[1] }) });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error);
-    license = { key: m[1], id: data.id, at: Date.now() }; store.set('iron40_license', license);
+    license = licenseFrom(m[1], data); store.set('iron40_license', license); store.del('iron40_trialEnded');
     showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'body');
-    openModal(`<h3>${t('Iron 40 unlocked')}</h3><div class="muted">${t('Everything is open on this phone: all demos, videos, recovery, progress and your log.')}</div><button class="btn btn-primary btn-block" data-m="ok">${t('Let’s lift')}</button>`);
+    openModal(license.expires ? `<h3>${t('30-day trial unlocked')}</h3><div class="muted">${t('Everything is open on this phone for 30 days: all demos, videos, recovery, progress and your log.')}</div><button class="btn btn-primary btn-block" data-m="ok">${t('Let’s lift')}</button>` : `<h3>${t('Iron 40 unlocked')}</h3><div class="muted">${t('Everything is open on this phone: all demos, videos, recovery, progress and your log.')}</div><button class="btn btn-primary btn-block" data-m="ok">${t('Let’s lift')}</button>`);
   } catch (err) { console.warn('Unlock link failed', err); }
 })();
 

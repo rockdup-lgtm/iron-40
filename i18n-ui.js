@@ -593,3 +593,24 @@ Object.assign(I18N.pt, {
     'Restaurar {n} treinos de {date}? Isso substitui os {m} deste aparelho.',
   'Couldn’t read that file. Choose the .json backup Iron 40 saved.': 'Não foi possível ler esse arquivo. Escolha o backup .json que o Iron 40 salvou.',
 });
+
+// Friend trial codes
+Object.assign(I18N.es, {
+  "This phone has already used its free trial.": "Este teléfono ya usó su prueba gratis.",
+  "Your 30-day trial has ended. Unlock to keep everything.": "Tu prueba de 30 días terminó. Desbloquea para conservarlo todo.",
+  "License key or friend code": "Clave de licencia o código de amigo",
+  "30-day trial unlocked": "Prueba de 30 días activada",
+  "Everything is open on this phone for 30 days: all demos, videos, recovery, progress and your log.": "Todo está abierto en este teléfono por 30 días: demos, videos, recuperación, progreso y tu registro.",
+  "Trial: 1 day left": "Prueba: queda 1 día",
+  "Trial: {n} days left": "Prueba: quedan {n} días",
+});
+
+Object.assign(I18N.pt, {
+  "This phone has already used its free trial.": "Este celular já usou o teste grátis.",
+  "Your 30-day trial has ended. Unlock to keep everything.": "Seu teste de 30 dias terminou. Desbloqueie para manter tudo.",
+  "License key or friend code": "Chave de licença ou código de amigo",
+  "30-day trial unlocked": "Teste de 30 dias ativado",
+  "Everything is open on this phone for 30 days: all demos, videos, recovery, progress and your log.": "Tudo liberado neste celular por 30 dias: demonstrações, vídeos, recuperação, progresso e seu histórico.",
+  "Trial: 1 day left": "Teste: falta 1 dia",
+  "Trial: {n} days left": "Teste: faltam {n} dias",
+});

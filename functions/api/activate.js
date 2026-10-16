@@ -1,7 +1,7 @@
 // POST /api/activate  { key }  →  { ok: true, id } | { ok: false, error }
 // Activates a Lemon Squeezy license key for one device. Runs on Cloudflare Pages
 // so the browser never talks to Lemon Squeezy directly.
-// Settings (Cloudflare Pages → Settings → Variables): LS_STORE_ID, LS_PRODUCT_ID and OWNER_KEY,
+// Settings (Cloudflare Pages → Settings → Variables): LS_STORE_ID, LS_PRODUCT_ID, OWNER_KEY and TRIAL_CODES,
 // so keys from any other Lemon Squeezy product are rejected.
 
 const json = (body, status = 200) =>
@@ -14,6 +14,9 @@ export async function onRequestPost({ request, env }) {
 
   // Private owner link: OWNER_KEY is a Pages secret, never shipped in the app
   if (env.OWNER_KEY && key === env.OWNER_KEY) return json({ ok: true, id: 'owner' });
+  // Friend trial codes: TRIAL_CODES is a comma-separated Pages secret; each device gets 30 days from activation
+  const trials = String(env.TRIAL_CODES || '').split(',').map((c) => c.trim().toUpperCase()).filter(Boolean);
+  if (trials.includes(key.toUpperCase())) return json({ ok: true, id: 'trial', days: 30 });
 
   const form = new URLSearchParams({ license_key: key, instance_name: `Iron 40 · ${new Date().toISOString().slice(0, 10)}` });
   let data;
