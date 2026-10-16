@@ -628,7 +628,6 @@ Object.assign(I18N.es, {
   'Stretch gently': 'Estira con suavidad',
   'Stretch when your muscles are warm — after a workout or a 5-minute walk.': 'Estira con los músculos calientes: después de entrenar o de caminar 5 minutos.',
   'Ease into mild tension, hold and breathe. Never bounce, and stop if anything hurts.': 'Llega a una tensión suave, sostén y respira. Nunca rebotes, y detente si algo te duele.',
-  '4 stretching routines — full body, lower back, legs, arms & shoulders': '4 rutinas de estiramiento: cuerpo completo, zona lumbar, piernas, brazos y hombros',
 });
 Object.assign(I18N.pt, {
   'Stretching': 'Alongamento',
@@ -642,5 +641,10 @@ Object.assign(I18N.pt, {
   'Stretch gently': 'Alongue com calma',
   'Stretch when your muscles are warm — after a workout or a 5-minute walk.': 'Alongue com os músculos aquecidos: depois do treino ou de 5 minutos de caminhada.',
   'Ease into mild tension, hold and breathe. Never bounce, and stop if anything hurts.': 'Chegue a uma tensão leve, segure e respire. Nunca balance, e pare se algo doer.',
-  '4 stretching routines — full body, lower back, legs, arms & shoulders': '4 rotinas de alongamento: corpo inteiro, lombar, pernas, braços e ombros',
 });
+
+Object.assign(I18N.es, { "Free": "Gratis" });
+Object.assign(I18N.pt, { "Free": "Grátis" });
+
+Object.assign(I18N.es, { "3 more stretching routines — full body, legs, arms & shoulders": "3 rutinas de estiramiento más: cuerpo completo, piernas, brazos y hombros" });
+Object.assign(I18N.pt, { "3 more stretching routines — full body, legs, arms & shoulders": "Mais 3 rotinas de alongamento: corpo inteiro, pernas, braços e ombros" });

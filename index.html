@@ -594,7 +594,7 @@ function licenseFrom(key, data) {
   store.set('iron40_trialStart', at);
   return { key, id: 'trial', at, expires: at + data.days * 864e5 };
 }
-const FREE_DAYS = ['A'];
+const FREE_DAYS = ['A', 'SB']; // Workout A + the lower-back stretch routine are free
 const isLocked = (key) => !license && !FREE_DAYS.includes(key);
 // Free sample: Workout A's exercises are fully free; every other move's animated demo, scrubber and video need the unlock
 const FREE_EX = new Set(FREE_DAYS.flatMap((d) => PROGRAM[d].items.map((i) => i.id)));
@@ -813,7 +813,7 @@ function renderToday() {
       ${license ? '' : tile('B', t('Gym · {name}', { name: PROGRAM.B.name }), t('Barbell day'), true)}
       ${cali.map((k) => tile(k, esc(PROGRAM[k].chip), t('~{n} min · bodyweight', { n: PROGRAM[k].mins }))).join('')}</div>
     <div class="eyebrow" style="margin-top:18px">${t('Stretching')}</div>
-    <div class="tiles">${stretch.map((k) => tile(k, esc(PROGRAM[k].chip), t('~{n} min · stretch', { n: PROGRAM[k].mins }))).join('')}</div>`;
+    <div class="tiles">${stretch.map((k) => tile(k, esc(PROGRAM[k].chip), (!license && FREE_DAYS.includes(k) ? t('Free') + ' · ' : '') + t('~{n} min · stretch', { n: PROGRAM[k].mins }))).join('')}</div>`;
 
   mountMedia($('#nextCard')); mountMedia($('#exList'));
   $('#s-today').onclick = (e) => {
@@ -1662,7 +1662,7 @@ function openUnlock() {
     <div class="row" style="justify-content:space-between"><h2 class="display">${t('Unlock Iron 40')}</h2><b class="num" style="font-size:22px">${SHOP.price}</b></div>
     ${store.get('iron40_trialEnded', false) ? `<div class="callout warn" style="text-align:left">${t('Your 30-day trial has ended. Unlock to keep everything.')}</div>` : ''}
     <div class="small muted">${t('One-time purchase. No subscription.')}</div>
-    <ul class="perks"><li>${t('Animated form demos, the rep scrubber and video demos for all {n} exercises', { n: EXERCISES.length })}</li><li>${t('Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core')}</li><li>${t('4 stretching routines — full body, lower back, legs, arms & shoulders')}</li><li>${t('Recovery tracking for every muscle')}</li><li>${t('Your full training log, lifts and personal bests')}</li></ul>
+    <ul class="perks"><li>${t('Animated form demos, the rep scrubber and video demos for all {n} exercises', { n: EXERCISES.length })}</li><li>${t('Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core')}</li><li>${t('3 more stretching routines — full body, legs, arms & shoulders')}</li><li>${t('Recovery tracking for every muscle')}</li><li>${t('Your full training log, lifts and personal bests')}</li></ul>
     ${SHOP.checkoutUrl ? `<a class="btn btn-primary btn-block" href="${SHOP.checkoutUrl}" target="_blank" rel="noopener">${t('Buy for {price}', { price: SHOP.price })}</a>` : ''}
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Already bought it?')}</div>
       <div class="row"><input id="licKey" class="lic" placeholder="${t('License key or friend code')}" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn btn-ghost" id="licGo">${t('Activate')}</button></div>
