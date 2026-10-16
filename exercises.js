@@ -472,6 +472,39 @@ const EXERCISES = [
     ],
     tempo: [{ label: 'Raise', dur: 1 }, { label: 'Lower', dur: 2 }],
   },
+  {
+    id: 'calf-raise', name: 'Standing Calf Raise', group: 'Legs', equip: ['Bodyweight', 'Dumbbell'], bw: true,
+    muscles: 'Calves, ankles',
+    cues: ['Stand tall, feet hip-width, holding a wall or dumbbells', 'Rise as high as you can onto the balls of your feet', 'Pause for a second, then lower all the way down'],
+    mistake: 'Bouncing through fast, short reps.',
+    tip40: 'Strong calves and ankles mean better balance and fewer falls. Do these slowly with a full pause at the top.',
+    easier: 'Hold a wall, both feet', harder: 'Single-leg, off the edge of a step',
+    prop: null, es: 1, mus: { p: ['calves'], s: [] }, ...STAND_FEET,
+    frames: [{ ...STAND, hn: [122, 103], fn: [124, 176], ff: [118, 176] }, { hip: [120, 85], t: -90, hn: [122, 95], fn: [124, 168], ff: [118, 168] }],
+    tempo: [{ label: 'Rise & pause', dur: 1.5 }, { label: 'Lower', dur: 2 }],
+  },
+  {
+    id: 'lateral-raise', name: 'Dumbbell Lateral Raise', group: 'Push', equip: ['Dumbbell'],
+    muscles: 'Side shoulders, upper traps',
+    cues: ['Light dumbbells at your sides, slight bend in the elbows', 'Raise out to the sides (slightly forward) to shoulder height', 'Lower slowly — no swinging'],
+    mistake: 'Shrugging and swinging heavy weights up.',
+    tip40: 'Go light and lift slightly in front of your body (the “scapular plane”) — it’s far kinder to aging shoulders.',
+    easier: 'One arm at a time, or water bottles', harder: 'Slow 3-second lowering',
+    prop: 'db', es: 1, mus: { p: ['delts'], s: [] }, ...STAND_FEET,
+    frames: [{ ...STAND, hn: [122, 103], hf: [118, 103] }, { ...STAND, hn: [170, 50], hf: [166, 50] }],
+    tempo: [{ label: 'Raise', dur: 1 }, { label: 'Lower', dur: 2 }],
+  },
+  {
+    id: 'side-plank', name: 'Side Plank', group: 'Arms & Core', equip: ['Bodyweight'], bw: true, timed: true,
+    muscles: 'Obliques, deep core, glutes, shoulders',
+    cues: ['On your side, elbow right under your shoulder', 'Stack your feet and lift your hips into a straight line', 'Hold and breathe, then switch sides'],
+    mistake: 'Hips sagging or drifting backward.',
+    tip40: 'Trains the side-to-side core strength that protects your lower back. Bend your knees to start.',
+    easier: 'Knees bent on the floor', harder: 'Lift the top leg',
+    prop: null, es: 1, esf: -1, mus: { p: ['abs'], s: ['glutes', 'delts'] }, fn: [20, 176], ff: [16, 176],
+    frames: [{ hip: [99, 146], t: -19, hn: [108, 136], hf: [178, 176] }, { hip: [99, 143], t: -20, hn: [108, 133], hf: [178, 176] }],
+    tempo: [{ label: 'Hold', dur: 2 }, { label: 'Breathe', dur: 2 }],
+  },
 ];
 
 const WARMUPS = [
@@ -539,6 +572,7 @@ const PROGRAM = {
       { id: 'reverse-lunge', sets: 3, lo: 8, hi: 12, rest: 60, perSide: true },
       { id: 'glute-bridge', sets: 3, lo: 12, hi: 15, rest: 60 },
       { id: 'wall-sit', sets: 3, lo: 30, hi: 60, rest: 60, timed: true },
+      { id: 'calf-raise', sets: 3, lo: 12, hi: 20, rest: 45 },
     ],
   },
   CC: {
@@ -564,6 +598,7 @@ const PROGRAM = {
     items: [
       { id: 'pike-pushup', sets: 3, lo: 6, hi: 10, rest: 90 },
       { id: 'y-raise', sets: 3, lo: 10, hi: 12, rest: 45 },
+      { id: 'lateral-raise', sets: 3, lo: 10, hi: 15, rest: 45 },
       { id: 'decline-pushup', sets: 2, lo: 6, hi: 12, rest: 90 },
       { id: 'shoulder-tap', sets: 2, lo: 8, hi: 12, rest: 60, perSide: true },
     ],
@@ -582,6 +617,7 @@ const PROGRAM = {
     items: [
       { id: 'plank', sets: 3, lo: 30, hi: 60, rest: 45, timed: true },
       { id: 'dead-bug', sets: 3, lo: 6, hi: 10, rest: 45, perSide: true },
+      { id: 'side-plank', sets: 2, lo: 20, hi: 40, rest: 45, timed: true, perSide: true },
       { id: 'knee-raise', sets: 3, lo: 8, hi: 12, rest: 60 },
       { id: 'shoulder-tap', sets: 2, lo: 8, hi: 12, rest: 45, perSide: true },
     ],
@@ -752,6 +788,8 @@ const IronRig = (() => {
   }
   const place = (c, P) => { c.setAttribute('cx', f1(P[0])); c.setAttribute('cy', f1(P[1])); };
   const footPath = (a) => {
+    if (a[1] > 156 && a[1] < 174) // heel lifted (calf raise, back foot of a lunge): foot pivots on the toes
+      return `M${f1(a[0] - 4)} ${f1(a[1] - 2)} L${f1(a[0] + 4)} ${f1(a[1] - 4)} L${f1(a[0] + 17)} 177 L${f1(a[0] + 15)} 180 L${f1(a[0] + 6)} 180 Z`;
     const y = Math.min(a[1], 176), g = Math.min(y + 5, 180);
     return `M${f1(a[0] - 4)} ${f1(y - 3)} L${f1(a[0] + 4)} ${f1(y - 3)} Q${f1(a[0] + 14)} ${f1(g - 3)} ${f1(a[0] + 14)} ${f1(g)} L${f1(a[0] - 5)} ${f1(g)} Z`;
   };
@@ -988,4 +1026,7 @@ const TIP30 = {
   'plank': 'Once 60 seconds is easy, make it harder — don’t just hold longer.',
   'dead-bug': 'Teaches the core bracing you’ll use in every heavy squat and deadlift.',
   'knee-raise': 'Progress to straight-leg raises — a sign of real core strength.',
+  'calf-raise': 'Train calves through a full stretch — strong ankles now prevent sprains and Achilles trouble later.',
+  'lateral-raise': 'Wider shoulders come from side delts. Light weight, strict reps, lots of sets.',
+  'side-plank': 'Side planks build the obliques that brace every heavy lift. Work up to 45 seconds a side.',
 };

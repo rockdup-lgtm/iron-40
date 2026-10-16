@@ -289,6 +289,23 @@ details summary::-webkit-details-marker { display: none; }
 .modal.open { display: flex; animation: fade .3s ease; }
 .modal .card { max-width: 480px; width: 100%; margin-bottom: env(safe-area-inset-bottom); background: var(--surface-solid); border-color: var(--line-strong); border-radius: 30px; padding: 22px; }
 .modal .seg { display: flex; gap: 8px; }
+.data-btn { min-height: 44px; padding: 0 16px; font-size: 14px; flex: 1; }
+.chart { margin-top: 10px; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .tick { fill: var(--faint); font: 500 9.5px Inter, sans-serif; }
+.chart .line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .dot { fill: var(--accent); stroke: var(--surface-solid); stroke-width: 2; }
+.chart .dot.pr { fill: var(--gold); }
+.chart .dot.sel { r: 6; }
+.chart .hit { fill: transparent; cursor: pointer; }
+.chart .lbl { fill: var(--text); font: 600 10px Inter, sans-serif; }
+.chart-read { margin-top: 4px; text-align: center; }
+.pr-row { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 10px 0; border-top: 1px solid var(--line); }
+.pr-row:first-of-type { border-top: 0; }
+.pr-row span:last-child { display: flex; flex-direction: column; }
+.pr-badge { flex: none; width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; font: 700 11px Sora, sans-serif; color: #2a1d05; background: linear-gradient(135deg, #f3d398, var(--gold)); }
+.lifts tr[data-ex] { cursor: pointer; }
 .body-go { min-height: 42px; padding: 0 16px; font-size: 14px; border-radius: 14px; }
 .body-card { padding: 14px 10px 10px; background: radial-gradient(55% 50% at 50% 45%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 75%), var(--surface); }
 .body-map { max-width: 520px; margin: 0 auto; }
@@ -702,6 +719,58 @@ function mountStage(container, ex, small) {
   return anim;
 }
 
+// =====================================================
+// PROGRESS — estimated 1RM (Epley), personal records, charts
+// =====================================================
+const e1rm = (w, r) => (w > 0 && r > 0 ? Math.round(w * (1 + Math.min(r, 12) / 30)) : 0);
+// One point per session: the best set by estimated 1RM (weighted) or most reps/seconds (bodyweight)
+function liftHistory(id) {
+  const out = [];
+  log.forEach((l) => l.ex.filter((x) => x.id === id).forEach((x) => {
+    const done = x.sets.filter((s) => s.done && (+s.r || 0) > 0);
+    if (!done.length) return;
+    const weighted = done.some((s) => +s.w > 0);
+    const best = done.reduce((b, s) => {
+      const v = weighted ? e1rm(+s.w, +s.r) : +s.r;
+      return v > b.v ? { v, w: +s.w || 0, r: +s.r } : b;
+    }, { v: -1 });
+    out.push({ date: l.date, ts: l.ts || new Date(l.date + 'T18:00').getTime(), weighted, ...best });
+  }));
+  out.sort((a, b) => a.ts - b.ts);
+  let top = -1; out.forEach((p) => { p.pr = p.v > top; if (p.pr) top = p.v; });
+  return out;
+}
+const fmtDate = (d) => new Date(d + 'T12:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+const pointText = (p, ex) => p.weighted ? `${p.w} lb × ${p.r} · est. 1RM ${p.v} lb` : `${p.r} ${ex.timed ? 'sec' : 'reps'}`;
+
+// Single-series line chart (accent 2px line, 8px dots, recessive grid). Tap a point to read it.
+function chartSvg(pts, ex) {
+  if (pts.length < 2) return '';
+  const W = 320, H = 132, L = 34, R = 12, T = 16, B = 22;
+  const vs = pts.map((p) => p.v), lo = Math.min(...vs), hi = Math.max(...vs), pad = Math.max(1, (hi - lo) * 0.15);
+  const y0 = Math.max(0, lo - pad), y1 = hi + pad;
+  const x = (i) => L + ((W - L - R) * i) / (pts.length - 1), y = (v) => T + (H - T - B) * (1 - (v - y0) / (y1 - y0));
+  const ticks = [y0, (y0 + y1) / 2, y1].map((v) => Math.round(v));
+  const best = pts.reduce((b, p, i) => (p.v >= pts[b].v ? i : b), 0), last = pts.length - 1;
+  return `<div class="chart" data-ex-chart="${ex.id}">
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(ex.name)} progress, ${pts.length} sessions, best ${pointText(pts[best], ex)}">
+      ${ticks.map((v) => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" class="grid"/><text x="${L - 6}" y="${y(v) + 3.5}" class="tick" text-anchor="end">${v}</text>`).join('')}
+      <text x="${L}" y="${H - 5}" class="tick">${fmtDate(pts[0].date)}</text><text x="${W - R}" y="${H - 5}" class="tick" text-anchor="end">${fmtDate(pts[last].date)}</text>
+      <path d="M${pts.map((p, i) => `${x(i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' L')}" class="line"/>
+      ${pts.map((p, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="4" class="dot ${p.pr ? 'pr' : ''}"/><circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="14" class="hit" data-i="${i}"/>`).join('')}
+      <text x="${Math.min(W - R, Math.max(L, x(best)))}" y="${y(pts[best].v) - 9}" class="lbl" text-anchor="${best === last ? 'end' : best === 0 ? 'start' : 'middle'}">Best ${pts[best].v}</text>
+    </svg>
+    <div class="small muted chart-read" data-default="${esc(`${fmtDate(pts[last].date)} · ${pointText(pts[last], ex)}`)}">${fmtDate(pts[last].date)} · ${pointText(pts[last], ex)}</div>
+  </div>`;
+}
+// tap/hover a point → read its value under the chart
+document.addEventListener('click', (e) => {
+  const hit = e.target.closest('.chart .hit'); if (!hit) return;
+  const box = hit.closest('.chart'), ex = EX_BY_ID[box.dataset.exChart], p = liftHistory(ex.id)[+hit.dataset.i];
+  box.querySelector('.chart-read').textContent = `${fmtDate(p.date)} · ${pointText(p, ex)}${p.pr ? ' · PR' : ''}`;
+  box.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('sel', i === +hit.dataset.i));
+});
+
 function exInfo(ex) {
   const last = lastFor(ex.id);
   const best = log.flatMap((l) => l.ex.filter((x) => x.id === ex.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => +s.w || 0)));
@@ -711,6 +780,7 @@ function exInfo(ex) {
     <div class="small muted">${esc(ex.equip.join(' · '))}</div>
     <div><b>Works:</b> ${esc(ex.muscles)}</div>
     ${last ? `<div class="hint">Last: ${esc(last.sets.filter((s) => s.done).map((s) => `${s.w || 0}×${s.r}`).join(', '))} · ${bestTxt}</div>` : ''}
+    ${license && liftHistory(ex.id).length > 1 ? `<div class="card"><h3>Your progress</h3><div class="small muted">${liftHistory(ex.id)[0].weighted ? 'Estimated 1-rep max per session (lb)' : `Best set per session (${ex.timed ? 'sec' : 'reps'})`}</div>${chartSvg(liftHistory(ex.id), ex)}</div>` : ''}
     <div><h3>How to do it</h3><ol class="cues">${ex.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ol></div>
     <div class="callout"><b>${P().age === '30' ? '30s tip' : '40+ tip'}</b>${esc(P().age === '30' ? TIP30[ex.id] : ex.tip40)}</div>
     <div class="callout warn"><b>Avoid</b>${esc(ex.mistake)}</div>
@@ -863,6 +933,15 @@ function renderSummary(head) {
         <div class="stat"><b>${mins}</b><span>Minutes</span></div>
       </div>
       ${sets.length ? '' : '<div class="callout warn" style="text-align:left">No sets were checked off. Tap ✓ after each set to log it.</div>'}
+      ${(() => { // compare today's best sets with everything logged before
+        const news = active.ex.map((e) => {
+          const ex = EX_BY_ID[e.id], done = e.sets.filter((s) => s.done && +s.r > 0); if (!done.length) return null;
+          const weighted = done.some((s) => +s.w > 0), v = Math.max(...done.map((s) => (weighted ? e1rm(+s.w, +s.r) : +s.r)));
+          const prev = liftHistory(e.id).filter((p) => p.weighted === weighted).reduce((m, p) => Math.max(m, p.v), 0);
+          return prev && v > prev ? `<div class="pr-row"><span class="pr-badge">PR</span><span><b>${esc(ex.name)}</b><span class="small muted">${weighted ? `est. 1RM ${v} lb (was ${prev})` : `${v} ${ex.timed ? 'sec' : 'reps'} (was ${prev})`}</span></span></div>` : null;
+        }).filter(Boolean);
+        return news.length ? `<div class="card" style="text-align:left"><h3>New personal records</h3>${news.join('')}</div>` : '';
+      })()}
       <div class="footer-nav"><button class="btn btn-ghost" id="wPrev">Back</button><button class="btn btn-primary" id="wSave">Save workout</button></div>
     </div>`;
   $('#wPrev').onclick = () => { active.step--; saveActive(); renderStep(); };
@@ -982,19 +1061,24 @@ function renderHistory() {
       <button class="btn btn-primary" style="margin-top:16px" onclick="showTab('today')">Go to Today</button></div>`;
     return;
   }
+  const prs = EXERCISES.flatMap((e) => liftHistory(e.id).filter((p, i) => p.pr && i > 0).map((p) => ({ ...p, ex: e })))
+    .sort((a, b) => b.ts - a.ts).slice(0, 6);
+  const prCard = prs.length ? `<div class="card"><h3>Recent personal records</h3>${prs.map((p) => `<button class="pr-row" data-ex="${p.ex.id}"><span class="pr-badge">PR</span><span><b>${esc(p.ex.name)}</b><span class="small muted">${fmtDate(p.date)} · ${pointText(p, p.ex)}</span></span></button>`).join('')}</div>` : '';
   const lifts = EXERCISES.map((e) => {
     const last = lastFor(e.id); if (!last) return null;
+    const h = liftHistory(e.id), top = h.reduce((b, p) => (p.v > b.v ? p : b), h[0]);
+    if (top && top.weighted) return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">Est. 1RM ${top.v} lb · ${h.length} session${h.length > 1 ? 's' : ''}</div></td><td>${Math.max(...last.sets.filter((s) => s.done).map((s) => s.w))} lb</td></tr>`;
     const best = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.w))));
     const lw = Math.max(...last.sets.filter((s) => s.done).map((s) => s.w));
     if (e.bw && !best) {
       const u = e.timed ? 'sec' : 'reps', lr = Math.max(...last.sets.filter((s) => s.done).map((s) => s.r));
       const br = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.r))));
-      return `<tr><td>${esc(e.name)}<div class="small muted">Best ${br} ${u}</div></td><td>${lr} ${u}</td></tr>`;
+      return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">Best ${br} ${u}</div></td><td>${lr} ${u}</td></tr>`;
     }
-    return `<tr><td>${esc(e.name)}<div class="small muted">Best ${best} lb</div></td><td>${lw} lb</td></tr>`;
+    return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">Best ${best} lb</div></td><td>${lw} lb</td></tr>`;
   }).filter(Boolean).join('');
-  $('#histBody').innerHTML = `
-    <div class="card"><h3>Your lifts</h3><div class="small muted">Latest working set</div><table class="lifts" style="margin-top:8px">${lifts}</table></div>
+  $('#histBody').innerHTML = prCard + `
+    <div class="card"><h3>Your lifts</h3><div class="small muted">Latest working set · tap a lift for its chart</div><table class="lifts" style="margin-top:8px">${lifts}</table></div>
     <div class="card stack"><h3>Workouts</h3>
       ${log.slice().reverse().map((l) => {
         const sets = l.ex.reduce((a, e) => a + e.sets.filter((s) => s.done).length, 0);
@@ -1004,6 +1088,7 @@ function renderHistory() {
           <div class="small muted">${sets} sets · ${vol ? vol.toLocaleString() + ' lb' : l.ex.reduce((a, e) => a + (EX_BY_ID[e.id].timed ? 0 : e.sets.filter((s) => s.done).reduce((b, s) => b + s.r, 0)), 0) + ' reps'} · ${l.mins || '—'} min</div></div></div>`;
       }).join('')}
     </div>`;
+  $('#histBody').onclick = (e) => { const r = e.target.closest('[data-ex]'); if (r) openDetail(r.dataset.ex); };
 }
 
 // =====================================================
@@ -1059,7 +1144,12 @@ function openProfile(first) {
     <div><div class="eyebrow" style="margin-bottom:8px">Show me</div>${seg('sex', [['m', 'Men'], ['f', 'Women']])}</div>
     <div><div class="eyebrow" style="margin-bottom:8px">Age group</div>${seg('age', [['30', '30s'], ['40', '40+']])}</div>
     <div class="small muted">Sets the photos, coaching tips and recovery times. You can change it anytime from the profile button.</div>
-    ${first ? '<div class="callout warn small">Check with your doctor before starting a new exercise program, especially with heart, blood pressure, or joint issues. Stop any exercise that causes sharp pain.</div>' : ''}
+    ${first ? '<div class="callout warn small">Check with your doctor before starting a new exercise program, especially with heart, blood pressure, or joint issues. Stop any exercise that causes sharp pain.</div>' : `
+    <div><div class="eyebrow" style="margin-bottom:8px">Your data · ${log.length} workout${log.length === 1 ? '' : 's'} on this device</div>
+      <div class="small muted" style="margin-bottom:10px">Everything is stored only on this device. Save a backup now and then, and use it to move to a new phone.</div>
+      <div class="row" style="flex-wrap:wrap"><button class="btn btn-ghost data-btn" id="dExport">Save backup</button><button class="btn btn-ghost data-btn" id="dCsv">Export CSV</button>
+        <label class="btn btn-ghost data-btn">Restore<input type="file" id="dImport" accept=".json,application/json" hidden></label></div>
+      <div class="small" id="dMsg" style="margin-top:8px"></div></div>`}
     <button class="btn btn-primary btn-block" data-m="ok">${first ? "I understand — let's lift" : 'Save'}</button>`,
     (a) => {
       if (a !== 'ok') return;
@@ -1073,6 +1163,43 @@ function openProfile(first) {
   };
 }
 $('#profileBtn').addEventListener('click', () => openProfile(false));
+
+// =====================================================
+// Backup / restore / CSV export — all on-device, no account
+// =====================================================
+function download(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: name });
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+const today = () => localKey(new Date());
+$('#modalBody').addEventListener('click', (e) => {
+  if (e.target.closest('#dExport')) {
+    const backup = { app: 'iron40', version: 1, exportedAt: new Date().toISOString(), profile, license, log, active, pick };
+    download(`iron40-backup-${today()}.json`, JSON.stringify(backup, null, 1), 'application/json');
+    $('#dMsg').textContent = 'Backup saved. Keep it somewhere safe (Files, iCloud Drive, email to yourself).';
+  }
+  if (e.target.closest('#dCsv')) {
+    const rows = [['date', 'workout', 'exercise', 'set', 'weight_lb', 'reps_or_sec', 'done', 'est_1rm_lb']];
+    log.forEach((l) => l.ex.forEach((x) => x.sets.forEach((st, i) => rows.push([l.date, PROGRAM[l.day]?.name || l.day, EX_BY_ID[x.id]?.name || x.id, i + 1, st.w || 0, st.r || 0, st.done ? 'yes' : 'no', st.done ? e1rm(+st.w, +st.r) || '' : '']))));
+    download(`iron40-workouts-${today()}.csv`, rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n'), 'text/csv');
+    $('#dMsg').textContent = 'CSV saved — opens in Numbers, Excel or Google Sheets.';
+  }
+});
+$('#modalBody').addEventListener('change', async (e) => {
+  if (e.target.id !== 'dImport' || !e.target.files[0]) return;
+  const msg = $('#dMsg');
+  try {
+    const data = JSON.parse(await e.target.files[0].text());
+    if (data.app !== 'iron40' || !Array.isArray(data.log)) throw new Error('That file isn’t an Iron 40 backup.');
+    if (!confirm(`Restore ${data.log.length} workout${data.log.length === 1 ? '' : 's'} from ${String(data.exportedAt || '').slice(0, 10) || 'this backup'}? This replaces the ${log.length} on this device.`)) return;
+    store.set('iron40_log', data.log);
+    data.profile ? store.set('iron40_profile', data.profile) : null;
+    data.license ? store.set('iron40_license', data.license) : null;
+    data.active ? store.set('iron40_active', data.active) : store.del('iron40_active');
+    location.reload();
+  } catch (err) { msg.style.color = 'var(--danger)'; msg.textContent = err.message.startsWith('That file') ? err.message : 'Couldn’t read that file. Choose the .json backup Iron 40 saved.'; }
+});
 if (!profile) openProfile(!store.get('iron40_ack', false));
 
 showTab(active ? 'today' : 'body'); // the app always opens on the body map

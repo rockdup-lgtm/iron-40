@@ -1,10 +1,11 @@
-const CACHE = 'iron40-v11';
+const CACHE = 'iron40-v12';
 const CORE = ['./', 'index.html', 'exercises.js', 'manifest.json'];
 const IMAGES = ['hero', 'onboard', 'icon-192', 'icon-512', 'apple-touch-icon',
   'db-bench', 'incline-db', 'bb-ohp', 'db-shoulder', 'db-row', 'bb-row', 'cs-row', 'db-pullover',
   'goblet-squat', 'back-squat', 'db-rdl', 'bb-rdl', 'split-squat', 'hip-thrust', 'db-curl', 'skull-crusher', 'farmer-carry',
   'push-up', 'incline-pushup', 'decline-pushup', 'diamond-pushup', 'pike-pushup', 'pull-up', 'chin-up', 'inverted-row', 'superman', 'y-raise',
   'shoulder-tap', 'bench-dip', 'bw-squat', 'reverse-lunge', 'glute-bridge', 'wall-sit', 'plank', 'dead-bug', 'knee-raise',
+  'calf-raise', 'lateral-raise', 'side-plank',
 ].flatMap((n) => n.includes('icon') ? [`img/${n}.png`] : [`img/${n}.jpg`, `img/f/${n}.jpg`]); // men's and women's photos
 
 // Images are optional, so add them one by one and ignore misses
