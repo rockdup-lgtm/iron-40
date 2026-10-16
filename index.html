@@ -289,6 +289,16 @@ details summary::-webkit-details-marker { display: none; }
 .modal.open { display: flex; animation: fade .3s ease; }
 .modal .card { max-width: 480px; width: 100%; margin-bottom: env(safe-area-inset-bottom); background: var(--surface-solid); border-color: var(--line-strong); border-radius: 30px; padding: 22px; }
 .modal .seg { display: flex; gap: 8px; }
+.body-go { min-height: 42px; padding: 0 16px; font-size: 14px; border-radius: 14px; }
+.body-card { padding: 14px 10px 10px; background: radial-gradient(55% 50% at 50% 45%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 75%), var(--surface); }
+.body-map { max-width: 520px; margin: 0 auto; }
+.body-map .musclemap { -webkit-tap-highlight-color: transparent; }
+.body-map .musclemap .mm-base { fill: url(#g-map); }
+/* anatomy-chart look: every muscle tinted, then recovery / selection colours layered on top */
+.body-map .musclemap .mm:not(.mm-base) { fill: color-mix(in srgb, #c24a63 34%, var(--mm-base)); stroke: color-mix(in srgb, #ff8aa3 30%, var(--mm-line)); }
+.body-map .musclemap .mm:not(.mm-base):hover { fill: color-mix(in srgb, #c24a63 55%, var(--mm-base)); }
+.body-lbl { position: absolute; transform: translate(-50%, -50%); font: 600 9.5px/1 Inter, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: rgba(255,255,255,.82); text-shadow: 0 1px 3px rgba(0,0,0,.8); pointer-events: none; white-space: nowrap; }
+.body-views { padding: 6px 18px 0; }
 .tile2.locked { opacity: .72; }
 .tile2 .lock, .unlock-link .lock, .paywall .lock { width: 16px; height: 16px; flex: none; color: var(--muted); }
 .tile2 .lock { margin-left: auto; align-self: flex-start; }
@@ -324,7 +334,23 @@ details summary::-webkit-details-marker { display: none; }
 </svg>
 
 <!-- ============ TODAY ============ -->
-<section class="screen active" id="s-today">
+<!-- ============ BODY (opening screen) ============ -->
+<section class="screen active" id="s-body">
+  <div class="stack">
+    <div class="today-top">
+      <div><div class="eyebrow" id="bodyTag">Tap a muscle</div><h2 class="display brand">Iron <em>40</em></h2></div>
+      <button class="btn btn-primary body-go" data-go="today">Today's workout</button>
+    </div>
+    <div class="card body-card">
+      <div class="mapwrap body-map" id="bodyMap"></div>
+      <div class="row small muted body-views"><span>Front</span><span class="spacer"></span><span id="bodyLegend"></span><span class="spacer"></span><span>Back</span></div>
+    </div>
+    <div class="filters" id="bodyChips"></div>
+    <div id="bodyPick"></div>
+  </div>
+</section>
+
+<section class="screen" id="s-today">
   <div class="stack">
     <div>
       <div class="today-top">
@@ -366,7 +392,8 @@ details summary::-webkit-details-marker { display: none; }
 </section>
 
 <nav class="tabs" id="tabs">
-  <button data-tab="today" class="on"><svg class="icon" viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg>Workout</button>
+  <button data-tab="body" class="on"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2.5"/><path d="M5 9l7 1.5L19 9M12 10.5V15M12 15l-3 6.5M12 15l3 6.5"/></svg>Body</button>
+  <button data-tab="today"><svg class="icon" viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg>Workout</button>
   <button data-tab="recovery"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 7v5l3 2"/></svg>Recovery</button>
   <button data-tab="library"><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Exercises</button>
   <button data-tab="history"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>Log</button>
@@ -473,6 +500,7 @@ function showTab(name) {
   document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.id === 's-' + name));
   document.querySelectorAll('#tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
   store.set('iron40_tab', name);
+  if (name === 'body') renderBody();
   if (name === 'today') renderToday();
   if (name === 'library') renderLibrary();
   if (name === 'history') renderHistory();
@@ -570,6 +598,55 @@ function renderToday() {
     const p = e.target.closest('[data-pick]');
     if (p) { pick = p.dataset.pick || null; pick ? store.set('iron40_pick', pick) : store.del('iron40_pick'); renderToday(); return window.scrollTo({ top: 0, behavior: 'smooth' }); }
     const b = e.target.closest('[data-ex]'); if (b) openDetail(b.dataset.ex);
+  };
+}
+
+// =====================================================
+// BODY — tap a muscle to see what trains it (recovery colours once unlocked)
+// =====================================================
+let bodyPick = store.get('iron40_body', null);
+function renderBody() {
+  const fresh = license && log.length ? recoveryState() : null;
+  const levels = fresh ? Object.fromEntries(Object.entries(fresh).filter(([, v]) => v < 100).map(([m, v]) => [m, 1 - v / 100])) : {};
+  let map = MuscleMap.svg(levels);
+  const id = map.match(/id="(mm\d+)"/)[1];
+  // selected muscle glows in the accent colour; every region is tappable
+  map = map.replace('</style>', `#${id} .mm:not(.mm-base){cursor:pointer}${bodyPick ? `#${id} .mm-${bodyPick}{fill:var(--accent);filter:drop-shadow(0 0 4px var(--accent))}` : ''}</style>`);
+  // name labels on the major groups (one side of each view)
+  // [label, x, y] in map units: front view 0–100, back view 110–210
+  const LBL = [['Chest', 50, 47], ['Delts', 88, 37], ['Biceps', 92, 70], ['Abs', 50, 80], ['Quads', 50, 132],
+    ['Back', 160, 60], ['Triceps', 202, 70], ['Glutes', 160, 110], ['Hams', 160, 146], ['Calves', 160, 192]];
+  const labels = LBL.map(([l, x, y]) => `<span class="body-lbl" style="left:${(x / 210) * 100}%;top:${(y / 222) * 100}%">${l}</span>`).join('');
+  $('#bodyMap').innerHTML = map + labels;
+  $('#bodyLegend').textContent = fresh ? 'Red = still recovering' : '';
+  $('#bodyTag').textContent = bodyPick ? MUSCLES[bodyPick] : 'Tap a muscle';
+  $('#bodyChips').innerHTML = Object.keys(MUSCLES).map((m) => `<button class="chip ${m === bodyPick ? 'on' : ''}" data-mus="${m}">${MUSCLES[m]}${fresh && fresh[m] < 100 ? ` · ${fresh[m]}%` : ''}</button>`).join('');
+  if (!bodyPick) {
+    $('#bodyPick').innerHTML = `<div class="card small muted" style="text-align:center">Tap any muscle on the body (or a name above) to see the exercises that train it, with animated form demos.</div>`;
+  } else {
+    const main = EXERCISES.filter((e) => e.mus.p.includes(bodyPick));
+    const also = EXERCISES.filter((e) => !e.mus.p.includes(bodyPick) && e.mus.s.includes(bodyPick));
+    const line = (e) => `<button class="ex-line" style="width:100%;text-align:left" data-ex="${e.id}">${mediaHtml(e.id)}
+      <div><h3>${esc(e.name)}</h3><div class="small muted">${esc(e.equip.join(' · '))}</div></div>
+      <svg class="icon chev" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M9 6l6 6-6 6"/></svg></button>`;
+    const rec = fresh ? `<span class="pill">${fresh[bodyPick] >= 100 ? 'Fresh · ready to train' : `${fresh[bodyPick]}% recovered`}</span>` : '';
+    $('#bodyPick').innerHTML = `<div class="card">
+      <div class="row" style="justify-content:space-between"><div><div class="eyebrow">Trains your</div><h2 class="display">${MUSCLES[bodyPick]}</h2></div>${rec}</div>
+      ${main.length ? `<div class="eyebrow" style="margin-top:12px">Main focus · ${main.length}</div>${main.map(line).join('')}` : ''}
+      ${also.length ? `<div class="eyebrow" style="margin-top:12px">Also works it · ${also.length}</div>${also.map(line).join('')}` : ''}
+    </div>`;
+    mountMedia($('#bodyPick'));
+  }
+  const chipOn = $('#bodyChips .chip.on'); if (chipOn) chipOn.parentElement.scrollLeft = chipOn.offsetLeft - chipOn.parentElement.offsetLeft - 20;
+  $('#s-body').onclick = (e) => {
+    if (e.target.closest('[data-go]')) return showTab('today');
+    const ex = e.target.closest('[data-ex]'); if (ex) return openDetail(ex.dataset.ex);
+    const t = e.target.closest('[data-mus]') || e.target.closest('#bodyMap [data-m]');
+    const m = t && (t.dataset.mus || t.dataset.m);
+    if (!m) return;
+    bodyPick = bodyPick === m && !t.dataset.mus ? null : m; store.set('iron40_body', bodyPick);
+    renderBody();
+    if (bodyPick) $('#bodyPick').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 }
 
@@ -998,7 +1075,7 @@ function openProfile(first) {
 $('#profileBtn').addEventListener('click', () => openProfile(false));
 if (!profile) openProfile(!store.get('iron40_ack', false));
 
-showTab(store.get('iron40_tab', 'today'));
+showTab(active ? 'today' : 'body'); // the app always opens on the body map
 if (active) renderToday();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
