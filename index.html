@@ -272,8 +272,26 @@ details summary::-webkit-details-marker { display: none; }
 .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
 .ring circle { fill: none; stroke-width: 6; }
 .ring .track { stroke: var(--surface-2); }
-.ring .bar { stroke: url(#g-ring); stroke-linecap: round; transition: stroke-dashoffset .25s linear; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 70%, transparent)); }
-.ring .num { position: absolute; inset: 0; display: grid; place-items: center; font: 300 84px/1 Sora, sans-serif; letter-spacing: -.06em; font-variant-numeric: tabular-nums; }
+.ring .bar { stroke: url(#g-ring); stroke-linecap: round; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent) 70%, transparent)); transition: stroke .4s; }
+.ring .ticks line { stroke: var(--line-strong); stroke-width: .8; stroke-linecap: round; transition: stroke .3s; }
+.ring .ticks line.big { stroke-width: 1.4; }
+.ring .ticks line.lit { stroke: color-mix(in srgb, var(--accent) 55%, transparent); }
+.ring .dot { fill: #fff; filter: drop-shadow(0 0 6px var(--accent)); transition: fill .4s; }
+.ring .num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 6px; }
+.ring .num b { font: 300 84px/1 Sora, sans-serif; letter-spacing: -.06em; font-variant-numeric: tabular-nums; transition: color .4s; }
+.ring .num small { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.ring { --amber: #ffb020; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .ring { --amber: #f08c00; } }
+:root[data-theme="light"] .ring { --amber: #f08c00; }
+.ring.soon .bar { stroke: var(--amber); filter: drop-shadow(0 0 10px color-mix(in srgb, var(--amber) 70%, transparent)); }
+.ring.soon .dot { filter: drop-shadow(0 0 6px var(--amber)); }
+.ring.soon .ticks line.lit { stroke: color-mix(in srgb, var(--amber) 60%, transparent); }
+.ring.soon .num b { color: var(--amber); }
+.ring.final .num b { animation: restPulse 1s ease-in-out infinite; }
+.ring.done .bar { stroke: var(--ok); }
+.ring.done .num b { color: var(--ok); }
+@keyframes restPulse { 0%,100% { transform: scale(1); } 40% { transform: scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .ring.final .num b { animation: none; } }
 
 /* history */
 .hist { display: flex; gap: 14px; align-items: center; padding: 4px 0; }
@@ -456,15 +474,15 @@ details summary::-webkit-details-marker { display: none; }
 <!-- rest timer -->
 <div class="rest" id="rest">
   <div class="eyebrow">Recover · breathe</div>
-  <div class="ring">
-    <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52"/><circle class="bar" id="restBar" cx="60" cy="60" r="52"/></svg>
-    <div class="num" id="restNum">90</div>
+  <div class="ring" id="restRing" role="timer" aria-live="off">
+    <svg viewBox="0 0 120 120"><g class="ticks" id="restTicks"></g><circle class="track" cx="60" cy="60" r="52"/><circle class="bar" id="restBar" cx="60" cy="60" r="52"/><circle class="dot" id="restDot" r="3.2" cx="112" cy="60"/></svg>
+    <div class="num"><b id="restNum">90</b><small id="restOf">of 1:30</small></div>
   </div>
   <div class="muted" id="restNext"></div>
   <div class="effort" id="restEffort"><div class="eyebrow">How did that set feel?</div>
     <div class="seg"><button class="chip" data-rir="3">Easy</button><button class="chip" data-rir="2">Solid</button><button class="chip" data-rir="1">Hard</button><button class="chip" data-rir="0">All-out</button></div>
     <div class="small muted effort-help">Easy = 3+ reps left · Solid = 2 · Hard = 1 · All-out = none</div></div>
-  <div class="row"><button class="btn btn-ghost" id="restAdd">+15 sec</button><button class="btn btn-primary" id="restSkip">Skip rest</button></div>
+  <div class="row"><button class="btn btn-ghost" id="restSub">−15</button><button class="btn btn-ghost" id="restAdd">+15</button><button class="btn btn-primary" id="restSkip">Skip rest</button></div>
 </div>
 
 <!-- modal -->
@@ -1129,9 +1147,16 @@ function closeWorkout() {
 }
 
 // ---------- rest timer ----------
-let restEnd = 0, restTotal = 0, restInt = 0;
+let restEnd = 0, restTotal = 0, restInt = 0, restRaf = 0, restShown = -1;
 const CIRC = 2 * Math.PI * 52;
 $('#restBar').style.strokeDasharray = CIRC;
+// 60 tick marks around the dial, a longer one every 5
+$('#restTicks').innerHTML = Array.from({ length: 60 }, (_, i) => {
+  const a = (i / 60) * 2 * Math.PI, r1 = i % 5 ? 56.5 : 55.5, r2 = 58.5;
+  return `<line class="${i % 5 ? '' : 'big'}" x1="${(60 + r1 * Math.cos(a)).toFixed(2)}" y1="${(60 + r1 * Math.sin(a)).toFixed(2)}" x2="${(60 + r2 * Math.cos(a)).toFixed(2)}" y2="${(60 + r2 * Math.sin(a)).toFixed(2)}"/>`;
+}).join('');
+const restTicks = [...$('#restTicks').children];
+const mss = (s) => s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : String(s);
 let restSet = null; // the set being rated
 $('#restEffort').addEventListener('click', (e) => {
   const b = e.target.closest('[data-rir]'); if (!b || !restSet) return;
@@ -1145,17 +1170,48 @@ function startRest(sec, nextLabel, set) {
   restTotal = sec; restEnd = Date.now() + sec * 1000;
   $('#restNext').textContent = nextLabel;
   $('#rest').classList.add('open');
-  clearInterval(restInt); tickRest(); restInt = setInterval(tickRest, 250);
+  restShown = -1; $('#restRing').classList.remove('done');
+  clearInterval(restInt); cancelAnimationFrame(restRaf); tickRest(); restInt = setInterval(tickRest, 250); drawRest();
+}
+// Smooth sweep every frame; the number, colours and the end beep update on the 250ms tick
+function drawRest() {
+  const frac = Math.max(0, Math.min(1, (restEnd - Date.now()) / (restTotal * 1000)));
+  $('#restBar').style.strokeDashoffset = CIRC * (1 - frac);
+  const a = frac * 2 * Math.PI;
+  $('#restDot').setAttribute('cx', (60 + 52 * Math.cos(a)).toFixed(2));
+  $('#restDot').setAttribute('cy', (60 + 52 * Math.sin(a)).toFixed(2));
+  const lit = Math.round(frac * 60);
+  restTicks.forEach((t, i) => t.classList.toggle('lit', i < lit));
+  if (frac > 0) restRaf = requestAnimationFrame(drawRest);
 }
 function tickRest() {
   const left = Math.max(0, Math.ceil((restEnd - Date.now()) / 1000));
-  $('#restNum').textContent = left;
-  $('#restBar').style.strokeDashoffset = CIRC * (1 - left / restTotal);
-  if (left <= 0) { beep(); navigator.vibrate?.([200, 100, 200]); stopRest(); }
+  if (left !== restShown) {
+    restShown = left;
+    $('#restNum').textContent = left ? mss(left) : 'Go';
+    $('#restOf').textContent = left ? `of ${mss(restTotal)}` : 'next set';
+    const ring = $('#restRing');
+    ring.classList.toggle('soon', left > 0 && left <= 10);
+    ring.classList.toggle('final', left > 0 && left <= 3);
+    if (left > 0 && left <= 3) navigator.vibrate?.(40);
+  }
+  if (left <= 0) {
+    clearInterval(restInt); $('#restRing').classList.add('done');
+    beep(); navigator.vibrate?.([200, 100, 200]);
+    setTimeout(() => { if (restShown === 0) stopRest(); }, 700);
+  }
 }
-function stopRest() { clearInterval(restInt); $('#rest').classList.remove('open'); }
+function stopRest() { clearInterval(restInt); cancelAnimationFrame(restRaf); $('#rest').classList.remove('open'); }
 $('#restSkip').onclick = stopRest;
-$('#restAdd').onclick = () => { restEnd += 15000; restTotal += 15; tickRest(); };
+const nudgeRest = (sec) => {
+  if (!$('#rest').classList.contains('open')) return;
+  const left = (restEnd - Date.now()) / 1000;
+  if (left + sec < 1) return stopRest();
+  restEnd += sec * 1000; restTotal = Math.max(restTotal + (sec > 0 ? sec : 0), Math.ceil(left + sec));
+  restShown = -1; cancelAnimationFrame(restRaf); tickRest(); drawRest();
+};
+$('#restAdd').onclick = () => nudgeRest(15);
+$('#restSub').onclick = () => nudgeRest(-15);
 let audio;
 function beep() {
   try {
