@@ -250,6 +250,63 @@ h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
 .sets input:focus { outline: none; border-color: color-mix(in srgb, var(--accent) 70%, transparent); box-shadow: 0 0 0 4px var(--accent-soft); }
 .check { width: 54px; height: 54px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; color: var(--faint); }
 .check.on { background: linear-gradient(135deg, #3fe39a, #1fb877); border-color: transparent; color: #03200f; box-shadow: 0 8px 20px -8px rgba(63,227,154,.7); }
+.sets input[readonly] { cursor: pointer; caret-color: transparent; }
+
+/* weight / reps wheel */
+.wsheet { position: fixed; inset: 0; z-index: 70; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,.45); }
+.wsheet.open { display: flex; animation: fade .2s ease; }
+.ws-card { width: 100%; max-width: 520px; background: var(--surface-solid); border-radius: 28px 28px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line-strong); animation: wsUp .28s cubic-bezier(.2,.9,.3,1); }
+@keyframes wsUp { from { transform: translateY(40%); } }
+.ws-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.ws-head b { font: 600 18px Sora, sans-serif; }
+.ws-link { background: none; border: 0; color: var(--accent); font-weight: 600; font-size: 14px; padding: 6px; }
+.ws-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.ws-col { position: relative; }
+.ws-label { text-align: center; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+.ws-col::after { content: ''; position: absolute; left: 0; right: 0; top: calc(22px + 88px); height: 44px; border-radius: 14px; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); pointer-events: none; }
+.wheel { height: 220px; overflow-y: auto; scroll-snap-type: y mandatory; padding: 88px 0; perspective: 600px; scrollbar-width: none; overscroll-behavior: contain;
+  -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); }
+.wheel::-webkit-scrollbar { display: none; }
+.wi { height: 44px; display: grid; place-items: center; scroll-snap-align: center; font: 500 24px Sora, sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -.02em; position: relative; z-index: 1; }
+.ws-btns { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
+
+/* PR celebration */
+.pr-burst { display: none; text-align: center; padding: 14px 20px; border-radius: 20px; background: linear-gradient(135deg, color-mix(in srgb, #ffb020 22%, transparent), color-mix(in srgb, var(--accent) 18%, transparent)); border: 1px solid color-mix(in srgb, #ffb020 50%, transparent); max-width: 340px; }
+.pr-burst.on { display: block; animation: prPop .5s cubic-bezier(.2,1.6,.4,1); }
+.pr-burst .t { font: 700 13px Sora, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #ffb020; }
+.pr-burst .v { font: 600 20px Sora, sans-serif; letter-spacing: -.02em; margin-top: 4px; }
+.pr-burst .small { margin-top: 2px; }
+@keyframes prPop { from { transform: scale(.6); opacity: 0; } }
+#confetti { position: fixed; inset: 0; z-index: 80; pointer-events: none; width: 100%; height: 100%; }
+
+/* streak flame + training heatmap */
+.pill.flame::before { display: none; }
+.flame-ic { width: 16px; height: 18px; margin: -2px -1px -2px -3px; transform-origin: 50% 90%; }
+.flame-ic.lit { animation: flicker 1.6s ease-in-out infinite; filter: drop-shadow(0 0 5px rgba(255,140,40,.6)); }
+.flame-ic.out { filter: grayscale(1); opacity: .45; }
+@keyframes flicker { 0%,100% { transform: scale(1) rotate(0); } 30% { transform: scale(1.06,.96) rotate(-3deg); } 60% { transform: scale(.96,1.05) rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { .flame-ic.lit { animation: none; } }
+.hm-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 14px; }
+.hm-stats div { background: var(--surface-2); border-radius: 14px; padding: 10px; }
+.hm-stats b { display: flex; align-items: center; gap: 4px; font: 600 22px Sora, sans-serif; letter-spacing: -.03em; }
+.hm-stats b .flame-ic { width: 20px; height: 22px; margin: 0; }
+.hm-stats span { font-size: 11.5px; color: var(--muted); }
+.hm-months { display: grid; gap: 3px; height: 16px; font-size: 9.5px; color: var(--faint); }
+.hm-months, .hm { grid-template-columns: 12px repeat(var(--wks), minmax(0, 1fr)); }
+.hm b { font-size: 9px; font-weight: 500; color: var(--faint); display: grid; align-items: center; }
+.hm-months span { white-space: nowrap; overflow: visible; }
+.hm { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 3px; }
+.hm button { aspect-ratio: 1; border-radius: 3px; border: 0; padding: 0; background: var(--surface-2); }
+.hm button.l1 { background: color-mix(in srgb, var(--accent) 30%, var(--surface-solid)); }
+.hm button.l2 { background: color-mix(in srgb, var(--accent) 55%, var(--surface-solid)); }
+.hm button.l3 { background: color-mix(in srgb, var(--accent) 80%, var(--surface-solid)); }
+.hm button.l4 { background: var(--accent); }
+.hm button.today { outline: 1.5px solid var(--text, currentColor); outline-offset: 1px; }
+.hm button.sel { outline: 2px solid #ffb020; outline-offset: 1px; }
+.hm i { aspect-ratio: 1; }
+.hm-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; font-size: 12px; color: var(--muted); min-height: 18px; }
+.hm-legend { display: flex; align-items: center; gap: 3px; font-size: 10.5px; flex: none; }
+.hm-legend i { width: 10px; height: 10px; border-radius: 2px; background: var(--surface-2); }
 tr.done input { opacity: .55; }
 .hint { font-size: 13px; padding: 12px 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); }
 .hint.up { background: color-mix(in srgb, var(--ok) 10%, transparent); border-color: color-mix(in srgb, var(--ok) 30%, transparent); color: var(--ok); font-weight: 600; }
@@ -393,6 +450,7 @@ details summary::-webkit-details-marker { display: none; }
     <linearGradient id="g-bench" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:color-mix(in srgb, var(--bench) 70%, #fff)"/><stop offset=".25" style="stop-color:var(--bench)"/><stop offset="1" style="stop-color:color-mix(in srgb, var(--bench) 70%, #000)"/></linearGradient>
     <radialGradient id="g-plate" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#4a4456"/><stop offset=".6" stop-color="#1b1822"/><stop offset="1" stop-color="#0c0b10"/></radialGradient>
     <radialGradient id="g-floor" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <linearGradient id="g-flame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff3d6b"/><stop offset=".55" stop-color="#ff8a2a"/><stop offset="1" stop-color="#ffd23f"/></linearGradient>
     <linearGradient id="g-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3d6b"/><stop offset="1" stop-color="#ff8a5c"/></linearGradient>
     <filter id="f-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 .2 0 0 0  0 0 .35 0 0  0 0 0 .7 0" result="c"/><feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
@@ -478,12 +536,26 @@ details summary::-webkit-details-marker { display: none; }
     <svg viewBox="0 0 120 120"><g class="ticks" id="restTicks"></g><circle class="track" cx="60" cy="60" r="52"/><circle class="bar" id="restBar" cx="60" cy="60" r="52"/><circle class="dot" id="restDot" r="3.2" cx="112" cy="60"/></svg>
     <div class="num"><b id="restNum">90</b><small id="restOf">of 1:30</small></div>
   </div>
+  <div class="pr-burst" id="restPR" role="status"></div>
   <div class="muted" id="restNext"></div>
   <div class="effort" id="restEffort"><div class="eyebrow">How did that set feel?</div>
     <div class="seg"><button class="chip" data-rir="3">Easy</button><button class="chip" data-rir="2">Solid</button><button class="chip" data-rir="1">Hard</button><button class="chip" data-rir="0">All-out</button></div>
     <div class="small muted effort-help">Easy = 3+ reps left · Solid = 2 · Hard = 1 · All-out = none</div></div>
   <div class="row"><button class="btn btn-ghost" id="restSub">−15</button><button class="btn btn-ghost" id="restAdd">+15</button><button class="btn btn-primary" id="restSkip">Skip rest</button></div>
 </div>
+
+<!-- weight / reps wheel -->
+<div class="wsheet" id="wsheet" role="dialog" aria-modal="true" aria-labelledby="wsTitle">
+  <div class="ws-card">
+    <div class="ws-head"><b id="wsTitle">Set 1</b><button class="ws-link" id="wsType">Type instead</button></div>
+    <div class="ws-cols">
+      <div class="ws-col"><div class="ws-label" id="wsWL">lb</div><div class="wheel" id="wsW" tabindex="0" aria-label="Weight"></div></div>
+      <div class="ws-col"><div class="ws-label" id="wsRL">reps</div><div class="wheel" id="wsR" tabindex="0" aria-label="Reps"></div></div>
+    </div>
+    <div class="ws-btns"><button class="btn btn-ghost" id="wsSave">Save</button><button class="btn btn-primary" id="wsLog">Log set ✓</button></div>
+  </div>
+</div>
+<canvas id="confetti" hidden></canvas>
 
 <!-- modal -->
 <div class="modal" id="modal"><div class="card stack" id="modalBody"></div></div>
@@ -665,12 +737,9 @@ function renderToday() {
   $('#week').innerHTML = weekHtml;
 
   // streak = consecutive weeks (ending this or last week) with 3+ workouts
-  const weeks = {};
-  log.forEach((l) => { const d = new Date(l.date + 'T12:00'); const m = new Date(d); m.setDate(d.getDate() - ((d.getDay() + 6) % 7)); const k = localKey(m); weeks[k] = (weeks[k] || 0) + 1; });
-  let streak = 0; const w = new Date(monday);
-  if ((weeks[localKey(w)] || 0) < 3) w.setDate(w.getDate() - 7);
-  while ((weeks[localKey(w)] || 0) >= 3) { streak++; w.setDate(w.getDate() - 7); }
-  $('#streakPill').textContent = streak ? `${streak}-week streak` : log.length ? `${log.length} workout${log.length === 1 ? '' : 's'}` : 'Start your streak';
+  const { current: streak } = weekStreak();
+  $('#streakPill').classList.add('flame');
+  $('#streakPill').innerHTML = flameIcon(streak > 0) + (streak ? `${streak}-week streak` : log.length ? `${log.length} workout${log.length === 1 ? '' : 's'}` : 'Start your streak');
 
   const isTrain = TRAIN_DAYS.includes(now.getDay());
   const trainedToday = doneDates.has(localKey(now));
@@ -1033,8 +1102,8 @@ function renderStep() {
         <table class="sets"><thead><tr><th>Set</th><th>${ex.bw ? '+lb' : 'lb'}</th><th>${unit}</th><th></th></tr></thead><tbody>
           ${rec.sets.map((st, i) => `<tr class="${st.done ? 'done' : ''}" data-i="${i}">
             <td>${i + 1}</td>
-            <td><input inputmode="decimal" data-k="w" value="${esc(st.w)}" placeholder="${ex.bw ? 'BW' : '0'}" aria-label="Set ${i + 1} ${ex.bw ? 'added ' : ''}weight"></td>
-            <td><input inputmode="numeric" data-k="r" value="${esc(st.r)}" aria-label="Set ${i + 1} ${unit}"></td>
+            <td><input inputmode="decimal" readonly data-k="w" value="${esc(st.w)}" placeholder="${ex.bw ? 'BW' : '0'}" aria-label="Set ${i + 1} ${ex.bw ? 'added ' : ''}weight"></td>
+            <td><input inputmode="numeric" readonly data-k="r" value="${esc(st.r)}" aria-label="Set ${i + 1} ${unit}"></td>
             <td><button class="check ${st.done ? 'on' : ''}" data-done aria-label="Complete set ${i + 1}">${ICON.check}</button></td></tr>`).join('')}
         </tbody></table>
         <details class="card"><summary>Form tips</summary><div class="stack" style="margin-top:12px">${exInfo(ex)}</div></details>
@@ -1053,6 +1122,8 @@ function renderStep() {
       saveActive();
     });
     tbody.addEventListener('click', (e) => {
+      const inp = e.target.closest('input[readonly]');
+      if (inp) { openWheel(tbody, +inp.closest('tr').dataset.i, ex, it, inp.dataset.k); return; }
       const b = e.target.closest('[data-done]'); if (!b) return;
       const tr = b.closest('tr'), i = +tr.dataset.i, st = rec.sets[i];
       st.done = !st.done; b.classList.toggle('on', st.done); tr.classList.toggle('done', st.done);
@@ -1061,6 +1132,8 @@ function renderStep() {
         const more = rec.sets.some((x) => !x.done);
         const nextName = more ? `Next: set ${rec.sets.findIndex((x) => !x.done) + 1}` : step < prog.items.length ? `Next: ${EX_BY_ID[active.ex[step].id].name}` : 'Last set done!';
         startRest(active.easy ? Math.max(45, it.rest - 15) : it.rest, nextName, st);
+        const pr = prCheck(rec.id, st, ex);
+        if (pr) celebratePR(pr, ex);
       }
     });
     $('#wPrev').onclick = () => { active.step--; saveActive(); renderStep(); };
@@ -1165,6 +1238,7 @@ $('#restEffort').addEventListener('click', (e) => {
 });
 function startRest(sec, nextLabel, set) {
   restSet = set || null;
+  $('#restPR').classList.remove('on');
   $('#restEffort').style.display = set ? '' : 'none';
   $('#restEffort').querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', set && +c.dataset.rir === set.rir));
   restTotal = sec; restEnd = Date.now() + sec * 1000;
@@ -1223,6 +1297,187 @@ function beep() {
       o.start(audio.currentTime + t); o.stop(audio.currentTime + t + 0.22);
     });
   } catch {}
+}
+
+// =====================================================
+// PR CELEBRATION — a set that beats every earlier session's best (est. 1RM, or reps for bodyweight)
+// =====================================================
+function prCheck(id, st, ex) {
+  const w = +st.w || 0, r = +st.r || 0; if (!r) return null;
+  const weighted = w > 0, v = weighted ? e1rm(w, r) : r;
+  const hist = liftHistory(id).filter((p) => p.weighted === weighted);
+  if (!hist.length) return null; // first time logging it: nothing to beat yet
+  active.pr = active.pr || {};
+  const key = id + (weighted ? ':w' : ':r');
+  const was = Math.max(...hist.map((p) => p.v)), base = Math.max(was, active.pr[key] || 0);
+  if (v <= base) return null;
+  active.pr[key] = v; saveActive();
+  return { weighted, v, was, w, r, unit: ex.timed ? 'sec' : 'reps' };
+}
+function celebratePR(pr, ex) {
+  $('#restPR').innerHTML = `<div class="t">New personal record</div><div class="v">${esc(ex.name)} · ${pr.weighted ? `${ex.bw ? '+' : ''}${pr.w} lb × ${pr.r}` : `${pr.r} ${pr.unit}`}</div>
+    <div class="small muted">${pr.weighted ? `Est. 1RM ${pr.v} lb · up from ${pr.was} lb` : `Up from ${pr.was} ${pr.unit}`}</div>`;
+  $('#restPR').classList.add('on');
+  navigator.vibrate?.([30, 40, 30, 40, 120]);
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+      const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime + i * 0.09;
+      o.type = 'triangle'; o.frequency.value = f; o.connect(g); g.connect(audio.destination);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+      o.start(t); o.stop(t + 0.4);
+    });
+  } catch {}
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) confetti();
+}
+function confetti() {
+  const c = $('#confetti'), dpr = Math.min(2, devicePixelRatio || 1);
+  c.hidden = false; c.width = innerWidth * dpr; c.height = innerHeight * dpr;
+  const g = c.getContext('2d'); g.scale(dpr, dpr);
+  const cols = ['#ff3d6b', '#ff8a5c', '#ffb020', '#ffd23f', '#4ade9b', '#ffffff'];
+  const ps = Array.from({ length: 140 }, (_, i) => ({
+    x: innerWidth / 2 + (Math.random() - .5) * 60, y: innerHeight * .38,
+    vx: (Math.random() - .5) * 13, vy: -Math.random() * 13 - 4, rot: Math.random() * 6, vr: (Math.random() - .5) * .4,
+    w: 5 + Math.random() * 6, h: 3 + Math.random() * 4, c: cols[i % cols.length],
+  }));
+  const t0 = performance.now();
+  (function frame(t) {
+    const k = (t - t0) / 2400; g.clearRect(0, 0, innerWidth, innerHeight);
+    ps.forEach((p) => {
+      p.vy += .32; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      g.save(); g.globalAlpha = Math.max(0, 1 - k * k); g.translate(p.x, p.y); g.rotate(p.rot);
+      g.fillStyle = p.c; g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.rot * 2))); g.restore();
+    });
+    if (k < 1) requestAnimationFrame(frame); else { g.clearRect(0, 0, innerWidth, innerHeight); c.hidden = true; }
+  })(t0);
+}
+
+// =====================================================
+// WEIGHT / REPS WHEEL — tap a set's number to spin it instead of typing
+// =====================================================
+const WI = 44; // wheel item height
+const fmtW = (v) => (v % 1 ? v.toFixed(1) : String(v));
+function fillWheel(el, values, current, label) {
+  el._values = values;
+  el.innerHTML = values.map((v) => `<div class="wi">${label(v)}</div>`).join('');
+  let idx = values.reduce((b, v, i) => (Math.abs(v - current) < Math.abs(values[b] - current) ? i : b), 0);
+  el.scrollTop = idx * WI; el._idx = idx; styleWheel(el);
+}
+function styleWheel(el) {
+  const top = el.scrollTop / WI, items = el.children;
+  const from = Math.max(0, Math.floor(top) - 6), to = Math.min(items.length, Math.ceil(top) + 7);
+  for (let i = from; i < to; i++) {
+    const d = i - top;
+    items[i].style.transform = `rotateX(${(-d * 20).toFixed(1)}deg)`;
+    items[i].style.opacity = Math.max(.15, 1 - Math.abs(d) * .28).toFixed(2);
+  }
+  const idx = Math.max(0, Math.min(items.length - 1, Math.round(top)));
+  if (idx !== el._idx) { el._idx = idx; navigator.vibrate?.(4); }
+}
+const wheelVal = (el) => el._values[Math.max(0, Math.min(el._values.length - 1, Math.round(el.scrollTop / WI)))];
+['#wsW', '#wsR'].forEach((sel) => {
+  const el = $(sel); let raf = 0;
+  el.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => styleWheel(el)); }, { passive: true });
+  el.addEventListener('click', (e) => { const i = [...el.children].indexOf(e.target.closest('.wi')); if (i >= 0) el.scrollTo({ top: i * WI, behavior: 'smooth' }); });
+  el.addEventListener('keydown', (e) => {
+    const step = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0; if (!step) return;
+    e.preventDefault(); el.scrollTo({ top: (el._idx + step) * WI, behavior: 'smooth' });
+  });
+});
+let wheelCtx = null;
+function openWheel(tbody, i, ex, it, focusKey) {
+  const tr = tbody.rows[i], wIn = tr.querySelector('[data-k=w]'), rIn = tr.querySelector('[data-k=r]');
+  wheelCtx = { tbody, i, wIn, rIn, bw: ex.bw };
+  $('#wsTitle').textContent = `${ex.name} · set ${i + 1}`;
+  $('#wsWL').textContent = ex.bw ? 'added lb' : 'lb';
+  $('#wsRL').textContent = it.timed ? 'seconds' : 'reps';
+  const ws = []; for (let v = 0; v <= (ex.bw ? 100 : 400); v += 2.5) ws.push(v);
+  const rs = []; for (let v = 0; v <= (it.timed ? 300 : 50); v += it.timed ? 5 : 1) rs.push(v);
+  $('#wsheet').classList.add('open');
+  fillWheel($('#wsW'), ws, +wIn.value || 0, (v) => (ex.bw && !v ? 'BW' : fmtW(v)));
+  fillWheel($('#wsR'), rs, +rIn.value || it.hi, String);
+  $('#wsLog').hidden = tr.classList.contains('done');
+  $(focusKey === 'r' ? '#wsR' : '#wsW').focus({ preventScroll: true });
+}
+function saveWheel() {
+  const { wIn, rIn, bw } = wheelCtx, w = wheelVal($('#wsW')), r = wheelVal($('#wsR'));
+  wIn.value = bw && !w ? '' : fmtW(w); wIn.dispatchEvent(new Event('input', { bubbles: true }));
+  rIn.value = String(r); rIn.dispatchEvent(new Event('input', { bubbles: true }));
+  $('#wsheet').classList.remove('open');
+}
+$('#wsSave').onclick = saveWheel;
+$('#wsLog').onclick = () => { const { tbody, i } = wheelCtx; saveWheel(); tbody.rows[i].querySelector('[data-done]').click(); };
+$('#wsType').onclick = () => {
+  const { tbody, wIn } = wheelCtx; $('#wsheet').classList.remove('open');
+  tbody.querySelectorAll('input[readonly]').forEach((x) => x.removeAttribute('readonly')); wIn.focus(); wIn.select();
+};
+$('#wsheet').addEventListener('click', (e) => { if (e.target.id === 'wsheet') saveWheel(); });
+
+// =====================================================
+// STREAK FLAME + TRAINING HEATMAP
+// =====================================================
+const flameIcon = (lit) => `<svg class="flame-ic ${lit ? 'lit' : 'out'}" viewBox="0 0 16 18" aria-hidden="true"><path fill="url(#g-flame)" d="M8 0c.6 3-2.2 4.4-3.6 6.6C3.3 8.3 2 9.6 2 12a6 6 0 0 0 12 0c0-2.6-1.4-4.3-2.3-5.6-.3 1.4-.9 2.3-1.9 2.8C10.4 5.6 9.9 2.3 8 0z"/><path fill="#ffe9a8" opacity=".85" d="M8 9.5c-.2 1.3-1.8 2-1.8 3.8a1.8 1.8 0 0 0 3.6 0c0-1.3-1-2.3-1.8-3.8z"/></svg>`;
+const mondayOf = (d) => { const m = new Date(d); m.setHours(12, 0, 0, 0); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return m; };
+// A streak week = 3+ workouts. Current streak counts this week once it hits 3, otherwise ends last week.
+function weekStreak() {
+  const weeks = {};
+  log.forEach((l) => { const k = localKey(mondayOf(new Date(l.date + 'T12:00'))); weeks[k] = (weeks[k] || 0) + 1; });
+  const w = mondayOf(new Date()); let current = 0;
+  if ((weeks[localKey(w)] || 0) < 3) w.setDate(w.getDate() - 7);
+  while ((weeks[localKey(w)] || 0) >= 3) { current++; w.setDate(w.getDate() - 7); }
+  let longest = 0, run = 0;
+  if (log.length) {
+    const end = mondayOf(new Date());
+    for (const d = mondayOf(new Date(log.reduce((a, l) => (l.date < a ? l.date : a), log[0].date) + 'T12:00')); d <= end; d.setDate(d.getDate() + 7)) {
+      run = (weeks[localKey(d)] || 0) >= 3 ? run + 1 : 0; longest = Math.max(longest, run);
+    }
+  }
+  return { current, longest };
+}
+const HM_WEEKS = 20;
+function heatmapCard() {
+  const byDay = {};
+  log.forEach((l) => {
+    const b = byDay[l.date] || (byDay[l.date] = { sets: 0, names: [] });
+    b.sets += l.ex.reduce((a, e) => a + e.sets.filter((s) => s.done).length, 0);
+    b.names.push(PROGRAM[l.day]?.name || l.day);
+  });
+  const today = new Date(), todayKey = localKey(today), start = mondayOf(today); start.setDate(start.getDate() - (HM_WEEKS - 1) * 7);
+  let cells = '', months = '', lastMonth = -1, workouts = 0;
+  for (let wk = 0; wk < HM_WEEKS; wk++) {
+    const mon = new Date(start); mon.setDate(start.getDate() + wk * 7);
+    months += `<span>${mon.getMonth() !== lastMonth ? mon.toLocaleDateString(undefined, { month: 'short' }) : ''}</span>`; lastMonth = mon.getMonth();
+    for (let dd = 0; dd < 7; dd++) {
+      const d = new Date(mon); d.setDate(mon.getDate() + dd);
+      if (localKey(d) > todayKey) { cells += '<i></i>'; continue; }
+      const k = localKey(d), b = byDay[k], n = b ? b.sets : 0;
+      if (b) workouts += b.names.length;
+      const lv = !b ? 0 : n <= 8 ? 1 : n <= 16 ? 2 : n <= 24 ? 3 : 4;
+      const label = `${d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · ${b ? `${b.names.join(' + ')} · ${n} sets` : 'rest day'}`;
+      cells += `<button class="l${lv}${k === localKey(today) ? ' today' : ''}" data-hm="${esc(label)}" aria-label="${esc(label)}"></button>`;
+    }
+  }
+  const { current, longest } = weekStreak();
+  return `<div class="card" id="hmCard"><h3>Training streak</h3>
+    <div class="hm-stats">
+      <div><b>${flameIcon(current > 0)}${current}</b><span>week streak</span></div>
+      <div><b>${longest}</b><span>best streak</span></div>
+      <div><b>${workouts}</b><span>workouts</span></div>
+    </div>
+    <div style="--wks:${HM_WEEKS}"><div class="hm-months"><span></span>${months}</div>
+      <div class="hm"><b>M</b><b></b><b>W</b><b></b><b>F</b><b></b><b>S</b>${cells}</div></div>
+    <div class="hm-foot"><span id="hmInfo">A streak week = 3+ workouts. Tap a day.</span>
+      <span class="hm-legend">Less<i></i><i style="background:color-mix(in srgb, var(--accent) 30%, var(--surface-solid))"></i><i style="background:color-mix(in srgb, var(--accent) 55%, var(--surface-solid))"></i><i style="background:color-mix(in srgb, var(--accent) 80%, var(--surface-solid))"></i><i style="background:var(--accent)"></i>More</span></div>
+  </div>`;
+}
+function wireHeatmap() {
+  const card = $('#hmCard'); if (!card) return;
+  card.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-hm]'); if (!b) return;
+    e.stopPropagation();
+    card.querySelectorAll('.hm .sel').forEach((x) => x.classList.remove('sel')); b.classList.add('sel');
+    $('#hmInfo').textContent = b.dataset.hm;
+  });
 }
 
 // =====================================================
@@ -1288,7 +1543,7 @@ function renderRecovery() {
 // HISTORY
 // =====================================================
 function renderHistory() {
-  if (!license) { $('#histBody').innerHTML = lockedCard('Your training log', `Every workout you finish is saved${log.length ? ` (${log.length} so far)` : ''}. Unlock to see your lifts, bests and history.`); return; }
+  if (!license) { $('#histBody').innerHTML = (log.length ? heatmapCard() : '') + lockedCard('Your training log', `Every workout you finish is saved${log.length ? ` (${log.length} so far)` : ''}. Unlock to see your lifts, bests and history.`); wireHeatmap(); return; }
   if (!log.length) {
     $('#histBody').innerHTML = `<div class="card empty"><svg class="icon" viewBox="0 0 24 24" style="width:44px;height:44px;color:var(--accent)"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg><h3 style="margin-top:8px">No workouts yet</h3><div>Finish your first workout and your lifts show up here.</div>
       <button class="btn btn-primary" style="margin-top:16px" onclick="showTab('today')">Go to Today</button></div>`;
@@ -1310,7 +1565,7 @@ function renderHistory() {
     }
     return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">Best ${best} lb</div></td><td>${lw} lb</td></tr>`;
   }).filter(Boolean).join('');
-  $('#histBody').innerHTML = prCard + `
+  $('#histBody').innerHTML = heatmapCard() + prCard + `
     <div class="card"><h3>Your lifts</h3><div class="small muted">Latest working set · tap a lift for its chart</div><table class="lifts" style="margin-top:8px">${lifts}</table></div>
     <div class="card stack"><h3>Workouts</h3>
       ${log.slice().reverse().map((l) => {
@@ -1322,6 +1577,7 @@ function renderHistory() {
       }).join('')}
     </div>`;
   $('#histBody').onclick = (e) => { const r = e.target.closest('[data-ex]'); if (r) openDetail(r.dataset.ex); };
+  wireHeatmap();
 }
 
 // =====================================================
