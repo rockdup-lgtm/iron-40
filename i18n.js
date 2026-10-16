@@ -9,6 +9,9 @@ const LANGS = { en: 'English', es: 'Español', pt: 'Português (Brasil)' };
 const LOCALES = { en: 'en-US', es: 'es', pt: 'pt-BR' };
 let LANG = 'en';
 try { LANG = JSON.parse(localStorage.getItem('iron40_lang')) || 'en'; } catch {}
+// Share links can preset it: iron-40.pages.dev/?lang=es (saved, so it sticks after the link)
+const urlLang = new URLSearchParams(location.search).get('lang');
+if (urlLang && LANGS[urlLang]) { LANG = urlLang; try { localStorage.setItem('iron40_lang', JSON.stringify(LANG)); } catch {} }
 if (!LANGS[LANG]) LANG = 'en';
 const LOCALE = LOCALES[LANG];
 document.documentElement.lang = LANG === 'pt' ? 'pt-BR' : LANG;
