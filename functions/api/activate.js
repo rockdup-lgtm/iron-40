@@ -1,7 +1,7 @@
 // POST /api/activate  { key }  →  { ok: true, id } | { ok: false, error }
 // Activates a Lemon Squeezy license key for one device. Runs on Cloudflare Pages
 // so the browser never talks to Lemon Squeezy directly.
-// Settings (Cloudflare Pages → Settings → Variables): LS_STORE_ID and LS_PRODUCT_ID,
+// Settings (Cloudflare Pages → Settings → Variables): LS_STORE_ID, LS_PRODUCT_ID and OWNER_KEY,
 // so keys from any other Lemon Squeezy product are rejected.
 
 const json = (body, status = 200) =>
@@ -11,6 +11,9 @@ export async function onRequestPost({ request, env }) {
   let key = '';
   try { key = String((await request.json()).key || '').trim(); } catch {}
   if (!/^[A-Za-z0-9-]{8,80}$/.test(key)) return json({ ok: false, error: 'That doesn’t look like a license key.' }, 400);
+
+  // Private owner link: OWNER_KEY is a Pages secret, never shipped in the app
+  if (env.OWNER_KEY && key === env.OWNER_KEY) return json({ ok: true, id: 'owner' });
 
   const form = new URLSearchParams({ license_key: key, instance_name: `Iron 40 · ${new Date().toISOString().slice(0, 10)}` });
   let data;

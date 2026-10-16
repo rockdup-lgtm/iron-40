@@ -1624,6 +1624,21 @@ async function activateLicense() {
   } finally { $('#licGo').disabled = false; }
 }
 
+// Owner link: iron-40.pages.dev/#unlock=KEY activates this device, then strips the key from the address bar
+(async () => {
+  const m = location.hash.match(/^#unlock=([A-Za-z0-9-]{8,80})$/); if (!m) return;
+  history.replaceState(null, '', location.pathname + location.search);
+  if (license) return;
+  try {
+    const res = await fetch('api/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: m[1] }) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    license = { key: m[1], id: data.id, at: Date.now() }; store.set('iron40_license', license);
+    showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'body');
+    openModal('<h3>Iron 40 unlocked</h3><div class="muted">Everything is open on this phone: all demos, videos, recovery, progress and your log.</div><button class="btn btn-primary btn-block" data-m="ok">Let’s lift</button>');
+  } catch (err) { console.warn('Unlock link failed', err); }
+})();
+
 // Profile picker: first launch (with the safety note) and from the profile button
 function openProfile(first) {
   const cur = { ...P(), protect: [...protectOf()], gear: [...gearOf()] };

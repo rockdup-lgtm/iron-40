@@ -3,3 +3,5 @@ brag-output/
 img-original-backup/
 brag-output-*/
 _site/
+videos/
+.owner-key
