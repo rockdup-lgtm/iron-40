@@ -363,6 +363,7 @@ details summary::-webkit-details-marker { display: none; }
 .modal { position: fixed; inset: 0; z-index: 80; display: none; align-items: flex-end; justify-content: center; background: rgba(4,3,8,.6); padding: 16px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .modal.open { display: flex; animation: fade .3s ease; }
 .modal .card { max-width: 480px; width: 100%; margin-bottom: env(safe-area-inset-bottom); background: var(--surface-solid); border-color: var(--line-strong); border-radius: 30px; padding: 22px; }
+.modal .card { max-height: calc(100% - env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; } /* tall sheets (profile) scroll instead of running off the top */
 .modal .seg { display: flex; gap: 8px; }
 .data-btn { min-height: 44px; padding: 0 16px; font-size: 14px; flex: 1; }
 .vid .yt, .vid .yt-frame { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; margin-top: 10px; border-radius: 18px; overflow: hidden; border: 0; background: #000; }
@@ -461,13 +462,13 @@ details summary::-webkit-details-marker { display: none; }
 <section class="screen active" id="s-body">
   <div class="stack">
     <div class="today-top">
-      <div><div class="eyebrow" id="bodyTag">Tap a muscle</div><h2 class="display brand">Iron <em>40</em></h2></div>
-      <button class="btn btn-primary body-go" data-go="today">Today's workout</button>
+      <div><div class="eyebrow" id="bodyTag" data-i18n>Tap a muscle</div><h2 class="display brand">Iron <em>40</em></h2></div>
+      <button class="btn btn-primary body-go" data-go="today" data-i18n>Today's workout</button>
     </div>
     <div class="card body-card">
-      <div class="seg body-modes" id="bodyModes"><button class="chip" data-mode="muscles">Muscles</button><button class="chip" data-mode="recovery">Recovery</button><button class="chip" data-mode="week">This week</button></div>
+      <div class="seg body-modes" id="bodyModes"><button class="chip" data-mode="muscles" data-i18n>Muscles</button><button class="chip" data-mode="recovery" data-i18n>Recovery</button><button class="chip" data-mode="week" data-i18n>This week</button></div>
       <div class="mapwrap body-map" id="bodyMap"></div>
-      <div class="row small muted body-views"><span>Front</span><span class="spacer"></span><span id="bodyLegend"></span><span class="spacer"></span><span>Back</span></div>
+      <div class="row small muted body-views"><span data-i18n>Front</span><span class="spacer"></span><span id="bodyLegend"></span><span class="spacer"></span><span data-i18n>Back</span></div>
     </div>
     <div class="filters" id="bodyChips"></div>
     <div id="bodyPick"></div>
@@ -478,9 +479,9 @@ details summary::-webkit-details-marker { display: none; }
   <div class="stack">
     <div>
       <div class="today-top">
-        <div><div class="eyebrow" id="todayTag">Today</div><h2 class="display brand">Iron <em>40</em></h2></div>
+        <div><div class="eyebrow" id="todayTag" data-i18n>Today</div><h2 class="display brand">Iron <em>40</em></h2></div>
         <div class="row" style="gap:8px"><div class="pill" id="streakPill"></div>
-          <button class="iconbtn" id="profileBtn" aria-label="Your profile"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></button></div>
+          <button class="iconbtn" id="profileBtn" aria-label="Your profile" data-i18n-aria><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></button></div>
       </div>
       <div class="dots" id="week"></div>
     </div>
@@ -494,7 +495,7 @@ details summary::-webkit-details-marker { display: none; }
 <!-- ============ LIBRARY ============ -->
 <section class="screen" id="s-library">
   <div class="stack">
-    <div class="pagehead"><div><div class="eyebrow">Library</div><h1 class="display">Exercises</h1></div><div class="small muted" id="exCount"></div></div>
+    <div class="pagehead"><div><div class="eyebrow" data-i18n>Library</div><h1 class="display" data-i18n>Exercises</h1></div><div class="small muted" id="exCount"></div></div>
     <div class="filters" id="filters"></div>
     <div class="grid" id="grid"></div>
   </div>
@@ -503,7 +504,7 @@ details summary::-webkit-details-marker { display: none; }
 <!-- ============ RECOVERY ============ -->
 <section class="screen" id="s-recovery">
   <div class="stack">
-    <div class="pagehead"><div><div class="eyebrow">Readiness</div><h1 class="display">Recovery</h1></div></div>
+    <div class="pagehead"><div><div class="eyebrow" data-i18n>Readiness</div><h1 class="display" data-i18n>Recovery</h1></div></div>
     <div id="recovBody"></div>
   </div>
 </section>
@@ -511,17 +512,17 @@ details summary::-webkit-details-marker { display: none; }
 <!-- ============ HISTORY ============ -->
 <section class="screen" id="s-history">
   <div class="stack">
-    <div class="pagehead"><div><div class="eyebrow">Training log</div><h1 class="display">Progress</h1></div></div>
+    <div class="pagehead"><div><div class="eyebrow" data-i18n>Training log</div><h1 class="display" data-i18n>Progress</h1></div></div>
     <div id="histBody"></div>
   </div>
 </section>
 
 <nav class="tabs" id="tabs">
-  <button data-tab="body" class="on"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2.5"/><path d="M5 9l7 1.5L19 9M12 10.5V15M12 15l-3 6.5M12 15l3 6.5"/></svg>Body</button>
-  <button data-tab="today"><svg class="icon" viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg>Workout</button>
-  <button data-tab="recovery"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 7v5l3 2"/></svg>Recovery</button>
-  <button data-tab="library"><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Exercises</button>
-  <button data-tab="history"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>Log</button>
+  <button data-tab="body" class="on"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2.5"/><path d="M5 9l7 1.5L19 9M12 10.5V15M12 15l-3 6.5M12 15l3 6.5"/></svg><span data-i18n>Body</span></button>
+  <button data-tab="today"><svg class="icon" viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg><span data-i18n>Workout</span></button>
+  <button data-tab="recovery"><svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4M12 7v5l3 2"/></svg><span data-i18n>Recovery</span></button>
+  <button data-tab="library"><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span data-i18n>Exercises</span></button>
+  <button data-tab="history"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg><span data-i18n>Log</span></button>
 </nav>
 
 <!-- exercise detail -->
@@ -531,28 +532,28 @@ details summary::-webkit-details-marker { display: none; }
 
 <!-- rest timer -->
 <div class="rest" id="rest">
-  <div class="eyebrow">Recover · breathe</div>
+  <div class="eyebrow" data-i18n>Recover · breathe</div>
   <div class="ring" id="restRing" role="timer" aria-live="off">
     <svg viewBox="0 0 120 120"><g class="ticks" id="restTicks"></g><circle class="track" cx="60" cy="60" r="52"/><circle class="bar" id="restBar" cx="60" cy="60" r="52"/><circle class="dot" id="restDot" r="3.2" cx="112" cy="60"/></svg>
     <div class="num"><b id="restNum">90</b><small id="restOf">of 1:30</small></div>
   </div>
   <div class="pr-burst" id="restPR" role="status"></div>
   <div class="muted" id="restNext"></div>
-  <div class="effort" id="restEffort"><div class="eyebrow">How did that set feel?</div>
-    <div class="seg"><button class="chip" data-rir="3">Easy</button><button class="chip" data-rir="2">Solid</button><button class="chip" data-rir="1">Hard</button><button class="chip" data-rir="0">All-out</button></div>
-    <div class="small muted effort-help">Easy = 3+ reps left · Solid = 2 · Hard = 1 · All-out = none</div></div>
-  <div class="row"><button class="btn btn-ghost" id="restSub">−15</button><button class="btn btn-ghost" id="restAdd">+15</button><button class="btn btn-primary" id="restSkip">Skip rest</button></div>
+  <div class="effort" id="restEffort"><div class="eyebrow" data-i18n>How did that set feel?</div>
+    <div class="seg"><button class="chip" data-rir="3" data-i18n>Easy</button><button class="chip" data-rir="2" data-i18n>Solid</button><button class="chip" data-rir="1" data-i18n>Hard</button><button class="chip" data-rir="0" data-i18n>All-out</button></div>
+    <div class="small muted effort-help" data-i18n>Easy = 3+ reps left · Solid = 2 · Hard = 1 · All-out = none</div></div>
+  <div class="row"><button class="btn btn-ghost" id="restSub">−15</button><button class="btn btn-ghost" id="restAdd">+15</button><button class="btn btn-primary" id="restSkip" data-i18n>Skip rest</button></div>
 </div>
 
 <!-- weight / reps wheel -->
 <div class="wsheet" id="wsheet" role="dialog" aria-modal="true" aria-labelledby="wsTitle">
   <div class="ws-card">
-    <div class="ws-head"><b id="wsTitle">Set 1</b><button class="ws-link" id="wsType">Type instead</button></div>
+    <div class="ws-head"><b id="wsTitle">Set 1</b><button class="ws-link" id="wsType" data-i18n>Type instead</button></div>
     <div class="ws-cols">
-      <div class="ws-col"><div class="ws-label" id="wsWL">lb</div><div class="wheel" id="wsW" tabindex="0" aria-label="Weight"></div></div>
-      <div class="ws-col"><div class="ws-label" id="wsRL">reps</div><div class="wheel" id="wsR" tabindex="0" aria-label="Reps"></div></div>
+      <div class="ws-col"><div class="ws-label" id="wsWL">lb</div><div class="wheel" id="wsW" tabindex="0" aria-label="Weight" data-i18n-aria></div></div>
+      <div class="ws-col"><div class="ws-label" id="wsRL">reps</div><div class="wheel" id="wsR" tabindex="0" aria-label="Reps" data-i18n-aria></div></div>
     </div>
-    <div class="ws-btns"><button class="btn btn-ghost" id="wsSave">Save</button><button class="btn btn-primary" id="wsLog">Log set ✓</button></div>
+    <div class="ws-btns"><button class="btn btn-ghost" id="wsSave" data-i18n>Save</button><button class="btn btn-primary" id="wsLog" data-i18n>Log set ✓</button></div>
   </div>
 </div>
 <canvas id="confetti" hidden></canvas>
@@ -561,7 +562,11 @@ details summary::-webkit-details-marker { display: none; }
 <div class="modal" id="modal"><div class="card stack" id="modalBody"></div></div>
 
 <script src="exercises.js"></script>
+<script src="i18n.js"></script>
+<script src="i18n-ui.js"></script>
+<script src="i18n-data.js"></script>
 <script>
+translateStatic(); // UI text in the chosen language (exercise data is overlaid by i18n-data.js)
 // =====================================================
 // Storage (wrapped: private mode / blocked storage must not break the app)
 // =====================================================
@@ -587,7 +592,7 @@ const photo = (id) => `img/${P().sex === 'f' ? 'f/' : ''}${id}.jpg`;
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS = [t('Sun'), t('Mon'), t('Tue'), t('Wed'), t('Thu'), t('Fri'), t('Sat')];
 const TRAIN_DAYS = [1, 3, 5];
 const dayKey = (d) => d.toISOString().slice(0, 10);
 const localKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -629,9 +634,9 @@ const protectOf = () => P().protect || [];
 const fits = (e) => e.equip.every((q) => q === 'Bodyweight' || gearOf().includes(q)) && !(STRESS[e.id] || []).some((j) => protectOf().includes(j));
 function whyNot(e) {
   const gear = e.equip.find((q) => q !== 'Bodyweight' && !gearOf().includes(q));
-  if (gear) return `no ${GEAR[gear].toLowerCase()}`;
+  if (gear) return t('no {gear}', { gear: GEAR[gear].toLowerCase() });
   const j = (STRESS[e.id] || []).find((x) => protectOf().includes(x));
-  return j ? `easier on your ${JOINTS[j].toLowerCase()}` : '';
+  return j ? t('easier on your {joint}', { joint: JOINTS[j].toLowerCase() }) : '';
 }
 // Best replacements: same main muscles first, then shared secondary muscles and the same movement group
 function alternatives(id, timed) {
@@ -644,7 +649,7 @@ function personalize(item, used = new Set()) {
   const e = EX_BY_ID[item.id];
   if (fits(e)) return { id: item.id };
   const alt = alternatives(item.id, item.timed).find((x) => !used.has(x.id));
-  return alt ? { id: alt.id, why: `Swapped from ${e.name}: ${whyNot(e)}` } : { id: item.id, warn: `Go light: ${whyNot(e)}` };
+  return alt ? { id: alt.id, why: t('Swapped from {name}: {why}', { name: e.name, why: whyNot(e) }) } : { id: item.id, warn: t('Go light: {why}', { why: whyNot(e) }) };
 }
 
 // =====================================================
@@ -667,28 +672,28 @@ function personalizePlan(items) {
 // Bodyweight moves progress by reps, then by moving to the harder variation.
 function suggest(item) {
   const last = lastFor(item.id), ex = EX_BY_ID[item.id];
-  const unit = item.timed ? 'sec' : 'reps';
-  if (ex.bw && !last) return { w: '', text: `Aim for ${item.lo}–${item.hi} clean ${unit}. Too hard? ${ex.easier}.` };
-  if (!last) return { w: '', text: `First time: choose a weight you could do for ~3 more ${unit} than the target.` };
+  const unit = item.timed ? t('sec') : t('reps');
+  if (ex.bw && !last) return { w: '', text: t('Aim for {lo}–{hi} clean {unit}. Too hard? {easier}.', { lo: item.lo, hi: item.hi, unit, easier: ex.easier }) };
+  if (!last) return { w: '', text: t('First time: choose a weight you could do for ~3 more {unit} than the target.', { unit }) };
   const done = last.sets.filter((s) => s.done);
   const w = Math.max(0, ...done.map((s) => +s.w || 0));
   const hitTop = done.length >= item.sets && done.every((s) => +s.r >= item.hi);
   if (ex.bw && !w) {
     const allOut = done.filter((s) => s.rir != null).every((s) => s.rir === 0) && done.some((s) => s.rir != null);
-    if (hitTop && !allOut) return { w: '', up: true, text: `You hit ${item.hi} ${unit} on every set last time — level up: ${ex.harder}.` };
-    if (hitTop) return { w: '', text: `You hit ${item.hi} ${unit} last time, but it was all-out. Repeat it until it feels solid.` };
-    return { w: '', text: `Last time best ${Math.max(...done.map((s) => +s.r || 0))} ${unit}. Stay here until every set reaches ${item.hi}.` };
+    if (hitTop && !allOut) return { w: '', up: true, text: t('You hit {hi} {unit} on every set last time — level up: {harder}.', { hi: item.hi, unit, harder: ex.harder }) };
+    if (hitTop) return { w: '', text: t('You hit {hi} {unit} last time, but it was all-out. Repeat it until it feels solid.', { hi: item.hi, unit }) };
+    return { w: '', text: t('Last time best {n} {unit}. Stay here until every set reaches {hi}.', { n: Math.max(...done.map((s) => +s.r || 0)), unit, hi: item.hi }) };
   }
   const rated = done.filter((s) => s.rir != null), grind = rated.length && rated.reduce((a, s) => a + s.rir, 0) / rated.length < 0.75;
-  if (hitTop && w > 0 && grind) return { w, text: `You hit ${item.hi} ${unit} last time, but it was all-out. Stay at ${w} lb until it feels solid.` };
-  if (hitTop && w > 0) return { w: w + 5, up: true, text: `You hit ${item.hi} ${unit} on every set last time — go up to ${w + 5} lb (+5).` };
+  if (hitTop && w > 0 && grind) return { w, text: t('You hit {hi} {unit} last time, but it was all-out. Stay at {w} lb until it feels solid.', { hi: item.hi, unit, w }) };
+  if (hitTop && w > 0) return { w: w + 5, up: true, text: t('You hit {hi} {unit} on every set last time — go up to {w} lb (+5).', { hi: item.hi, unit, w: w + 5 }) };
   // Stalled: same weight for the last 3 sessions without hitting the top → back off 10% and build again
   const recent = liftHistory(item.id).slice(-3);
   if (w > 0 && recent.length === 3 && recent.every((p) => p.w === w) && recent[2].v <= recent[0].v) {
     const back = Math.max(5, Math.round((w * 0.9) / 5) * 5);
-    return { w: back, text: `Stuck at ${w} lb for 3 sessions. Drop to ${back} lb today and build back up — that's how you break through.` };
+    return { w: back, text: t("Stuck at {w} lb for 3 sessions. Drop to {back} lb today and build back up — that's how you break through.", { w, back }) };
   }
-  return { w: w || '', text: w ? `Last time ${w} lb. Stay here until all sets reach ${item.hi} ${unit}.` : '' };
+  return { w: w || '', text: w ? t('Last time {w} lb. Stay here until all sets reach {hi} {unit}.', { w, hi: item.hi, unit }) : '' };
 }
 
 // =====================================================
@@ -732,18 +737,18 @@ function renderToday() {
     const k = localKey(d), done = doneDates.has(k);
     if (done) weekDone++;
     const cls = [TRAIN_DAYS.includes(d.getDay()) ? 'train' : '', done ? 'done' : '', k === localKey(now) ? 'today' : ''].join(' ');
-    weekHtml += `<div class="${cls}" aria-label="${DAYS[d.getDay()]} ${d.getDate()}${done ? ', trained' : ''}">${DAYS[d.getDay()][0]}<i></i></div>`;
+    weekHtml += `<div class="${cls}" aria-label="${done ? t('{day} {n}, trained', { day: DAYS[d.getDay()], n: d.getDate() }) : `${DAYS[d.getDay()]} ${d.getDate()}`}">${DAYS[d.getDay()][0]}<i></i></div>`;
   }
   $('#week').innerHTML = weekHtml;
 
   // streak = consecutive weeks (ending this or last week) with 3+ workouts
   const { current: streak } = weekStreak();
   $('#streakPill').classList.add('flame');
-  $('#streakPill').innerHTML = flameIcon(streak > 0) + (streak ? `${streak}-week streak` : log.length ? `${log.length} workout${log.length === 1 ? '' : 's'}` : 'Start your streak');
+  $('#streakPill').innerHTML = flameIcon(streak > 0) + (streak ? t('{n}-week streak', { n: streak }) : log.length ? (log.length === 1 ? t('{n} workout', { n: 1 }) : t('{n} workouts', { n: log.length })) : t('Start your streak'));
 
   const isTrain = TRAIN_DAYS.includes(now.getDay());
   const trainedToday = doneDates.has(localKey(now));
-  $('#todayTag').textContent = trainedToday ? 'Done for today — nice work' : isTrain ? `${DAYS[now.getDay()]} · training day` : `${DAYS[now.getDay()]} · rest day`;
+  $('#todayTag').textContent = trainedToday ? t('Done for today — nice work') : isTrain ? t('{day} · training day', { day: DAYS[now.getDay()] }) : t('{day} · rest day', { day: DAYS[now.getDay()] });
 
   // ---- the hero is the workout: what's next, and Start ----
   const day = upNext(), prog = PROGRAM[day];
@@ -752,27 +757,27 @@ function renderToday() {
   const shown = plan.slice(0, 3);
   const easy = active ? active.easy : easyWeek();
   $('#easyCard').innerHTML = easy ? `<div class="card easy-card"><div class="row" style="justify-content:space-between;align-items:flex-start;gap:12px">
-      <div><div class="eyebrow" style="color:var(--ok)">Easy week</div><h3 style="margin-top:4px">Recover to get stronger</h3>
-      <div class="small muted">You've trained hard for ${P().age === '30' ? 5 : 4} weeks. This week: one fewer set and 10% less weight on everything. Joints and tendons catch up, and you come back stronger.</div></div></div>
-      ${active ? '' : '<button class="btn btn-ghost" id="skipEasy" style="margin-top:12px;min-height:40px;font-size:13px">Skip easy week</button>'}</div>` : '';
+      <div><div class="eyebrow" style="color:var(--ok)">${t('Easy week')}</div><h3 style="margin-top:4px">${t('Recover to get stronger')}</h3>
+      <div class="small muted">${t("You've trained hard for {n} weeks. This week: one fewer set and 10% less weight on everything. Joints and tendons catch up, and you come back stronger.", { n: P().age === '30' ? 5 : 4 })}</div></div></div>
+      ${active ? '' : `<button class="btn btn-ghost" id="skipEasy" style="margin-top:12px;min-height:40px;font-size:13px">${t('Skip easy week')}</button>`}</div>` : '';
   $('#nextCard').innerHTML = `<div>
-    <div class="tag eyebrow">${active ? 'In progress' : trainedToday ? 'Next session' : 'Up next'} · ${Math.min(weekDone + (trainedToday || active ? 0 : 1), 3)} of 3 this week</div>
+    <div class="tag eyebrow">${active ? t('In progress') : trainedToday ? t('Next session') : t('Up next')} · ${t('{n} of 3 this week', { n: Math.min(weekDone + (trainedToday || active ? 0 : 1), 3) })}</div>
     <h1 class="display">${progTitle(prog)}</h1>
-    <div class="meta">${prog.cali ? 'Calisthenics · ' : ''}${esc(prog.focus)} · ${prog.items.length} exercises · ~${prog.mins || 45} min</div>
+    <div class="meta">${prog.cali ? t('Calisthenics') + ' · ' : ''}${esc(prog.focus)} · ${t('{n} exercises', { n: prog.items.length })} · ~${prog.mins || 45} min</div>
     <div class="row2">
       <div class="avatars">${shown.map((it) => `<div class="mini" data-media="${it.id}"><div class="rigbox"></div>${imgTag(it.id)}</div>`).join('')}${prog.items.length > 3 ? `<div class="more">+${prog.items.length - 3}</div>` : ''}</div>
-      <span class="small">${esc(first.name)} first</span>
+      <span class="small">${esc(t('{name} first', { name: first.name }))}</span>
     </div>
-    <button class="btn btn-primary btn-block" id="startBtn">${active ? 'Resume workout' : 'Start workout'}</button>
-    ${!isTrain && !active ? '<div class="note">Plan: Mon · Wed · Fri — rest days help, but you can train anytime.</div>' : ''}
+    <button class="btn btn-primary btn-block" id="startBtn">${active ? t('Resume workout') : t('Start workout')}</button>
+    ${!isTrain && !active ? `<div class="note">${t('Plan: Mon · Wed · Fri — rest days help, but you can train anytime.')}</div>` : ''}
   </div>`;
 
   // ---- full exercise list, one tap away ----
-  $('#exList').innerHTML = `<summary>See all ${plan.length} exercises${plan.some((x) => x.why) ? ' · adjusted for you' : ''}</summary>
+  $('#exList').innerHTML = `<summary>${t('See all {n} exercises', { n: plan.length })}${plan.some((x) => x.why) ? ' · ' + t('adjusted for you') : ''}</summary>
     <div style="margin-top:6px">${plan.map((it) => `
       <button class="ex-line" style="width:100%;text-align:left" data-ex="${it.id}">
         ${mediaHtml(it.id)}
-        <div><h3>${esc(EX_BY_ID[it.id].name)}</h3><div class="small muted">${it.sets} sets · ${it.lo}–${it.hi}${it.timed ? ' sec' : ' reps'}${it.perSide ? ' / side' : ''}</div>${it.why ? `<div class="small swap-note">${esc(it.why)}</div>` : ''}</div>
+        <div><h3>${esc(EX_BY_ID[it.id].name)}</h3><div class="small muted">${t('{n} sets', { n: it.sets })} · ${it.lo}–${it.hi} ${it.timed ? t('sec') : t('reps')}${it.perSide ? ' / ' + t('side') : ''}</div>${it.why ? `<div class="small swap-note">${esc(it.why)}</div>` : ''}</div>
         <svg class="icon chev" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M9 6l6 6-6 6"/></svg>
       </button>`).join('')}</div>`;
 
@@ -781,16 +786,16 @@ function renderToday() {
   const gym = isLocked(nextDay()) ? 'A' : nextDay();
   const tile = (key, label, sub, wide) => {
     const lv = progLevels(key), back = Object.keys(lv).every((m) => BACK_VIEW.has(m));
-    if (isLocked(key)) return `<button class="tile2 locked ${wide ? 'wide' : ''}" data-lock="${key}" aria-label="${label} (locked)">
+    if (isLocked(key)) return `<button class="tile2 locked ${wide ? 'wide' : ''}" data-lock="${key}" aria-label="${t('{label} (locked)', { label })}">
       <span class="map">${MuscleMap.svg(lv, { views: back ? 'back' : 'front' })}</span><span><b>${label}</b><small>${sub}</small></span>${LOCK}</button>`;
     return `<button class="tile2 ${wide ? 'wide' : ''} ${(pick || '') === (key === gym ? '' : key) ? 'on' : ''}" data-pick="${key === gym ? '' : key}" aria-pressed="${(pick || '') === (key === gym ? '' : key)}">
       <span class="map">${MuscleMap.svg(lv, { views: back ? 'back' : 'front' })}</span><span><b>${label}</b><small>${sub}</small></span></button>`;
   };
-  $('#focus').innerHTML = active ? '' : `<div class="row" style="justify-content:space-between"><div class="eyebrow">Switch focus</div>
-      ${license ? '' : `<button class="unlock-link" data-lock="all">${LOCK}Unlock everything · ${SHOP.price}</button>`}</div>
-    <div class="tiles">${tile(gym, license ? `Gym · ${PROGRAM[gym].name}` : 'Gym · Workout A', license ? 'Alternates dumbbell & barbell days' : 'Free · full-body dumbbell day', true)}
-      ${license ? '' : tile('B', 'Gym · Workout B', 'Barbell day', true)}
-      ${cali.map((k) => tile(k, esc(PROGRAM[k].chip), `~${PROGRAM[k].mins} min · bodyweight`)).join('')}</div>`;
+  $('#focus').innerHTML = active ? '' : `<div class="row" style="justify-content:space-between"><div class="eyebrow">${t('Switch focus')}</div>
+      ${license ? '' : `<button class="unlock-link" data-lock="all">${LOCK}${t('Unlock everything · {price}', { price: SHOP.price })}</button>`}</div>
+    <div class="tiles">${tile(gym, t('Gym · {name}', { name: license ? PROGRAM[gym].name : PROGRAM.A.name }), license ? esc(t('Alternates dumbbell & barbell days')) : t('Free · full-body dumbbell day'), true)}
+      ${license ? '' : tile('B', t('Gym · {name}', { name: PROGRAM.B.name }), t('Barbell day'), true)}
+      ${cali.map((k) => tile(k, esc(PROGRAM[k].chip), t('~{n} min · bodyweight', { n: PROGRAM[k].mins }))).join('')}</div>`;
 
   mountMedia($('#nextCard')); mountMedia($('#exList'));
   $('#s-today').onclick = (e) => {
@@ -825,7 +830,7 @@ function renderBody() {
   const sets = bodyMode === 'week' ? weekSets() : null;
   const levels = fresh ? Object.fromEntries(Object.entries(fresh).filter(([, v]) => v < 100).map(([m, v]) => [m, 1 - v / 100]))
     : sets ? Object.fromEntries(Object.entries(sets).filter(([, v]) => v > 0).map(([m, v]) => [m, Math.min(1, v / SET_TARGET[m])])) : {};
-  $('#bodyModes').querySelectorAll('[data-mode]').forEach((b) => { b.classList.toggle('on', b.dataset.mode === bodyMode); b.innerHTML = { muscles: 'Muscles', recovery: 'Recovery', week: 'This week' }[b.dataset.mode] + (!license && b.dataset.mode !== 'muscles' ? ` ${LOCK}` : ''); });
+  $('#bodyModes').querySelectorAll('[data-mode]').forEach((b) => { b.classList.toggle('on', b.dataset.mode === bodyMode); b.innerHTML = { muscles: t('Muscles'), recovery: t('Recovery'), week: t('This week') }[b.dataset.mode] + (!license && b.dataset.mode !== 'muscles' ? ` ${LOCK}` : ''); });
   $('#bodyMap').classList.toggle('anat', bodyMode === 'muscles');
   let map = MuscleMap.svg(levels);
   const id = map.match(/id="(mm\d+)"/)[1];
@@ -833,27 +838,27 @@ function renderBody() {
   map = map.replace('</style>', `#${id} .mm:not(.mm-base){cursor:pointer}${bodyPick ? `#${id} .mm-${bodyPick}{fill:var(--accent);filter:drop-shadow(0 0 4px var(--accent))}` : ''}</style>`);
   // name labels on the major groups (one side of each view)
   // [label, x, y] in map units: front view 0–100, back view 110–210
-  const LBL = [['Chest', 50, 47], ['Delts', 88, 37], ['Biceps', 92, 70], ['Abs', 50, 80], ['Quads', 50, 132],
-    ['Back', 160, 60], ['Triceps', 202, 70], ['Glutes', 160, 110], ['Hams', 160, 146], ['Calves', 160, 192]];
+  const LBL = [[t('Chest'), 50, 47], [t('Delts'), 88, 37], [t('Biceps'), 92, 70], [t('Abs'), 50, 80], [t('Quads'), 50, 132],
+    [t('Back'), 160, 60], [t('Triceps'), 202, 70], [t('Glutes'), 160, 110], [t('Hams'), 160, 146], [t('Calves'), 160, 192]];
   const labels = LBL.map(([l, x, y]) => `<span class="body-lbl" style="left:${(x / 210) * 100}%;top:${(y / 222) * 100}%">${l}</span>`).join('');
   $('#bodyMap').innerHTML = map + labels;
-  $('#bodyLegend').innerHTML = fresh ? 'Red = still recovering' : sets ? '<span class="ramp"></span> sets vs weekly target' : '';
-  $('#bodyTag').textContent = bodyPick ? MUSCLES[bodyPick] : 'Tap a muscle';
+  $('#bodyLegend').innerHTML = fresh ? t('Red = still recovering') : sets ? '<span class="ramp"></span> ' + t('sets vs weekly target') : '';
+  $('#bodyTag').textContent = bodyPick ? MUSCLES[bodyPick] : t('Tap a muscle');
   $('#bodyChips').innerHTML = Object.keys(MUSCLES).map((m) => `<button class="chip ${m === bodyPick ? 'on' : ''}" data-mus="${m}">${MUSCLES[m]}${fresh && fresh[m] < 100 ? ` · ${fresh[m]}%` : ''}${sets ? ` · ${sets[m]}/${SET_TARGET[m]}` : ''}</button>`).join('');
   if (!bodyPick) {
-    $('#bodyPick').innerHTML = `<div class="card small muted" style="text-align:center">Tap any muscle on the body (or a name above) to see the exercises that train it, with animated form demos.</div>`;
+    $('#bodyPick').innerHTML = `<div class="card small muted" style="text-align:center">${t('Tap any muscle on the body (or a name above) to see the exercises that train it, with animated form demos.')}</div>`;
   } else {
     const main = EXERCISES.filter((e) => e.mus.p.includes(bodyPick));
     const also = EXERCISES.filter((e) => !e.mus.p.includes(bodyPick) && e.mus.s.includes(bodyPick));
     const line = (e) => `<button class="ex-line" style="width:100%;text-align:left" data-ex="${e.id}">${mediaHtml(e.id)}
-      <div><h3>${esc(e.name)}</h3><div class="small muted">${esc(e.equip.join(' · '))}</div></div>
+      <div><h3>${esc(e.name)}</h3><div class="small muted">${esc(e.equip.map((q) => t(q)).join(' · '))}</div></div>
       <svg class="icon chev" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M9 6l6 6-6 6"/></svg></button>`;
-    const rec = fresh ? `<span class="pill">${fresh[bodyPick] >= 100 ? 'Fresh · ready to train' : `${fresh[bodyPick]}% recovered`}</span>`
-      : sets ? `<span class="pill">${sets[bodyPick]} of ${SET_TARGET[bodyPick]} sets this week</span>` : '';
+    const rec = fresh ? `<span class="pill">${fresh[bodyPick] >= 100 ? t('Fresh · ready to train') : t('{n}% recovered', { n: fresh[bodyPick] })}</span>`
+      : sets ? `<span class="pill">${t('{n} of {target} sets this week', { n: sets[bodyPick], target: SET_TARGET[bodyPick] })}</span>` : '';
     $('#bodyPick').innerHTML = `<div class="card">
-      <div class="row" style="justify-content:space-between"><div><div class="eyebrow">Trains your</div><h2 class="display">${MUSCLES[bodyPick]}</h2></div>${rec}</div>
-      ${main.length ? `<div class="eyebrow" style="margin-top:12px">Main focus · ${main.length}</div>${main.map(line).join('')}` : ''}
-      ${also.length ? `<div class="eyebrow" style="margin-top:12px">Also works it · ${also.length}</div>${also.map(line).join('')}` : ''}
+      <div class="row" style="justify-content:space-between"><div><div class="eyebrow">${t('Trains your')}</div><h2 class="display">${MUSCLES[bodyPick]}</h2></div>${rec}</div>
+      ${main.length ? `<div class="eyebrow" style="margin-top:12px">${t('Main focus · {n}', { n: main.length })}</div>${main.map(line).join('')}` : ''}
+      ${also.length ? `<div class="eyebrow" style="margin-top:12px">${t('Also works it · {n}', { n: also.length })}</div>${also.map(line).join('')}` : ''}
     </div>`;
     mountMedia($('#bodyPick'));
   }
@@ -879,9 +884,9 @@ const FILTERS = ['All', 'Fits me', ...Object.keys(AREAS), 'Bodyweight', 'Dumbbel
 let filter = store.get('iron40_filter', 'All');
 if (!FILTERS.includes(filter)) filter = 'All';
 function renderLibrary() {
-  $('#filters').innerHTML = FILTERS.map((f) => `<button class="chip ${f === filter ? 'on' : ''}" data-f="${f}">${f}</button>`).join('');
+  $('#filters').innerHTML = FILTERS.map((f) => `<button class="chip ${f === filter ? 'on' : ''}" data-f="${f}">${esc(t(f))}</button>`).join('');
   const list = EXERCISES.filter((e) => filter === 'All' || (filter === 'Fits me' ? fits(e) : e.equip.includes(filter) || AREAS[filter]?.some((m) => e.mus.p.includes(m))));
-  $('#exCount').textContent = `${list.length} movements`;
+  $('#exCount').textContent = t('{n} movements', { n: list.length });
   $('#grid').innerHTML = list.map((e) => `
     <button class="tile" data-ex="${e.id}">
       ${mediaHtml(e.id)}
@@ -896,17 +901,17 @@ $('#grid').addEventListener('click', (e) => { const b = e.target.closest('[data-
 // animated stage with phase label, play/pause, slow-mo and a range-of-motion scrubber
 function mountStage(container, ex, small) {
   container.innerHTML = `<div class="stage">${small ? '' : `<div class="phase">…</div>
-    <div class="ctrls"><button data-c="pp" aria-label="Pause">${ICON.pause}</button><button data-c="slow" aria-label="Slow motion">½×</button></div>`}</div>
+    <div class="ctrls"><button data-c="pp" aria-label="${t('Pause')}">${ICON.pause}</button><button data-c="slow" aria-label="${t('Slow motion')}">½×</button></div>`}</div>
     ${small ? '' : `<div class="scrub">
-      <input type="range" min="0" max="1000" value="0" aria-label="Drag through the full range of motion">
+      <input type="range" min="0" max="1000" value="0" aria-label="${t('Drag through the full range of motion')}">
       <div class="scrub-labels">${ex.tempo.map((p) => `<span style="flex:${p.dur}">${esc(p.label)}</span>`).join('')}</div>
-      <div class="small muted scrub-hint">Drag to move through the full range of motion</div>
+      <div class="small muted scrub-hint">${t('Drag to move through the full range of motion')}</div>
     </div>`}`;
   const stage = container.firstElementChild, phase = $('.phase', stage), pp = $('[data-c=pp]', stage), range = $('.scrub input', container);
   let dragging = false;
   const anim = IronRig.create(stage, ex, {
     fit: !small,
-    onPhase: (l, d) => { if (phase) phase.textContent = d ? `${l} · ${d} sec` : l; },
+    onPhase: (l, d) => { if (phase) phase.textContent = d ? t('{label} · {n} sec', { label: l, n: d }) : l; },
     onTime: (t, cyc) => { if (range && !dragging) range.value = Math.round((t / cyc) * 1000); },
   });
   const setPlaying = (on) => { on ? anim.play() : anim.pause(); if (pp) pp.innerHTML = on ? ICON.pause : ICON.play; };
@@ -945,8 +950,8 @@ function liftHistory(id) {
   let top = -1; out.forEach((p) => { p.pr = p.v > top; if (p.pr) top = p.v; });
   return out;
 }
-const fmtDate = (d) => new Date(d + 'T12:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-const pointText = (p, ex) => p.weighted ? `${p.w} lb × ${p.r} · est. 1RM ${p.v} lb` : `${p.r} ${ex.timed ? 'sec' : 'reps'}`;
+const fmtDate = (d) => new Date(d + 'T12:00').toLocaleDateString(LOCALE, { month: 'short', day: 'numeric' });
+const pointText = (p, ex) => p.weighted ? t('{w} lb × {r} · est. 1RM {v} lb', { w: p.w, r: p.r, v: p.v }) : `${p.r} ${ex.timed ? t('sec') : t('reps')}`;
 
 // Single-series line chart (accent 2px line, 8px dots, recessive grid). Tap a point to read it.
 function chartSvg(pts, ex) {
@@ -958,12 +963,12 @@ function chartSvg(pts, ex) {
   const ticks = [y0, (y0 + y1) / 2, y1].map((v) => Math.round(v));
   const best = pts.reduce((b, p, i) => (p.v >= pts[b].v ? i : b), 0), last = pts.length - 1;
   return `<div class="chart" data-ex-chart="${ex.id}">
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(ex.name)} progress, ${pts.length} sessions, best ${pointText(pts[best], ex)}">
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('{name} progress, {n} sessions, best {best}', { name: ex.name, n: pts.length, best: pointText(pts[best], ex) }))}">
       ${ticks.map((v) => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" class="grid"/><text x="${L - 6}" y="${y(v) + 3.5}" class="tick" text-anchor="end">${v}</text>`).join('')}
       <text x="${L}" y="${H - 5}" class="tick">${fmtDate(pts[0].date)}</text><text x="${W - R}" y="${H - 5}" class="tick" text-anchor="end">${fmtDate(pts[last].date)}</text>
       <path d="M${pts.map((p, i) => `${x(i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' L')}" class="line"/>
       ${pts.map((p, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="4" class="dot ${p.pr ? 'pr' : ''}"/><circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="14" class="hit" data-i="${i}"/>`).join('')}
-      <text x="${Math.min(W - R, Math.max(L, x(best)))}" y="${y(pts[best].v) - 9}" class="lbl" text-anchor="${best === last ? 'end' : best === 0 ? 'start' : 'middle'}">Best ${pts[best].v}</text>
+      <text x="${Math.min(W - R, Math.max(L, x(best)))}" y="${y(pts[best].v) - 9}" class="lbl" text-anchor="${best === last ? 'end' : best === 0 ? 'start' : 'middle'}">${t('Best {n}', { n: pts[best].v })}</text>
     </svg>
     <div class="small muted chart-read" data-default="${esc(`${fmtDate(pts[last].date)} · ${pointText(pts[last], ex)}`)}">${fmtDate(pts[last].date)} · ${pointText(pts[last], ex)}</div>
   </div>`;
@@ -972,7 +977,7 @@ function chartSvg(pts, ex) {
 document.addEventListener('click', (e) => {
   const hit = e.target.closest('.chart .hit'); if (!hit) return;
   const box = hit.closest('.chart'), ex = EX_BY_ID[box.dataset.exChart], p = liftHistory(ex.id)[+hit.dataset.i];
-  box.querySelector('.chart-read').textContent = `${fmtDate(p.date)} · ${pointText(p, ex)}${p.pr ? ' · PR' : ''}`;
+  box.querySelector('.chart-read').textContent = `${fmtDate(p.date)} · ${pointText(p, ex)}${p.pr ? ' · ' + t('PR') : ''}`;
   box.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('sel', i === +hit.dataset.i));
 });
 
@@ -989,45 +994,45 @@ function exInfo(ex) {
   const last = lastFor(ex.id);
   const best = log.flatMap((l) => l.ex.filter((x) => x.id === ex.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => +s.w || 0)));
   const bestReps = Math.max(0, ...log.flatMap((l) => l.ex.filter((x) => x.id === ex.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => +s.r || 0))));
-  const bestTxt = ex.bw && !Math.max(...best) ? `Best ${bestReps} ${ex.timed ? 'sec' : 'reps'}` : `Best ${Math.max(...best)} lb`;
+  const bestTxt = ex.bw && !Math.max(...best) ? t('Best {n} {unit}', { n: bestReps, unit: ex.timed ? t('sec') : t('reps') }) : t('Best {n} lb', { n: Math.max(...best) });
   return `
-    <div class="small muted">${esc(ex.equip.join(' · '))}</div>
-    <div><b>Works:</b> ${esc(ex.muscles)}</div>
-    ${last ? `<div class="hint">Last: ${esc(last.sets.filter((s) => s.done).map((s) => `${s.w || 0}×${s.r}`).join(', '))} · ${bestTxt}</div>` : ''}
-    ${license && liftHistory(ex.id).length > 1 ? `<div class="card"><h3>Your progress</h3><div class="small muted">${liftHistory(ex.id)[0].weighted ? 'Estimated 1-rep max per session (lb)' : `Best set per session (${ex.timed ? 'sec' : 'reps'})`}</div>${chartSvg(liftHistory(ex.id), ex)}</div>` : ''}
-    <div><h3>How to do it</h3><ol class="cues">${ex.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ol></div>
-    ${VIDEOS[ex.id] && exLocked(ex.id) ? `<div class="vid"><h3>Watch it done</h3><button class="vid-locked" onclick="openUnlock()">${LOCK}<span>Video demo by ${esc(VIDEOS[ex.id].by)} · unlock to watch</span></button></div>` : ''}
-    ${VIDEOS[ex.id] && !exLocked(ex.id) ? `<div class="vid"><h3>Watch it done</h3>
-      <button class="yt" data-yt="${VIDEOS[ex.id].id}" aria-label="Play video: ${esc(VIDEOS[ex.id].title)}">
+    <div class="small muted">${esc(ex.equip.map((q) => t(q)).join(' · '))}</div>
+    <div><b>${t('Works:')}</b> ${esc(ex.muscles)}</div>
+    ${last ? `<div class="hint">${t('Last:')} ${esc(last.sets.filter((s) => s.done).map((s) => `${s.w || 0}×${s.r}`).join(', '))} · ${bestTxt}</div>` : ''}
+    ${license && liftHistory(ex.id).length > 1 ? `<div class="card"><h3>${t('Your progress')}</h3><div class="small muted">${liftHistory(ex.id)[0].weighted ? t('Estimated 1-rep max per session (lb)') : t('Best set per session ({unit})', { unit: ex.timed ? t('sec') : t('reps') })}</div>${chartSvg(liftHistory(ex.id), ex)}</div>` : ''}
+    <div><h3>${t('How to do it')}</h3><ol class="cues">${ex.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ol></div>
+    ${VIDEOS[ex.id] && exLocked(ex.id) ? `<div class="vid"><h3>${t('Watch it done')}</h3><button class="vid-locked" onclick="openUnlock()">${LOCK}<span>${esc(t('Video demo by {by} · unlock to watch', { by: VIDEOS[ex.id].by }))}</span></button></div>` : ''}
+    ${VIDEOS[ex.id] && !exLocked(ex.id) ? `<div class="vid"><h3>${t('Watch it done')}</h3>
+      <button class="yt" data-yt="${VIDEOS[ex.id].id}" aria-label="${esc(t('Play video: {title}', { title: VIDEOS[ex.id].title }))}">
         <img src="https://i.ytimg.com/vi/${VIDEOS[ex.id].id}/hqdefault.jpg" alt="" loading="lazy" onerror="this.closest('.vid').classList.add('offline')">
         <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>
       <div class="small muted vid-meta">${esc(VIDEOS[ex.id].by)} · ${esc(VIDEOS[ex.id].title)}</div>
-      <div class="small muted vid-off">Connect to the internet to watch this video.</div></div>` : ''}
-    <div class="callout"><b>${P().age === '30' ? '30s tip' : '40+ tip'}</b>${esc(P().age === '30' ? TIP30[ex.id] : ex.tip40)}</div>
-    <div class="callout warn"><b>Avoid</b>${esc(ex.mistake)}</div>
-    <div class="swap"><div><div class="small muted">Easier</div>${esc(ex.easier)}</div><div><div class="small muted">Harder</div>${esc(ex.harder)}</div></div>`;
+      <div class="small muted vid-off">${t('Connect to the internet to watch this video.')}</div></div>` : ''}
+    <div class="callout"><b>${P().age === '30' ? t('30s tip') : t('40+ tip')}</b>${esc(P().age === '30' ? TIP30[ex.id] : ex.tip40)}</div>
+    <div class="callout warn"><b>${t('Avoid')}</b>${esc(ex.mistake)}</div>
+    <div class="swap"><div><div class="small muted">${t('Easier')}</div>${esc(ex.easier)}</div><div><div class="small muted">${t('Harder')}</div>${esc(ex.harder)}</div></div>`;
 }
 
 let detailId = null;
 function openDetail(id) {
   const ex = EX_BY_ID[id];
   $('#detailInner').innerHTML = `
-    <div class="topbar"><button class="iconbtn" id="detailClose" aria-label="Close">${ICON.back}</button><div class="spacer"></div></div>
+    <div class="topbar"><button class="iconbtn" id="detailClose" aria-label="${t('Close')}">${ICON.back}</button><div class="spacer"></div></div>
     <div class="stack">
       <h2 class="display" style="font-size:32px">${esc(ex.name)}</h2>
       <div id="detailStage"></div>
       ${imgTag(ex.id, 'photo')}
       <div class="card"><div class="row" style="align-items:center;gap:16px">
         <div class="detailmap" style="width:150px;flex:none">${MuscleMap.svg(Object.fromEntries([...ex.mus.s.map((m) => [m, .35]), ...ex.mus.p.map((m) => [m, 1])]))}</div>
-        <div class="small"><div class="muted">Primary</div><b>${ex.mus.p.map((m) => MUSCLES[m]).join(', ')}</b>
-          ${ex.mus.s.length ? `<div class="muted" style="margin-top:8px">Also works</div><b>${ex.mus.s.map((m) => MUSCLES[m]).join(', ')}</b>` : ''}</div>
+        <div class="small"><div class="muted">${t('Primary')}</div><b>${ex.mus.p.map((m) => MUSCLES[m]).join(', ')}</b>
+          ${ex.mus.s.length ? `<div class="muted" style="margin-top:8px">${t('Also works')}</div><b>${ex.mus.s.map((m) => MUSCLES[m]).join(', ')}</b>` : ''}</div>
       </div></div>
       ${exInfo(ex)}
     </div>`;
   if (exLocked(ex.id)) {
-    $('#detailStage').innerHTML = `<div class="stage locked-stage"><div class="lock-over">${LOCK}<b>Animated form demo</b>
-      <span class="small">Watch every rep and drag through the full range of motion.</span>
-      <button class="btn btn-primary" onclick="openUnlock()">Unlock · ${SHOP.price}</button></div></div>`;
+    $('#detailStage').innerHTML = `<div class="stage locked-stage"><div class="lock-over">${LOCK}<b>${t('Animated form demo')}</b>
+      <span class="small">${t('Watch every rep and drag through the full range of motion.')}</span>
+      <button class="btn btn-primary" onclick="openUnlock()">${t('Unlock · {price}', { price: SHOP.price })}</button></div></div>`;
     IronRig.create($('#detailStage .stage'), ex, { static: true });
   } else mountStage($('#detailStage'), ex);
   detailId = ex.id;
@@ -1071,7 +1076,7 @@ function renderStep() {
   const prog = PROGRAM[active.day], total = prog.items.length + 1, step = active.step;
   const head = `
     <div class="topbar">
-      <button class="iconbtn" id="wClose" aria-label="Close">${ICON.close}</button>
+      <button class="iconbtn" id="wClose" aria-label="${t('Close')}">${ICON.close}</button>
       <div class="progress"><i style="width:${Math.min(1, step / (total - 1)) * 100}%"></i></div>
       <div class="small muted" style="min-width:42px;text-align:right">${Math.min(step, total - 1)}/${total - 1}</div>
     </div>`;
@@ -1079,37 +1084,37 @@ function renderStep() {
   if (step === 0) {
     $('#workoutInner').innerHTML = head + `
       <div class="stack">
-        <div><div class="small muted">${prog.name}</div><h2 class="display" style="font-size:32px">Warm-up · 5 min</h2></div>
-        <div class="muted">${P().age === '30' ? 'A proper warm-up primes your joints and lets you lift heavier.' : 'Older joints need a proper warm-up.'} Do each move, then 1 light set of your first exercise.</div>
+        <div><div class="small muted">${prog.name}</div><h2 class="display" style="font-size:32px">${t('Warm-up · 5 min')}</h2></div>
+        <div class="muted">${P().age === '30' ? t('A proper warm-up primes your joints and lets you lift heavier.') : t('Older joints need a proper warm-up.')} ${t('Do each move, then 1 light set of your first exercise.')}</div>
         <div class="wu-grid">${WARMUPS.map((w) => `<div><div data-wu="${w.id}"></div><div class="small" style="margin-top:6px;font-weight:600">${w.name}</div><div class="small muted">${w.note}</div></div>`).join('')}</div>
-        <div class="footer-nav"><button class="btn btn-primary" id="wNext">Start lifting</button></div>
+        <div class="footer-nav"><button class="btn btn-primary" id="wNext">${t('Start lifting')}</button></div>
       </div>`;
     document.querySelectorAll('[data-wu]').forEach((d) => mountStage(d, EX_BY_ID[d.dataset.wu], true));
   } else if (step <= prog.items.length) {
     const it = prog.items[step - 1], rec = active.ex[step - 1], ex = EX_BY_ID[rec.id], s = suggest({ ...it, id: rec.id });
-    const unit = it.timed ? 'sec' : 'reps';
+    const unit = it.timed ? t('sec') : t('reps');
     $('#workoutInner').innerHTML = head + `
       <div class="stack">
-        <div><div class="small muted">Exercise ${step} of ${prog.items.length}</div>
+        <div><div class="small muted">${t('Exercise {n} of {total}', { n: step, total: prog.items.length })}</div>
           <div class="row" style="justify-content:space-between;align-items:flex-start"><h2 class="display" style="font-size:30px">${esc(ex.name)}</h2>
-            <button class="btn btn-ghost swap-btn" id="wSwap">Swap</button></div>
+            <button class="btn btn-ghost swap-btn" id="wSwap">${t('Swap')}</button></div>
           ${rec.why ? `<div class="small swap-note">${esc(rec.why)}</div>` : ''}
-          ${active.easy ? '<div class="small swap-note">Easy week · 10% lighter, one fewer set</div>' : ''}
-          <div class="small muted">${it.sets} sets × ${it.lo}–${it.hi} ${unit}${it.perSide ? ' each side' : ''} · rest ${it.rest}s · effort: 2–3 ${unit} left in the tank</div></div>
-        <div class="media" style="aspect-ratio:16/10;display:none" id="wPhoto"><img src="${photo(ex.id)}" alt="${esc(ex.name)} demonstration photo" onload="this.parentElement.style.display=''" onerror="this.parentElement.remove()"><div class="inset" style="width:24%;height:52%">${MuscleMap.forExercise(ex)}</div></div>
+          ${active.easy ? `<div class="small swap-note">${t('Easy week · 10% lighter, one fewer set')}</div>` : ''}
+          <div class="small muted">${t('{n} sets', { n: it.sets })} × ${it.lo}–${it.hi} ${unit}${it.perSide ? ' ' + t('each side') : ''} · ${t('rest {n}s', { n: it.rest })} · ${t('effort: 2–3 {unit} left in the tank', { unit })}</div></div>
+        <div class="media" style="aspect-ratio:16/10;display:none" id="wPhoto"><img src="${photo(ex.id)}" alt="${esc(t('{name} demonstration photo', { name: ex.name }))}" onload="this.parentElement.style.display=''" onerror="this.parentElement.remove()"><div class="inset" style="width:24%;height:52%">${MuscleMap.forExercise(ex)}</div></div>
         <div id="wStage"></div>
         ${s.text ? `<div class="hint ${s.up ? 'up' : ''}">${s.up ? '↑ ' : ''}${esc(s.text)}</div>` : ''}
-        <table class="sets"><thead><tr><th>Set</th><th>${ex.bw ? '+lb' : 'lb'}</th><th>${unit}</th><th></th></tr></thead><tbody>
+        <table class="sets"><thead><tr><th>${t('Set')}</th><th>${ex.bw ? '+lb' : 'lb'}</th><th>${unit}</th><th></th></tr></thead><tbody>
           ${rec.sets.map((st, i) => `<tr class="${st.done ? 'done' : ''}" data-i="${i}">
             <td>${i + 1}</td>
-            <td><input inputmode="decimal" readonly data-k="w" value="${esc(st.w)}" placeholder="${ex.bw ? 'BW' : '0'}" aria-label="Set ${i + 1} ${ex.bw ? 'added ' : ''}weight"></td>
-            <td><input inputmode="numeric" readonly data-k="r" value="${esc(st.r)}" aria-label="Set ${i + 1} ${unit}"></td>
-            <td><button class="check ${st.done ? 'on' : ''}" data-done aria-label="Complete set ${i + 1}">${ICON.check}</button></td></tr>`).join('')}
+            <td><input inputmode="decimal" readonly data-k="w" value="${esc(st.w)}" placeholder="${ex.bw ? t('BW') : '0'}" aria-label="${ex.bw ? t('Set {n} added weight', { n: i + 1 }) : t('Set {n} weight', { n: i + 1 })}"></td>
+            <td><input inputmode="numeric" readonly data-k="r" value="${esc(st.r)}" aria-label="${t('Set {n} {unit}', { n: i + 1, unit })}"></td>
+            <td><button class="check ${st.done ? 'on' : ''}" data-done aria-label="${t('Complete set {n}', { n: i + 1 })}">${ICON.check}</button></td></tr>`).join('')}
         </tbody></table>
-        <details class="card"><summary>Form tips</summary><div class="stack" style="margin-top:12px">${exInfo(ex)}</div></details>
+        <details class="card"><summary>${t('Form tips')}</summary><div class="stack" style="margin-top:12px">${exInfo(ex)}</div></details>
         <div class="footer-nav">
-          <button class="btn btn-ghost" id="wPrev">Back</button>
-          <button class="btn btn-primary" id="wNext">${step === prog.items.length ? 'Finish' : 'Next exercise'}</button>
+          <button class="btn btn-ghost" id="wPrev">${tc('nav', 'Back')}</button>
+          <button class="btn btn-primary" id="wNext">${step === prog.items.length ? t('Finish') : t('Next exercise')}</button>
         </div>
       </div>`;
     mountStage($('#wStage'), ex);
@@ -1130,7 +1135,7 @@ function renderStep() {
       saveActive();
       if (st.done) {
         const more = rec.sets.some((x) => !x.done);
-        const nextName = more ? `Next: set ${rec.sets.findIndex((x) => !x.done) + 1}` : step < prog.items.length ? `Next: ${EX_BY_ID[active.ex[step].id].name}` : 'Last set done!';
+        const nextName = more ? t('Next: set {n}', { n: rec.sets.findIndex((x) => !x.done) + 1 }) : step < prog.items.length ? t('Next: {name}', { name: EX_BY_ID[active.ex[step].id].name }) : t('Last set done!');
         startRest(active.easy ? Math.max(45, it.rest - 15) : it.rest, nextName, st);
         const pr = prCheck(rec.id, st, ex);
         if (pr) celebratePR(pr, ex);
@@ -1144,10 +1149,10 @@ function renderStep() {
   }
   $('#wNext').onclick = () => { active.step++; saveActive(); renderStep(); $('#workout').scrollTop = 0; };
   $('#wClose').onclick = () => openModal(`
-    <h3>Leave workout?</h3><div class="muted">Your progress is saved — you can resume from the Today tab.</div>
-    <button class="btn btn-ghost btn-block" data-m="keep">Keep going</button>
-    <button class="btn btn-ghost btn-block" data-m="pause">Pause &amp; exit</button>
-    <button class="btn btn-block" style="color:var(--danger)" data-m="discard">Discard workout</button>`,
+    <h3>${t('Leave workout?')}</h3><div class="muted">${t('Your progress is saved — you can resume from the Today tab.')}</div>
+    <button class="btn btn-ghost btn-block" data-m="keep">${t('Keep going')}</button>
+    <button class="btn btn-ghost btn-block" data-m="pause">${esc(t('Pause & exit'))}</button>
+    <button class="btn btn-block" style="color:var(--danger)" data-m="discard">${t('Discard workout')}</button>`,
     (a) => {
       if (a === 'pause' || a === 'discard') {
         if (a === 'discard') { active = null; store.del('iron40_active'); }
@@ -1161,15 +1166,15 @@ function openSwap(it, rec) {
   const base = EX_BY_ID[rec.orig || it.id];
   const others = new Set(active.ex.filter((x) => x !== rec).map((x) => x.id));
   const opts = [base, ...alternatives(base.id, it.timed).filter((e) => !others.has(e.id))].filter((e, i, a) => a.indexOf(e) === i).slice(0, 7);
-  openModal(`<h2 class="display">Swap exercise</h2><div class="small muted">Same muscles, filtered for your joints and equipment.</div>
+  openModal(`<h2 class="display">${t('Swap exercise')}</h2><div class="small muted">${t('Same muscles, filtered for your joints and equipment.')}</div>
     ${opts.map((e) => `<button class="ex-line swap-opt ${e.id === rec.id ? 'on' : ''}" style="width:100%;text-align:left" data-swap="${e.id}">${mediaHtml(e.id)}
-      <div><h3>${esc(e.name)}</h3><div class="small muted">${e.id === base.id ? 'Original' : esc(e.mus.p.map((m) => MUSCLES[m]).join(' · '))}${fits(e) ? '' : ` · ${esc(whyNot(e))}`}</div></div></button>`).join('')}
-    <button class="btn btn-block" data-m="close" style="color:var(--muted)">Cancel</button>`);
+      <div><h3>${esc(e.name)}</h3><div class="small muted">${e.id === base.id ? t('Original') : esc(e.mus.p.map((m) => MUSCLES[m]).join(' · '))}${fits(e) ? '' : ` · ${esc(whyNot(e))}`}</div></div></button>`).join('')}
+    <button class="btn btn-block" data-m="close" style="color:var(--muted)">${t('Cancel')}</button>`);
   mountMedia($('#modalBody'));
   $('#modalBody').onclick = (e) => {
     const b = e.target.closest('[data-swap]'); if (!b) return;
     const id = b.dataset.swap, s = suggest({ ...it, id });
-    rec.id = id; rec.orig = base.id; rec.why = id === base.id ? '' : `Swapped from ${base.name}`;
+    rec.id = id; rec.orig = base.id; rec.why = id === base.id ? '' : t('Swapped from {name}', { name: base.name });
     rec.sets = rec.sets.map(() => ({ w: s.w, r: it.hi, done: false }));
     saveActive(); $('#modal').classList.remove('open'); renderStep();
   };
@@ -1184,23 +1189,23 @@ function renderSummary(head) {
   $('#workoutInner').innerHTML = head + `
     <div class="stack" style="text-align:center;padding-top:24px">
       <div style="width:84px;height:84px;margin:0 auto;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 18px 40px -12px var(--accent)"><svg class="icon" viewBox="0 0 24 24" style="width:40px;height:40px;color:#fff;stroke-width:2.2"><path d="M5 12.5 10 17l9-10"/></svg></div>
-      <h2 class="display" style="font-size:38px">${prog.name} complete</h2>
+      <h2 class="display" style="font-size:38px">${esc(t('{name} complete', { name: prog.name }))}</h2>
       <div class="stats" style="text-align:left">
-        <div class="stat"><b>${sets.length}</b><span>Sets</span></div>
-        ${volume ? `<div class="stat"><b>${volume.toLocaleString()}</b><span>lb lifted</span></div>` : `<div class="stat"><b>${reps}</b><span>Reps</span></div>`}
-        <div class="stat"><b>${mins}</b><span>Minutes</span></div>
+        <div class="stat"><b>${sets.length}</b><span>${t('Sets')}</span></div>
+        ${volume ? `<div class="stat"><b>${volume.toLocaleString(LOCALE)}</b><span>${t('lb lifted')}</span></div>` : `<div class="stat"><b>${reps}</b><span>${t('Reps')}</span></div>`}
+        <div class="stat"><b>${mins}</b><span>${t('Minutes')}</span></div>
       </div>
-      ${sets.length ? '' : '<div class="callout warn" style="text-align:left">No sets were checked off. Tap ✓ after each set to log it.</div>'}
+      ${sets.length ? '' : `<div class="callout warn" style="text-align:left">${t('No sets were checked off. Tap ✓ after each set to log it.')}</div>`}
       ${(() => { // compare today's best sets with everything logged before
         const news = active.ex.map((e) => {
           const ex = EX_BY_ID[e.id], done = e.sets.filter((s) => s.done && +s.r > 0); if (!done.length) return null;
           const weighted = done.some((s) => +s.w > 0), v = Math.max(...done.map((s) => (weighted ? e1rm(+s.w, +s.r) : +s.r)));
           const prev = liftHistory(e.id).filter((p) => p.weighted === weighted).reduce((m, p) => Math.max(m, p.v), 0);
-          return prev && v > prev ? `<div class="pr-row"><span class="pr-badge">PR</span><span><b>${esc(ex.name)}</b><span class="small muted">${weighted ? `est. 1RM ${v} lb (was ${prev})` : `${v} ${ex.timed ? 'sec' : 'reps'} (was ${prev})`}</span></span></div>` : null;
+          return prev && v > prev ? `<div class="pr-row"><span class="pr-badge">${t('PR')}</span><span><b>${esc(ex.name)}</b><span class="small muted">${weighted ? t('est. 1RM {v} lb (was {prev})', { v, prev }) : t('{v} {unit} (was {prev})', { v, unit: ex.timed ? t('sec') : t('reps'), prev })}</span></span></div>` : null;
         }).filter(Boolean);
-        return news.length ? `<div class="card" style="text-align:left"><h3>New personal records</h3>${news.join('')}</div>` : '';
+        return news.length ? `<div class="card" style="text-align:left"><h3>${t('New personal records')}</h3>${news.join('')}</div>` : '';
       })()}
-      <div class="footer-nav"><button class="btn btn-ghost" id="wPrev">Back</button><button class="btn btn-primary" id="wSave">Save workout</button></div>
+      <div class="footer-nav"><button class="btn btn-ghost" id="wPrev">${tc('nav', 'Back')}</button><button class="btn btn-primary" id="wSave">${t('Save workout')}</button></div>
     </div>`;
   $('#wPrev').onclick = () => { active.step--; saveActive(); renderStep(); };
   $('#wClose').onclick = () => closeWorkout();
@@ -1263,8 +1268,8 @@ function tickRest() {
   const left = Math.max(0, Math.ceil((restEnd - Date.now()) / 1000));
   if (left !== restShown) {
     restShown = left;
-    $('#restNum').textContent = left ? mss(left) : 'Go';
-    $('#restOf').textContent = left ? `of ${mss(restTotal)}` : 'next set';
+    $('#restNum').textContent = left ? mss(left) : t('Go');
+    $('#restOf').textContent = left ? t('of {time}', { time: mss(restTotal) }) : t('next set');
     const ring = $('#restRing');
     ring.classList.toggle('soon', left > 0 && left <= 10);
     ring.classList.toggle('final', left > 0 && left <= 3);
@@ -1339,11 +1344,11 @@ function prCheck(id, st, ex) {
   const was = Math.max(...hist.map((p) => p.v)), base = Math.max(was, active.pr[key] || 0);
   if (v <= base) return null;
   active.pr[key] = v; saveActive();
-  return { weighted, v, was, w, r, unit: ex.timed ? 'sec' : 'reps' };
+  return { weighted, v, was, w, r, unit: ex.timed ? t('sec') : t('reps') };
 }
 function celebratePR(pr, ex) {
-  $('#restPR').innerHTML = `<div class="t">New personal record</div><div class="v">${esc(ex.name)} · ${pr.weighted ? `${ex.bw ? '+' : ''}${pr.w} lb × ${pr.r}` : `${pr.r} ${pr.unit}`}</div>
-    <div class="small muted">${pr.weighted ? `Est. 1RM ${pr.v} lb · up from ${pr.was} lb` : `Up from ${pr.was} ${pr.unit}`}</div>`;
+  $('#restPR').innerHTML = `<div class="t">${t('New personal record')}</div><div class="v">${esc(ex.name)} · ${pr.weighted ? `${ex.bw ? '+' : ''}${pr.w} lb × ${pr.r}` : `${pr.r} ${pr.unit}`}</div>
+    <div class="small muted">${pr.weighted ? t('Est. 1RM {v} lb · up from {was} lb', { v: pr.v, was: pr.was }) : t('Up from {was} {unit}', { was: pr.was, unit: pr.unit })}</div>`;
   $('#restPR').classList.add('on');
   navigator.vibrate?.([30, 40, 30, 40, 120]);
   try {
@@ -1415,13 +1420,13 @@ let wheelCtx = null;
 function openWheel(tbody, i, ex, it, focusKey) {
   const tr = tbody.rows[i], wIn = tr.querySelector('[data-k=w]'), rIn = tr.querySelector('[data-k=r]');
   wheelCtx = { tbody, i, wIn, rIn, bw: ex.bw };
-  $('#wsTitle').textContent = `${ex.name} · set ${i + 1}`;
-  $('#wsWL').textContent = ex.bw ? 'added lb' : 'lb';
-  $('#wsRL').textContent = it.timed ? 'seconds' : 'reps';
+  $('#wsTitle').textContent = t('{name} · set {n}', { name: ex.name, n: i + 1 });
+  $('#wsWL').textContent = ex.bw ? t('added lb') : 'lb';
+  $('#wsRL').textContent = it.timed ? t('seconds') : t('reps');
   const ws = []; for (let v = 0; v <= (ex.bw ? 100 : 400); v += 2.5) ws.push(v);
   const rs = []; for (let v = 0; v <= (it.timed ? 300 : 50); v += it.timed ? 5 : 1) rs.push(v);
   $('#wsheet').classList.add('open');
-  fillWheel($('#wsW'), ws, +wIn.value || 0, (v) => (ex.bw && !v ? 'BW' : fmtW(v)));
+  fillWheel($('#wsW'), ws, +wIn.value || 0, (v) => (ex.bw && !v ? t('BW') : fmtW(v)));
   fillWheel($('#wsR'), rs, +rIn.value || it.hi, String);
   $('#wsLog').hidden = tr.classList.contains('done');
   $(focusKey === 'r' ? '#wsR' : '#wsW').focus({ preventScroll: true });
@@ -1473,28 +1478,28 @@ function heatmapCard() {
   let cells = '', months = '', lastMonth = -1, workouts = 0;
   for (let wk = 0; wk < HM_WEEKS; wk++) {
     const mon = new Date(start); mon.setDate(start.getDate() + wk * 7);
-    months += `<span>${mon.getMonth() !== lastMonth ? mon.toLocaleDateString(undefined, { month: 'short' }) : ''}</span>`; lastMonth = mon.getMonth();
+    months += `<span>${mon.getMonth() !== lastMonth ? mon.toLocaleDateString(LOCALE, { month: 'short' }) : ''}</span>`; lastMonth = mon.getMonth();
     for (let dd = 0; dd < 7; dd++) {
       const d = new Date(mon); d.setDate(mon.getDate() + dd);
       if (localKey(d) > todayKey) { cells += '<i></i>'; continue; }
       const k = localKey(d), b = byDay[k], n = b ? b.sets : 0;
       if (b) workouts += b.names.length;
       const lv = !b ? 0 : n <= 8 ? 1 : n <= 16 ? 2 : n <= 24 ? 3 : 4;
-      const label = `${d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · ${b ? `${b.names.join(' + ')} · ${n} sets` : 'rest day'}`;
+      const label = `${d.toLocaleDateString(LOCALE, { weekday: 'short', month: 'short', day: 'numeric' })} · ${b ? `${b.names.join(' + ')} · ${t('{n} sets', { n })}` : t('rest day')}`;
       cells += `<button class="l${lv}${k === localKey(today) ? ' today' : ''}" data-hm="${esc(label)}" aria-label="${esc(label)}"></button>`;
     }
   }
   const { current, longest } = weekStreak();
-  return `<div class="card" id="hmCard"><h3>Training streak</h3>
+  return `<div class="card" id="hmCard"><h3>${t('Training streak')}</h3>
     <div class="hm-stats">
-      <div><b>${flameIcon(current > 0)}${current}</b><span>week streak</span></div>
-      <div><b>${longest}</b><span>best streak</span></div>
-      <div><b>${workouts}</b><span>workouts</span></div>
+      <div><b>${flameIcon(current > 0)}${current}</b><span>${t('week streak')}</span></div>
+      <div><b>${longest}</b><span>${t('best streak')}</span></div>
+      <div><b>${workouts}</b><span>${t('workouts')}</span></div>
     </div>
     <div style="--wks:${HM_WEEKS}"><div class="hm-months"><span></span>${months}</div>
-      <div class="hm"><b>M</b><b></b><b>W</b><b></b><b>F</b><b></b><b>S</b>${cells}</div></div>
-    <div class="hm-foot"><span id="hmInfo">A streak week = 3+ workouts. Tap a day.</span>
-      <span class="hm-legend">Less<i></i><i style="background:color-mix(in srgb, var(--accent) 30%, var(--surface-solid))"></i><i style="background:color-mix(in srgb, var(--accent) 55%, var(--surface-solid))"></i><i style="background:color-mix(in srgb, var(--accent) 80%, var(--surface-solid))"></i><i style="background:var(--accent)"></i>More</span></div>
+      <div class="hm"><b>${DAYS[1][0]}</b><b></b><b>${DAYS[3][0]}</b><b></b><b>${DAYS[5][0]}</b><b></b><b>${DAYS[0][0]}</b>${cells}</div></div>
+    <div class="hm-foot"><span id="hmInfo">${t('A streak week = 3+ workouts. Tap a day.')}</span>
+      <span class="hm-legend">${t('Less')}<i></i><i style="background:color-mix(in srgb, var(--accent) 30%, var(--surface-solid))"></i><i style="background:color-mix(in srgb, var(--accent) 55%, var(--surface-solid))"></i><i style="background:color-mix(in srgb, var(--accent) 80%, var(--surface-solid))"></i><i style="background:var(--accent)"></i>${t('More')}</span></div>
   </div>`;
 }
 function wireHeatmap() {
@@ -1533,10 +1538,10 @@ function recoveryState() {
 
 function lockedCard(title, body) {
   return `<div class="card empty paywall">${LOCK}<h3>${title}</h3><div>${body}</div>
-    <button class="btn btn-primary" data-lock="all" onclick="openUnlock()">Unlock everything · ${SHOP.price}</button></div>`;
+    <button class="btn btn-primary" data-lock="all" onclick="openUnlock()">${t('Unlock everything · {price}', { price: SHOP.price })}</button></div>`;
 }
 function renderRecovery() {
-  if (!license) { $('#recovBody').innerHTML = lockedCard('Recovery tracking', 'See which muscles are fresh and which are still recovering, based on what you trained.'); return; }
+  if (!license) { $('#recovBody').innerHTML = lockedCard(t('Recovery tracking'), t('See which muscles are fresh and which are still recovering, based on what you trained.')); return; }
   const fresh = recoveryState();
   const lastTs = log.length ? log[log.length - 1].ts || new Date(log[log.length - 1].date + 'T18:00').getTime() : null;
   const days = lastTs == null ? '–' : Math.floor((Date.now() - lastTs) / 864e5);
@@ -1551,56 +1556,56 @@ function renderRecovery() {
   $('#recovBody').innerHTML = `
     <div class="card stack">
       <div class="recov-head">
-        <div><b>${days}</b><span>${days === 1 ? 'Day' : 'Days'} since your<br>last workout</span></div><i></i>
-        <div><b>${freshCount}</b><span>Fresh muscle<br>groups</span></div>
+        <div><b>${days}</b><span>${days === 1 ? t('Day since your<br>last workout') : t('Days since your<br>last workout')}</span></div><i></i>
+        <div><b>${freshCount}</b><span>${t('Fresh muscle<br>groups')}</span></div>
       </div>
       <div class="mapwrap recov-map">${MuscleMap.svg(levels)}${bubbles}</div>
-      <div class="row small muted" style="justify-content:center;gap:18px"><span>Front</span><span style="width:40%"></span><span>Back</span></div>
+      <div class="row small muted" style="justify-content:center;gap:18px"><span>${t('Front')}</span><span style="width:40%"></span><span>${t('Back')}</span></div>
     </div>
     <div class="card">
-      <h3>Muscle readiness</h3>
-      <div class="small muted" style="margin-bottom:10px">${log.length ? 'Red = still recovering. Train fresh muscles hardest.' : 'Finish a workout to start tracking recovery.'}</div>
+      <h3>${t('Muscle readiness')}</h3>
+      <div class="small muted" style="margin-bottom:10px">${log.length ? t('Red = still recovering. Train fresh muscles hardest.') : t('Finish a workout to start tracking recovery.')}</div>
       <div class="recov-list">${order.map((m) => `<div class="small"><div class="row"><span>${MUSCLES[m]}</span><span class="spacer"></span><b>${fresh[m]}%</b></div>
         <div class="meter"><i class="${fresh[m] < 50 ? 'low' : fresh[m] < 100 ? 'mid' : ''}" style="width:${fresh[m]}%"></i></div></div>`).join('')}</div>
     </div>
-    <button class="btn btn-primary btn-block" onclick="showTab('today')">Next: ${PROGRAM[upNext()].name}</button>`;
+    <button class="btn btn-primary btn-block" onclick="showTab('today')">${esc(t('Next: {name}', { name: PROGRAM[upNext()].name }))}</button>`;
 }
 
 // =====================================================
 // HISTORY
 // =====================================================
 function renderHistory() {
-  if (!license) { $('#histBody').innerHTML = (log.length ? heatmapCard() : '') + lockedCard('Your training log', `Every workout you finish is saved${log.length ? ` (${log.length} so far)` : ''}. Unlock to see your lifts, bests and history.`); wireHeatmap(); return; }
+  if (!license) { $('#histBody').innerHTML = (log.length ? heatmapCard() : '') + lockedCard(t('Your training log'), log.length ? t('Every workout you finish is saved ({n} so far). Unlock to see your lifts, bests and history.', { n: log.length }) : t('Every workout you finish is saved. Unlock to see your lifts, bests and history.')); wireHeatmap(); return; }
   if (!log.length) {
-    $('#histBody').innerHTML = `<div class="card empty"><svg class="icon" viewBox="0 0 24 24" style="width:44px;height:44px;color:var(--accent)"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg><h3 style="margin-top:8px">No workouts yet</h3><div>Finish your first workout and your lifts show up here.</div>
-      <button class="btn btn-primary" style="margin-top:16px" onclick="showTab('today')">Go to Today</button></div>`;
+    $('#histBody').innerHTML = `<div class="card empty"><svg class="icon" viewBox="0 0 24 24" style="width:44px;height:44px;color:var(--accent)"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/></svg><h3 style="margin-top:8px">${t('No workouts yet')}</h3><div>${t('Finish your first workout and your lifts show up here.')}</div>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="showTab('today')">${t('Go to Today')}</button></div>`;
     return;
   }
   const prs = EXERCISES.flatMap((e) => liftHistory(e.id).filter((p, i) => p.pr && i > 0).map((p) => ({ ...p, ex: e })))
     .sort((a, b) => b.ts - a.ts).slice(0, 6);
-  const prCard = prs.length ? `<div class="card"><h3>Recent personal records</h3>${prs.map((p) => `<button class="pr-row" data-ex="${p.ex.id}"><span class="pr-badge">PR</span><span><b>${esc(p.ex.name)}</b><span class="small muted">${fmtDate(p.date)} · ${pointText(p, p.ex)}</span></span></button>`).join('')}</div>` : '';
+  const prCard = prs.length ? `<div class="card"><h3>${t('Recent personal records')}</h3>${prs.map((p) => `<button class="pr-row" data-ex="${p.ex.id}"><span class="pr-badge">${t('PR')}</span><span><b>${esc(p.ex.name)}</b><span class="small muted">${fmtDate(p.date)} · ${pointText(p, p.ex)}</span></span></button>`).join('')}</div>` : '';
   const lifts = EXERCISES.map((e) => {
     const last = lastFor(e.id); if (!last) return null;
     const h = liftHistory(e.id), top = h.reduce((b, p) => (p.v > b.v ? p : b), h[0]);
-    if (top && top.weighted) return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">Est. 1RM ${top.v} lb · ${h.length} session${h.length > 1 ? 's' : ''}</div></td><td>${Math.max(...last.sets.filter((s) => s.done).map((s) => s.w))} lb</td></tr>`;
+    if (top && top.weighted) return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">${h.length > 1 ? t('Est. 1RM {v} lb · {n} sessions', { v: top.v, n: h.length }) : t('Est. 1RM {v} lb · {n} session', { v: top.v, n: h.length })}</div></td><td>${Math.max(...last.sets.filter((s) => s.done).map((s) => s.w))} lb</td></tr>`;
     const best = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.w))));
     const lw = Math.max(...last.sets.filter((s) => s.done).map((s) => s.w));
     if (e.bw && !best) {
-      const u = e.timed ? 'sec' : 'reps', lr = Math.max(...last.sets.filter((s) => s.done).map((s) => s.r));
+      const u = e.timed ? t('sec') : t('reps'), lr = Math.max(...last.sets.filter((s) => s.done).map((s) => s.r));
       const br = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.r))));
-      return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">Best ${br} ${u}</div></td><td>${lr} ${u}</td></tr>`;
+      return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">${t('Best {n} {unit}', { n: br, unit: u })}</div></td><td>${lr} ${u}</td></tr>`;
     }
-    return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">Best ${best} lb</div></td><td>${lw} lb</td></tr>`;
+    return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">${t('Best {n} lb', { n: best })}</div></td><td>${lw} lb</td></tr>`;
   }).filter(Boolean).join('');
   $('#histBody').innerHTML = heatmapCard() + prCard + `
-    <div class="card"><h3>Your lifts</h3><div class="small muted">Latest working set · tap a lift for its chart</div><table class="lifts" style="margin-top:8px">${lifts}</table></div>
-    <div class="card stack"><h3>Workouts</h3>
+    <div class="card"><h3>${t('Your lifts')}</h3><div class="small muted">${t('Latest working set · tap a lift for its chart')}</div><table class="lifts" style="margin-top:8px">${lifts}</table></div>
+    <div class="card stack"><h3>${t('Workouts')}</h3>
       ${log.slice().reverse().map((l) => {
         const sets = l.ex.reduce((a, e) => a + e.sets.filter((s) => s.done).length, 0);
         const vol = l.ex.reduce((a, e) => a + (EX_BY_ID[e.id].timed ? 0 : e.sets.filter((s) => s.done).reduce((b, s) => b + s.w * s.r, 0)), 0);
         const d = new Date(l.date + 'T12:00');
-        return `<div class="hist"><div class="badge" style="${(PROGRAM[l.day]?.badge || l.day).length > 1 ? 'font-size:15px' : ''}">${esc(PROGRAM[l.day]?.badge || l.day)}</div><div><b>${d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</b>
-          <div class="small muted">${sets} sets · ${vol ? vol.toLocaleString() + ' lb' : l.ex.reduce((a, e) => a + (EX_BY_ID[e.id].timed ? 0 : e.sets.filter((s) => s.done).reduce((b, s) => b + s.r, 0)), 0) + ' reps'} · ${l.mins || '—'} min</div></div></div>`;
+        return `<div class="hist"><div class="badge" style="${(PROGRAM[l.day]?.badge || l.day).length > 1 ? 'font-size:15px' : ''}">${esc(PROGRAM[l.day]?.badge || l.day)}</div><div><b>${d.toLocaleDateString(LOCALE, { weekday: 'short', month: 'short', day: 'numeric' })}</b>
+          <div class="small muted">${t('{n} sets', { n: sets })} · ${vol ? vol.toLocaleString(LOCALE) + ' lb' : l.ex.reduce((a, e) => a + (EX_BY_ID[e.id].timed ? 0 : e.sets.filter((s) => s.done).reduce((b, s) => b + s.r, 0)), 0) + ' ' + t('reps')} · ${l.mins || '—'} min</div></div></div>`;
       }).join('')}
     </div>`;
   $('#histBody').onclick = (e) => { const r = e.target.closest('[data-ex]'); if (r) openDetail(r.dataset.ex); };
@@ -1622,32 +1627,32 @@ function openModal(html, onAction) {
 function openUnlock() {
   if (license) return;
   openModal(`
-    <div class="row" style="justify-content:space-between"><h2 class="display">Unlock Iron 40</h2><b class="num" style="font-size:22px">${SHOP.price}</b></div>
-    <div class="small muted">One-time purchase. No subscription.</div>
-    <ul class="perks"><li>Animated form demos, the rep scrubber and video demos for all 39 exercises</li><li>Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core</li><li>Recovery tracking for every muscle</li><li>Your full training log, lifts and personal bests</li></ul>
-    ${SHOP.checkoutUrl ? `<a class="btn btn-primary btn-block" href="${SHOP.checkoutUrl}" target="_blank" rel="noopener">Buy for ${SHOP.price}</a>` : ''}
-    <div><div class="eyebrow" style="margin-bottom:8px">Already bought it?</div>
-      <div class="row"><input id="licKey" class="lic" placeholder="Paste your license key" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn btn-ghost" id="licGo">Activate</button></div>
+    <div class="row" style="justify-content:space-between"><h2 class="display">${t('Unlock Iron 40')}</h2><b class="num" style="font-size:22px">${SHOP.price}</b></div>
+    <div class="small muted">${t('One-time purchase. No subscription.')}</div>
+    <ul class="perks"><li>${t('Animated form demos, the rep scrubber and video demos for all 39 exercises')}</li><li>${t('Workout B and all 7 calisthenics workouts — legs, chest, back, shoulders, arms, core')}</li><li>${t('Recovery tracking for every muscle')}</li><li>${t('Your full training log, lifts and personal bests')}</li></ul>
+    ${SHOP.checkoutUrl ? `<a class="btn btn-primary btn-block" href="${SHOP.checkoutUrl}" target="_blank" rel="noopener">${t('Buy for {price}', { price: SHOP.price })}</a>` : ''}
+    <div><div class="eyebrow" style="margin-bottom:8px">${t('Already bought it?')}</div>
+      <div class="row"><input id="licKey" class="lic" placeholder="${t('Paste your license key')}" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn btn-ghost" id="licGo">${t('Activate')}</button></div>
       <div class="small" id="licMsg" style="margin-top:8px"></div></div>
-    <button class="btn btn-block" data-m="close" style="color:var(--muted)">Not now</button>`);
+    <button class="btn btn-block" data-m="close" style="color:var(--muted)">${t('Not now')}</button>`);
   $('#licGo').onclick = activateLicense;
   $('#licKey').onkeydown = (e) => { if (e.key === 'Enter') activateLicense(); };
 }
 async function activateLicense() {
   const key = $('#licKey').value.trim(), msg = $('#licMsg');
-  if (!key) { msg.textContent = 'Paste the key from your purchase email.'; return; }
-  msg.className = 'small muted'; msg.textContent = 'Checking…'; $('#licGo').disabled = true;
+  if (!key) { msg.textContent = t('Paste the key from your purchase email.'); return; }
+  msg.className = 'small muted'; msg.textContent = t('Checking…'); $('#licGo').disabled = true;
   try {
     const res = await fetch('api/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
     const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'That key didn’t work.');
+    if (!data.ok) throw new Error(data.error || t('That key didn’t work.'));
     license = { key, id: data.id, at: Date.now() }; store.set('iron40_license', license);
     $('#modal').classList.remove('open');
     if ($('#detail').classList.contains('open') && detailId) openDetail(detailId);
     showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'today');
   } catch (err) {
     msg.className = 'small'; msg.style.color = 'var(--danger)';
-    msg.textContent = err.message === 'Failed to fetch' ? 'You need to be online to activate. Try again with a connection.' : err.message;
+    msg.textContent = err.message === 'Failed to fetch' ? t('You need to be online to activate. Try again with a connection.') : err.message;
   } finally { $('#licGo').disabled = false; }
 }
 
@@ -1662,37 +1667,49 @@ async function activateLicense() {
     if (!data.ok) throw new Error(data.error);
     license = { key: m[1], id: data.id, at: Date.now() }; store.set('iron40_license', license);
     showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'body');
-    openModal('<h3>Iron 40 unlocked</h3><div class="muted">Everything is open on this phone: all demos, videos, recovery, progress and your log.</div><button class="btn btn-primary btn-block" data-m="ok">Let’s lift</button>');
+    openModal(`<h3>${t('Iron 40 unlocked')}</h3><div class="muted">${t('Everything is open on this phone: all demos, videos, recovery, progress and your log.')}</div><button class="btn btn-primary btn-block" data-m="ok">${t('Let’s lift')}</button>`);
   } catch (err) { console.warn('Unlock link failed', err); }
 })();
 
 // Profile picker: first launch (with the safety note) and from the profile button
 function openProfile(first) {
-  const cur = { ...P(), protect: [...protectOf()], gear: [...gearOf()] };
+  // a first-launch draft survives the reload that switching language needs
+  let draft = null; try { draft = first && JSON.parse(sessionStorage.getItem('iron40_profile_draft')); } catch {}
+  const cur = draft || { ...P(), protect: [...protectOf()], gear: [...gearOf()] };
   const multi = (k, opts) => `<div class="chips-wrap">${opts.map(([v, l]) => `<button class="chip ${cur[k].includes(v) ? 'on' : ''}" data-multi="${k}" data-v="${v}">${l}</button>`).join('')}</div>`;
   const seg = (k, opts) => `<div class="seg">${opts.map(([v, l]) => `<button class="chip ${cur[k] === v ? 'on' : ''}" data-${k}="${v}">${l}</button>`).join('')}</div>`;
   openModal(`
-    <h2 class="display">${first ? 'Welcome to Iron 40' : 'Your profile'}</h2>
-    ${first ? '<div>Free-weight and bodyweight training for men and women in their 30s and 40+: animated form demos, joint-smart tips and automatic progression.</div>' : ''}
-    <div><div class="eyebrow" style="margin-bottom:8px">Show me</div>${seg('sex', [['m', 'Men'], ['f', 'Women']])}</div>
-    <div><div class="eyebrow" style="margin-bottom:8px">Age group</div>${seg('age', [['30', '30s'], ['40', '40+']])}</div>
-    <div class="small muted">Sets the photos, coaching tips and recovery times. You can change it anytime from the profile button.</div>
-    <div><div class="eyebrow" style="margin-bottom:8px">Joints to protect</div>${multi('protect', Object.entries(JOINTS))}
-      <div class="small muted" style="margin-top:6px">Workouts swap in gentler moves that work the same muscles.</div></div>
-    <div><div class="eyebrow" style="margin-bottom:8px">Equipment I have</div>${multi('gear', Object.entries(GEAR))}</div>
-    ${first ? '<div class="callout warn small">Check with your doctor before starting a new exercise program, especially with heart, blood pressure, or joint issues. Stop any exercise that causes sharp pain.</div>' : `
-    <div><div class="eyebrow" style="margin-bottom:8px">Your data · ${log.length} workout${log.length === 1 ? '' : 's'} on this device</div>
-      <div class="small muted" style="margin-bottom:10px">Everything is stored only on this device. Save a backup now and then, and use it to move to a new phone.</div>
-      <div class="row" style="flex-wrap:wrap"><button class="btn btn-ghost data-btn" id="dExport">Save backup</button><button class="btn btn-ghost data-btn" id="dCsv">Export CSV</button>
-        <label class="btn btn-ghost data-btn">Restore<input type="file" id="dImport" accept=".json,application/json" hidden></label></div>
+    <h2 class="display">${first ? t('Welcome to Iron 40') : t('Your profile')}</h2>
+    ${first ? `<div>${t('Free-weight and bodyweight training for men and women in their 30s and 40+: animated form demos, joint-smart tips and automatic progression.')}</div>` : ''}
+    <div><div class="eyebrow" style="margin-bottom:8px">${t('Language')}</div><div class="chips-wrap">${Object.entries(LANGS).map(([c, l]) => `<button class="chip ${c === LANG ? 'on' : ''}" data-lang="${c}" lang="${c === 'pt' ? 'pt-BR' : c}">${l}</button>`).join('')}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">${t('Show me')}</div>${seg('sex', [['m', t('Men')], ['f', t('Women')]])}</div>
+    <div><div class="eyebrow" style="margin-bottom:8px">${t('Age group')}</div>${seg('age', [['30', t('30s')], ['40', '40+']])}</div>
+    <div class="small muted">${t('Sets the photos, coaching tips and recovery times. You can change it anytime from the profile button.')}</div>
+    <div><div class="eyebrow" style="margin-bottom:8px">${t('Joints to protect')}</div>${multi('protect', Object.entries(JOINTS))}
+      <div class="small muted" style="margin-top:6px">${t('Workouts swap in gentler moves that work the same muscles.')}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">${t('Equipment I have')}</div>${multi('gear', Object.entries(GEAR))}</div>
+    ${first ? `<div class="callout warn small">${t('Check with your doctor before starting a new exercise program, especially with heart, blood pressure, or joint issues. Stop any exercise that causes sharp pain.')}</div>` : `
+    <div><div class="eyebrow" style="margin-bottom:8px">${log.length === 1 ? t('Your data · {n} workout on this device', { n: 1 }) : t('Your data · {n} workouts on this device', { n: log.length })}</div>
+      <div class="small muted" style="margin-bottom:10px">${t('Everything is stored only on this device. Save a backup now and then, and use it to move to a new phone.')}</div>
+      <div class="row" style="flex-wrap:wrap"><button class="btn btn-ghost data-btn" id="dExport">${t('Save backup')}</button><button class="btn btn-ghost data-btn" id="dCsv">${t('Export CSV')}</button>
+        <label class="btn btn-ghost data-btn">${t('Restore')}<input type="file" id="dImport" accept=".json,application/json" hidden></label></div>
       <div class="small" id="dMsg" style="margin-top:8px"></div></div>`}
-    <button class="btn btn-primary btn-block" data-m="ok">${first ? "I understand — let's lift" : 'Save'}</button>`,
+    <button class="btn btn-primary btn-block" data-m="ok">${first ? t("I understand — let's lift") : t('Save')}</button>`,
     (a) => {
       if (a !== 'ok') return;
+      try { sessionStorage.removeItem('iron40_profile_draft'); } catch {}
       profile = cur; store.set('iron40_profile', profile); store.set('iron40_ack', true);
       showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'today');
     });
   $('#modalBody').onclick = (e) => {
+    const lb = e.target.closest('[data-lang]');
+    if (lb) {
+      if (lb.dataset.lang === LANG) return;
+      // keep the choices made so far: first launch keeps a draft (the safety note still shows), otherwise save like Save does
+      if (first) { try { sessionStorage.setItem('iron40_profile_draft', JSON.stringify(cur)); } catch {} }
+      else { profile = cur; store.set('iron40_profile', profile); }
+      return setLang(lb.dataset.lang);
+    }
     const mb = e.target.closest('[data-multi]');
     if (mb) { const k = mb.dataset.multi, v = mb.dataset.v; cur[k] = cur[k].includes(v) ? cur[k].filter((x) => x !== v) : [...cur[k], v]; mb.classList.toggle('on'); return; }
     const b = e.target.closest('[data-sex],[data-age]'); if (!b) return;
@@ -1715,28 +1732,31 @@ $('#modalBody').addEventListener('click', (e) => {
   if (e.target.closest('#dExport')) {
     const backup = { app: 'iron40', version: 1, exportedAt: new Date().toISOString(), profile, license, log, active, pick };
     download(`iron40-backup-${today()}.json`, JSON.stringify(backup, null, 1), 'application/json');
-    $('#dMsg').textContent = 'Backup saved. Keep it somewhere safe (Files, iCloud Drive, email to yourself).';
+    $('#dMsg').textContent = t('Backup saved. Keep it somewhere safe (Files, iCloud Drive, email to yourself).');
   }
   if (e.target.closest('#dCsv')) {
     const rows = [['date', 'workout', 'exercise', 'set', 'weight_lb', 'reps_or_sec', 'done', 'est_1rm_lb']];
     log.forEach((l) => l.ex.forEach((x) => x.sets.forEach((st, i) => rows.push([l.date, PROGRAM[l.day]?.name || l.day, EX_BY_ID[x.id]?.name || x.id, i + 1, st.w || 0, st.r || 0, st.done ? 'yes' : 'no', st.done ? e1rm(+st.w, +st.r) || '' : '']))));
     download(`iron40-workouts-${today()}.csv`, rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n'), 'text/csv');
-    $('#dMsg').textContent = 'CSV saved — opens in Numbers, Excel or Google Sheets.';
+    $('#dMsg').textContent = t('CSV saved — opens in Numbers, Excel or Google Sheets.');
   }
 });
+const NOT_BACKUP = () => t('That file isn’t an Iron 40 backup.');
 $('#modalBody').addEventListener('change', async (e) => {
   if (e.target.id !== 'dImport' || !e.target.files[0]) return;
   const msg = $('#dMsg');
   try {
     const data = JSON.parse(await e.target.files[0].text());
-    if (data.app !== 'iron40' || !Array.isArray(data.log)) throw new Error('That file isn’t an Iron 40 backup.');
-    if (!confirm(`Restore ${data.log.length} workout${data.log.length === 1 ? '' : 's'} from ${String(data.exportedAt || '').slice(0, 10) || 'this backup'}? This replaces the ${log.length} on this device.`)) return;
+    if (data.app !== 'iron40' || !Array.isArray(data.log)) throw new Error(NOT_BACKUP());
+    const from = String(data.exportedAt || '').slice(0, 10) || t('this backup');
+    if (!confirm(data.log.length === 1 ? t('Restore {n} workout from {date}? This replaces the {m} on this device.', { n: 1, date: from, m: log.length })
+      : t('Restore {n} workouts from {date}? This replaces the {m} on this device.', { n: data.log.length, date: from, m: log.length }))) return;
     store.set('iron40_log', data.log);
     data.profile ? store.set('iron40_profile', data.profile) : null;
     data.license ? store.set('iron40_license', data.license) : null;
     data.active ? store.set('iron40_active', data.active) : store.del('iron40_active');
     location.reload();
-  } catch (err) { msg.style.color = 'var(--danger)'; msg.textContent = err.message.startsWith('That file') ? err.message : 'Couldn’t read that file. Choose the .json backup Iron 40 saved.'; }
+  } catch (err) { msg.style.color = 'var(--danger)'; msg.textContent = err.message === NOT_BACKUP() ? err.message : t('Couldn’t read that file. Choose the .json backup Iron 40 saved.'); }
 });
 if (!profile) openProfile(!store.get('iron40_ack', false));
 

@@ -1,5 +1,5 @@
-const CACHE = 'iron40-v22';
-const CORE = ['./', 'index.html', 'exercises.js', 'manifest.json'];
+const CACHE = 'iron40-v23';
+const CORE = ['./', 'index.html', 'exercises.js', 'i18n.js', 'i18n-ui.js', 'i18n-data.js', 'manifest.json'];
 const IMAGES = ['hero', 'onboard', 'icon-192', 'icon-512', 'apple-touch-icon',
   'db-bench', 'incline-db', 'bb-ohp', 'db-shoulder', 'db-row', 'bb-row', 'cs-row', 'db-pullover',
   'goblet-squat', 'back-squat', 'db-rdl', 'bb-rdl', 'split-squat', 'hip-thrust', 'db-curl', 'skull-crusher', 'farmer-carry',
