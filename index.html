@@ -405,8 +405,8 @@ let log = store.get('iron40_log', []);          // [{date, day, mins, ex:[{id, s
 let active = store.get('iron40_active', null);  // in-progress workout
 let profile = store.get('iron40_profile', null); // {sex: 'm'|'f', age: '30'|'40'} — tailors photos, tips, recovery
 const P = () => profile || { sex: 'm', age: '40' };
-// ---- $10 unlock: Workout A, the exercise library and profiles are free; the rest needs a license key ----
-const SHOP = { price: '$10', checkoutUrl: 'https://digitalrougex.lemonsqueezy.com/checkout/buy/67f0e0af-4df0-453f-9b9e-728914e781c8' }; // set checkoutUrl to the Lemon Squeezy buy link
+// ---- $7.99 unlock: Workout A, the exercise library and profiles are free; the rest needs a license key ----
+const SHOP = { price: '$7.99', checkoutUrl: 'https://digitalrougex.lemonsqueezy.com/checkout/buy/67f0e0af-4df0-453f-9b9e-728914e781c8' }; // set checkoutUrl to the Lemon Squeezy buy link
 let license = store.get('iron40_license', null); // {key, id, at} once activated
 const FREE_DAYS = ['A'];
 const isLocked = (key) => !license && !FREE_DAYS.includes(key);
