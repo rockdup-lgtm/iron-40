@@ -1061,3 +1061,20 @@ const VIDEOS = {
   'knee-raise': { id: "QhVjRuzgu8M", by: "Andrew Alinda", title: "Try Hanging Knee Raises To Sculpt Your Abs & Obliques" },
   'lateral-raise': { id: "U9bXmxU1ty0", by: "Gabriel Sey", title: "HOW TO: LATERAL RAISE PROPERLY FOR 3D DELTS" },
 };
+
+// ---------------------------------------------------------------------------
+// Joints each exercise loads noticeably — used to swap moves for people
+// protecting a joint. Unlisted = gentle on all five.
+// ---------------------------------------------------------------------------
+const JOINTS = { knee: 'Knees', shoulder: 'Shoulders', back: 'Lower back', wrist: 'Wrists', elbow: 'Elbows' };
+const STRESS = {
+  'db-bench': ['shoulder'], 'incline-db': ['shoulder'], 'bb-ohp': ['shoulder', 'back'], 'db-shoulder': ['shoulder'],
+  'bb-row': ['back'], 'db-pullover': ['shoulder'], 'goblet-squat': ['knee'], 'back-squat': ['knee', 'back'],
+  'db-rdl': ['back'], 'bb-rdl': ['back'], 'split-squat': ['knee'], 'db-curl': ['elbow'], 'skull-crusher': ['elbow'],
+  'push-up': ['wrist', 'shoulder'], 'incline-pushup': ['wrist'], 'decline-pushup': ['wrist', 'shoulder'],
+  'diamond-pushup': ['wrist', 'elbow'], 'pike-pushup': ['wrist', 'shoulder'], 'pull-up': ['shoulder', 'elbow'],
+  'chin-up': ['elbow'], 'superman': ['back'], 'shoulder-tap': ['wrist'], 'bench-dip': ['shoulder'],
+  'bw-squat': ['knee'], 'reverse-lunge': ['knee'], 'wall-sit': ['knee'], 'knee-raise': ['shoulder'],
+};
+// Equipment someone might not have (bodyweight is always available)
+const GEAR = { Dumbbell: 'Dumbbells', Barbell: 'Barbell', Bench: 'Bench', 'Pull-up bar': 'Pull-up bar', 'Low bar': 'Low bar / rings' };
