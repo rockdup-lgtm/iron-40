@@ -1005,7 +1005,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
   const b = e.target.closest('.yt[data-yt]'); if (!b) return;
   const f = document.createElement('iframe');
-  f.src = `https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
+  f.src = `https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&playsinline=1&rel=0&modestbranding=1${+b.dataset.start ? `&start=${+b.dataset.start}` : ''}`;
   f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true; f.title = b.getAttribute('aria-label');
   f.className = 'yt-frame'; b.replaceWith(f);
 });
@@ -1024,7 +1024,7 @@ function exInfo(ex) {
     <div><h3>${t('How to do it')}</h3><ol class="cues">${ex.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ol></div>
     ${VIDEOS[ex.id] && exLocked(ex.id) ? `<div class="vid"><h3>${t('Watch it done')}</h3><button class="vid-locked" onclick="openUnlock()">${LOCK}<span>${esc(t('Video demo by {by} · unlock to watch', { by: VIDEOS[ex.id].by }))}</span></button></div>` : ''}
     ${VIDEOS[ex.id] && !exLocked(ex.id) ? `<div class="vid"><h3>${t('Watch it done')}</h3>
-      <button class="yt" data-yt="${VIDEOS[ex.id].id}" aria-label="${esc(t('Play video: {title}', { title: VIDEOS[ex.id].title }))}">
+      <button class="yt" data-yt="${VIDEOS[ex.id].id}" data-start="${VIDEOS[ex.id].start || 0}" aria-label="${esc(t('Play video: {title}', { title: VIDEOS[ex.id].title }))}">
         <img src="https://i.ytimg.com/vi/${VIDEOS[ex.id].id}/hqdefault.jpg" alt="" loading="lazy" onerror="this.closest('.vid').classList.add('offline')">
         <span class="yt-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>
       <div class="small muted vid-meta">${esc(VIDEOS[ex.id].by)} · ${esc(VIDEOS[ex.id].title)}</div>

@@ -1292,6 +1292,22 @@ const VIDEOS = {
   'doorway-chest': { id: "NpK54Ak8iQI", by: "OriGym", title: "How To Do Doorway Pectoral Stretch | Stretching Demo" },
   'biceps-stretch': { id: "sQjgV2OF0jQ", by: "OriGym", title: "How To Do Wall Bicep Stretch | Stretching Demo" },
   'wrist-stretch': { id: "QEHw0W7K-S8", by: "OriGym", title: "How To Do Wrist Pull | Stretching Demo" },
+  // Remaining strength moves (verified: Black demonstrator, embeddable)
+  'db-bench': { id: "IKmYPng9BoM", by: "OriGym", title: "How To Do Dumbbell Chest Press | Exercise Demo" },
+  'incline-db': { id: "qCTtpEcRihI", by: "BEN MIGHTY", title: "INCLINE DUMBBELL PRESS" },
+  'bb-rdl': { id: "ry0_ORDlXSY", by: "TrainHeroic", title: "RDL - Short Demo" },
+  'split-squat': { id: "Nu1zcGLooYE", by: "OriGym", title: "How To Do Dumbbell Split Squat | Exercise Demo" },
+  'skull-crusher': { id: "Y0eJNJMbqnc", by: "OriGym", title: "How To Do Lying Dumbbell Triceps Extension | Exercise Demo" },
+  'farmer-carry': { id: "0lJeIDMva6w", by: "Andre Williams", title: "How To Dumbbell Farmer's Walk" },
+  'incline-pushup': { id: "lLQyBEMqdZc", by: "OriGym", title: "How To Do Incline Push Up with Medium Grip | Exercise Demo" },
+  'decline-pushup': { id: "O4aHNWwPJdc", by: "OriGym", title: "How To Do Decline Push Up | Exercise Demo" },
+  'y-raise': { id: "T1FcTq3WjMM", by: "FitFx Training", title: "Prone Y Raises | Strengthen Your Midback & Rotator Cuff; Improve Overhead Mobility" },
+  'bench-dip': { id: "ljbFRv4hKE0", by: "Xavier Thompson Fitness", title: "HOW TO DO TRICEP BENCH DIPS for BIGGER TRICEPS", start: 9 },
+  'reverse-lunge': { id: "aoT5WAJot-U", by: "OriGym", title: "How To Do Reverse Lunge | Exercise Demo" },
+  'wall-sit': { id: "w7HPsuTZI6o", by: "OriGym", title: "How To Do Wall Sit | Exercise Demo" },
+  'dead-bug': { id: "04tJXRzQbVw", by: "OriGym", title: "How To Do Dead Bug | Exercise Demo" },
+  'calf-raise': { id: "Mf9UyNi-J1s", by: "OriGym", title: "How To Do Dumbbell Calf Raise | Exercise Demo" },
+  'side-plank': { id: "FyZY96V3UUs", by: "OriGym", title: "How To Do Side Bridge | Exercise Demo" },
 };
 
 // ---------------------------------------------------------------------------
