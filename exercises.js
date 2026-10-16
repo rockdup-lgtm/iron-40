@@ -1030,3 +1030,34 @@ const TIP30 = {
   'lateral-raise': 'Wider shoulders come from side delts. Light weight, strict reps, lots of sets.',
   'side-plank': 'Side planks build the obliques that brace every heavy lift. Work up to 45 seconds a side.',
 };
+
+// ---------------------------------------------------------------------------
+// Short YouTube form demos by Black trainers and creators (checked embeddable).
+// Exercises without a matching video simply don't show the section.
+// ---------------------------------------------------------------------------
+const VIDEOS = {
+  'bb-ohp': { id: "vSlBzu8P_-A", by: "Gabriel Sey", title: "HOW TO: BARBELL SHOULDER PRESS TO AVOID INJURY" },
+  'db-shoulder': { id: "-Z7ydf_mFRw", by: "Gabriel Sey", title: "How to: Seated Dumbbell Shoulder Press (Tips) | Gabriel Sey" },
+  'db-row': { id: "PIhb87fY3lI", by: "Gabriel Sey", title: "How to: Single Arm Dumbbell Row For That Cobra Back | Gabriel Sey" },
+  'bb-row': { id: "qXrTDQG1oUQ", by: "Moorefitcoach", title: "Bent-Over Barbell Row | Proper Form for a Bigger Back" },
+  'cs-row': { id: "ym-Mp8tCF00", by: "BEN MIGHTY", title: "HOW TO CHEST SUPPORTED DUMBBELL ROW" },
+  'db-pullover': { id: "NVkOuImkXlM", by: "Gabriel Sey", title: "How To: Dumbbell Pull-overs - Chest vs Back | Gabriel Sey" },
+  'goblet-squat': { id: "v90iIJzyvlQ", by: "That Guy Health", title: "GOBLET SQUAT | INSTRUCTIONS FOR BEGINNERS" },
+  'back-squat': { id: "heGRCxHYtLQ", by: "Gabriel Sey", title: "How To: Squat (High Bar For Beginners) | Gabriel Sey" },
+  'db-rdl': { id: "KrRtk8KbJik", by: "Peak Human Performance", title: "How To: DUMBBELL ROMANIAN DEADLIFT (RDL)" },
+  'hip-thrust': { id: "367cuFJwXx4", by: "Fitgurlmel", title: "Hip Thrusts Tutorial for a Strong A$$" },
+  'db-curl': { id: "XGFqO6HMnGQ", by: "Fitgurlmel", title: "Dumbbell Bicep Curls - Exercise Tutorial" },
+  'push-up': { id: "V8dKBa9mcsc", by: "Andrew Alinda", title: "Fix Pushup Pain: Perfect Your FORM" },
+  'diamond-pushup': { id: "B_PjBkPkTb8", by: "Hannibal For King", title: "Hannibal For King - How to do Diamond Push Ups" },
+  'pike-pushup': { id: "YHAQ3x19kOU", by: "Andrew Alinda", title: "Pike Push Up | Do It Right" },
+  'pull-up': { id: "nhkMgkhRvls", by: "Andrew Alinda", title: "Master the Pull Up Fix This Mistake Now!" },
+  'chin-up': { id: "nwE_fhS8muE", by: "Gabriel Sey", title: "How To: Progression of the Chin Up and Pull Up" },
+  'inverted-row': { id: "_V9smXNkrAk", by: "Andrew Alinda", title: "Inverted Rows: Calisthenics Exercise For ALL LEVELS" },
+  'superman': { id: "VUT1RHyMEuc", by: "TpindellFitness", title: "How to Do Superman Exercises" },
+  'shoulder-tap': { id: "8F-SW8XTbE8", by: "Fitgurlmel", title: "Shoulder Taps Tutorial" },
+  'bw-squat': { id: "2t3Ab7a2ZM4", by: "Brittne Babe", title: "How To Squat Properly - The Perfect Form & Technique by Brittne Babe" },
+  'glute-bridge': { id: "e8SUPcxej6g", by: "Koboko Fitness", title: "3 Moves for Better Glute Bridges 🍑" },
+  'plank': { id: "6yxgA0d45PY", by: "Koboko Fitness", title: "Planks for Beginners! \\\\ Do this everyday for 30 days!" },
+  'knee-raise': { id: "QhVjRuzgu8M", by: "Andrew Alinda", title: "Try Hanging Knee Raises To Sculpt Your Abs & Obliques" },
+  'lateral-raise': { id: "U9bXmxU1ty0", by: "Gabriel Sey", title: "HOW TO: LATERAL RAISE PROPERLY FOR 3D DELTS" },
+};
