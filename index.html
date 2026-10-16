@@ -1238,6 +1238,7 @@ $('#restEffort').addEventListener('click', (e) => {
 });
 function startRest(sec, nextLabel, set) {
   restSet = set || null;
+  primeAudio();
   $('#restPR').classList.remove('on');
   $('#restEffort').style.display = set ? '' : 'none';
   $('#restEffort').querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', set && +c.dataset.rir === set.rir));
@@ -1267,11 +1268,11 @@ function tickRest() {
     const ring = $('#restRing');
     ring.classList.toggle('soon', left > 0 && left <= 10);
     ring.classList.toggle('final', left > 0 && left <= 3);
-    if (left > 0 && left <= 3) navigator.vibrate?.(40);
+    if (left > 0 && left <= 3) { navigator.vibrate?.(40); tick(); }
   }
   if (left <= 0) {
     clearInterval(restInt); $('#restRing').classList.add('done');
-    beep(); navigator.vibrate?.([200, 100, 200]);
+    beep(); navigator.vibrate?.([400, 150, 400, 150, 400]);
     setTimeout(() => { if (restShown === 0) stopRest(); }, 700);
   }
 }
@@ -1286,16 +1287,42 @@ const nudgeRest = (sec) => {
 };
 $('#restAdd').onclick = () => nudgeRest(15);
 $('#restSub').onclick = () => nudgeRest(-15);
-let audio;
+let audio, audioOut;
+// iPhone only plays Web Audio from a context started inside a tap, and mutes it with the ring switch
+// unless the session is marked as playback, so prime it on every set check-off.
+function primeAudio() {
+  try {
+    if (navigator.audioSession) navigator.audioSession.type = 'playback';
+    if (!audio) {
+      audio = new (window.AudioContext || window.webkitAudioContext)();
+      const comp = audio.createDynamicsCompressor();
+      comp.threshold.value = -18; comp.knee.value = 6; comp.ratio.value = 8; comp.attack.value = 0.002; comp.release.value = 0.12;
+      audioOut = audio.createGain(); audioOut.gain.value = 1.6;
+      audioOut.connect(comp); comp.connect(audio.destination);
+    }
+    if (audio.state === 'suspended') audio.resume();
+  } catch {}
+}
+document.addEventListener('pointerdown', primeAudio, { once: true });
+function tone(freq, at, dur, gain = 0.8, type = 'square') {
+  const t = audio.currentTime + at;
+  [1, 2.01].forEach((mult, k) => {   // fundamental + bright overtone cuts through gym noise
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.type = k ? 'triangle' : type; o.frequency.value = freq * mult;
+    o.connect(g); g.connect(audioOut);
+    const peak = gain * (k ? 0.35 : 1);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.008);
+    g.gain.setValueAtTime(peak, t + dur * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.start(t); o.stop(t + dur + 0.02);
+  });
+}
+// Short tick for 3-2-1
+function tick() { try { primeAudio(); tone(1320, 0, 0.09, 0.55); } catch {} }
+// Rest over: three loud two-tone alarm bursts (~1.6s)
 function beep() {
   try {
-    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-    [0, 0.25].forEach((t) => {
-      const o = audio.createOscillator(), g = audio.createGain();
-      o.frequency.value = 880; o.connect(g); g.connect(audio.destination);
-      g.gain.setValueAtTime(0.25, audio.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + t + 0.2);
-      o.start(audio.currentTime + t); o.stop(audio.currentTime + t + 0.22);
-    });
+    primeAudio();
+    [0, 0.55, 1.1].forEach((at) => { tone(1046.5, at, 0.18, 0.95); tone(1568, at + 0.2, 0.26, 0.95); });
   } catch {}
 }
 
