@@ -24,8 +24,10 @@ export async function onRequestPost({ request, env }) {
   }
 
   const meta = data.meta || {};
-  if (env.LS_STORE_ID && String(meta.store_id) !== String(env.LS_STORE_ID)) return json({ ok: false, error: 'That key is for a different product.' }, 403);
-  if (env.LS_PRODUCT_ID && String(meta.product_id) !== String(env.LS_PRODUCT_ID)) return json({ ok: false, error: 'That key is for a different product.' }, 403);
+  // Unknown keys come back with no meta; only compare when Lemon Squeezy says which product a key belongs to
+  const wrongStore = env.LS_STORE_ID && meta.store_id && String(meta.store_id) !== String(env.LS_STORE_ID);
+  const wrongProduct = env.LS_PRODUCT_ID && meta.product_id && String(meta.product_id) !== String(env.LS_PRODUCT_ID);
+  if (wrongStore || wrongProduct) return json({ ok: false, error: 'That key is for a different product.' }, 403);
 
   if (!data.activated) {
     const limit = /limit/i.test(data.error || '');
