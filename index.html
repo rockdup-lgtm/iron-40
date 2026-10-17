@@ -588,6 +588,7 @@ const trialDaysLeft = () => (license && license.expires ? Math.max(0, Math.ceil(
 // Build a license from a successful activation; trial codes get an expiry (and are refused if this phone already used one)
 function licenseFrom(key, data) {
   if (data.id !== 'trial') return { key, id: data.id, at: Date.now() };
+  if (data.expires) return { key, id: 'trial', at: Date.now(), expires: data.expires }; // email trial: dates kept on the server
   const started = store.get('iron40_trialStart', null);
   if (started && Date.now() - started > 864e5) throw new Error(t('This phone has already used its free trial.'));
   const at = started || Date.now();
@@ -1678,6 +1679,7 @@ async function activateLicense() {
   try {
     const res = await fetch('api/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key }) });
     const data = await res.json();
+    if (data.needsEmail) { openTrialSignup(key, data.days); return; }
     if (!data.ok) throw new Error(data.error || t('That key didn’t work.'));
     license = licenseFrom(key, data); store.set('iron40_license', license); store.del('iron40_trialEnded');
     $('#modal').classList.remove('open');
@@ -1689,14 +1691,49 @@ async function activateLicense() {
   } finally { $('#licGo').disabled = false; }
 }
 
+// Email trial (e.g. the 7-day Facebook trial): collect an email, start the trial, reminders go out by email
+function openTrialSignup(code, days) {
+  if (license) return;
+  openModal(`
+    <h2 class="display">${t('Start your free {n}-day trial', { n: days })}</h2>
+    <div class="muted">${t('Everything unlocked for {n} days: every workout, stretch, demo and video. No card needed.', { n: days })}</div>
+    <input id="trName" class="lic" placeholder="${t('First name (optional)')}" autocomplete="given-name" style="width:100%">
+    <input id="trEmail" class="lic" type="email" inputmode="email" placeholder="${t('Your email')}" autocomplete="email" autocapitalize="off" spellcheck="false" style="width:100%">
+    <div class="small muted">${t('We’ll email you 2 days before your trial ends and when it ends. Unsubscribe anytime.')}</div>
+    <button class="btn btn-primary btn-block" id="trGo">${t('Start free trial')}</button>
+    <div class="small" id="trMsg"></div>
+    <button class="btn btn-block" data-m="close" style="color:var(--muted)">${t('Not now')}</button>`);
+  const go = async () => {
+    const msg = $('#trMsg'), email = $('#trEmail').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.style.color = 'var(--danger)'; msg.textContent = t('Please enter a valid email.'); return; }
+    $('#trGo').disabled = true; msg.style.color = ''; msg.className = 'small muted'; msg.textContent = t('Checking…');
+    try {
+      const res = await fetch('api/trial-signup', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, email, name: $('#trName').value.trim(), lang: LANG, source: new URLSearchParams(location.search).get('src') || 'app' }) });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || t('Something went wrong. Try again.'));
+      license = licenseFrom(code, data); store.set('iron40_license', license); store.del('iron40_trialEnded');
+      showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'body');
+      openModal(`<h3>${t('Your {n}-day trial is on', { n: days })}</h3><div class="muted">${t('Everything is unlocked on this phone until {date}. Tip: add Iron 40 to your Home Screen so it opens like an app.', { date: new Date(license.expires).toLocaleDateString(LOCALE, { month: 'long', day: 'numeric' }) })}</div><button class="btn btn-primary btn-block" data-m="ok">${t('Let’s lift')}</button>`);
+    } catch (err) {
+      msg.className = 'small'; msg.style.color = 'var(--danger)';
+      msg.textContent = err.message === 'Failed to fetch' ? t('You need to be online to start your trial.') : err.message;
+      $('#trGo').disabled = false;
+    }
+  };
+  $('#trGo').onclick = go;
+  $('#trEmail').onkeydown = (e) => { if (e.key === 'Enter') go(); };
+}
+
 // Owner link: iron-40.pages.dev/?unlock=KEY (or #unlock=KEY) activates this device, then strips the key from the address bar
 (async () => {
-  const m = (location.search + location.hash).match(/[?&#]unlock=([A-Za-z0-9-]{8,80})/); if (!m) return;
+  const m = (location.search + location.hash).match(/[?&#](?:unlock|trial)=([A-Za-z0-9-]{8,80})/); if (!m) return;
   history.replaceState(null, '', location.pathname);
   if (license) return;
   try {
     const res = await fetch('api/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: m[1] }) });
     const data = await res.json();
+    if (data.needsEmail) return openTrialSignup(m[1], data.days);
     if (!data.ok) throw new Error(data.error);
     license = licenseFrom(m[1], data); store.set('iron40_license', license); store.del('iron40_trialEnded');
     showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'body');

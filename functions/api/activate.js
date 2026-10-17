@@ -14,9 +14,10 @@ export async function onRequestPost({ request, env }) {
 
   // Private owner link: OWNER_KEY is a Pages secret, never shipped in the app
   if (env.OWNER_KEY && key === env.OWNER_KEY) return json({ ok: true, id: 'owner' });
-  // Friend trial codes: TRIAL_CODES is a comma-separated Pages secret; each device gets 30 days from activation
-  const trials = String(env.TRIAL_CODES || '').split(',').map((c) => c.trim().toUpperCase()).filter(Boolean);
-  if (trials.includes(key.toUpperCase())) return json({ ok: true, id: 'trial', days: 30 });
+  // Trial codes (Pages secret TRIAL_CODES): "CODE:days" or "CODE:days:email", comma-separated.
+  // Email codes need a sign-up first (POST /api/trial-signup), so here they only report that.
+  const trial = trialCode(env, key);
+  if (trial) return json(trial.email ? { ok: false, needsEmail: true, days: trial.days } : { ok: true, id: 'trial', days: trial.days });
 
   const form = new URLSearchParams({ license_key: key, instance_name: `Iron 40 · ${new Date().toISOString().slice(0, 10)}` });
   let data;
@@ -44,3 +45,11 @@ export async function onRequestPost({ request, env }) {
 }
 
 export const onRequest = () => json({ ok: false, error: 'Use POST.' }, 405);
+
+export function trialCode(env, key) {
+  for (const entry of String(env.TRIAL_CODES || '').split(',')) {
+    const [code, days, flag] = entry.trim().split(':');
+    if (code && code.toUpperCase() === String(key).toUpperCase()) return { code: code.toUpperCase(), days: +days || 30, email: flag === 'email' };
+  }
+  return null;
+}

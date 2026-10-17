@@ -1,0 +1,22 @@
+# Iron 40 trial reminder emails: runs daily, reads trial sign-ups from D1, sends via Cloudflare Email Service
+name = "iron40-reminders"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+[triggers]
+crons = ["0 15 * * *"]   # every day 15:00 UTC (11am US Eastern)
+
+[[d1_databases]]
+binding = "DB"
+database_name = "iron40"
+database_id = "0c99370b-92a8-44b3-a24b-91f7abc2e335"
+
+[[send_email]]
+name = "EMAIL"
+
+[vars]
+FROM_EMAIL = "iron40@digitalrougex.com"
+FROM_NAME = "Iron 40"
+APP_URL = "https://iron-40.pages.dev"
+CHECKOUT_URL = "https://digitalrougex.lemonsqueezy.com/checkout/buy/67f0e0af-4df0-453f-9b9e-728914e781c8"
+SEND_ENABLED = "false"   # flip to "true" once digitalrougex.com is enabled for Email Sending

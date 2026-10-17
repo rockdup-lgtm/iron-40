@@ -648,3 +648,32 @@ Object.assign(I18N.pt, { "Free": "Grátis" });
 
 Object.assign(I18N.es, { "3 more stretching routines — full body, legs, arms & shoulders": "3 rutinas de estiramiento más: cuerpo completo, piernas, brazos y hombros" });
 Object.assign(I18N.pt, { "3 more stretching routines — full body, legs, arms & shoulders": "Mais 3 rotinas de alongamento: corpo inteiro, pernas, braços e ombros" });
+
+// 7-day email trial
+Object.assign(I18N.es, {
+  "Start your free {n}-day trial": "Empieza tu prueba gratis de {n} días",
+  "Everything unlocked for {n} days: every workout, stretch, demo and video. No card needed.": "Todo desbloqueado por {n} días: cada rutina, estiramiento, demo y video. Sin tarjeta.",
+  "First name (optional)": "Nombre (opcional)",
+  "Your email": "Tu correo",
+  "We’ll email you 2 days before your trial ends and when it ends. Unsubscribe anytime.": "Te escribiremos 2 días antes de que termine tu prueba y cuando termine. Puedes darte de baja cuando quieras.",
+  "Start free trial": "Empezar prueba gratis",
+  "Please enter a valid email.": "Escribe un correo válido.",
+  "Something went wrong. Try again.": "Algo salió mal. Inténtalo de nuevo.",
+  "Your {n}-day trial is on": "Tu prueba de {n} días está activa",
+  "Everything is unlocked on this phone until {date}. Tip: add Iron 40 to your Home Screen so it opens like an app.": "Todo está desbloqueado en este teléfono hasta el {date}. Consejo: agrega Iron 40 a tu pantalla de inicio para abrirla como una app.",
+  "You need to be online to start your trial.": "Necesitas conexión a internet para empezar tu prueba.",
+});
+
+Object.assign(I18N.pt, {
+  "Start your free {n}-day trial": "Comece seu teste grátis de {n} dias",
+  "Everything unlocked for {n} days: every workout, stretch, demo and video. No card needed.": "Tudo liberado por {n} dias: todos os treinos, alongamentos, demonstrações e vídeos. Sem cartão.",
+  "First name (optional)": "Primeiro nome (opcional)",
+  "Your email": "Seu e-mail",
+  "We’ll email you 2 days before your trial ends and when it ends. Unsubscribe anytime.": "Vamos te mandar um e-mail 2 dias antes do teste acabar e quando ele acabar. Cancele quando quiser.",
+  "Start free trial": "Começar teste grátis",
+  "Please enter a valid email.": "Digite um e-mail válido.",
+  "Something went wrong. Try again.": "Algo deu errado. Tente de novo.",
+  "Your {n}-day trial is on": "Seu teste de {n} dias está ativo",
+  "Everything is unlocked on this phone until {date}. Tip: add Iron 40 to your Home Screen so it opens like an app.": "Tudo liberado neste celular até {date}. Dica: adicione o Iron 40 à Tela de Início para abrir como um app.",
+  "You need to be online to start your trial.": "Você precisa estar online para começar o teste.",
+});
