@@ -16,7 +16,7 @@ const STAND_FEET = { fn: [124, 176], ff: [118, 176] };
 // Push-up family: straight line from toes to shoulders, hands under the chest
 const PUSH_FEET = { fn: [34, 176], ff: [30, 176] };
 const PUSH_TOP = { hip: [108, 137], t: -27.7, hn: [156, 176], hf: [152, 176] };
-const PUSH_BOTTOM = { hip: [116, 160], t: -10.9, hn: [156, 176], hf: [152, 176] };
+const PUSH_BOTTOM = { hip: [115.1, 154.3], t: -15, hn: [156, 176], hf: [152, 176] }; // chest a fist above the floor
 // Pull-up bar seen end-on, with an upright behind the body
 const bar = (y) => ({ scene: `<line x1="126" y1="${y}" x2="126" y2="180" class="bench-pad" style="stroke-width:4;opacity:.6"/>
   <line x1="92" y1="${y}" x2="160" y2="${y}" class="bench-pad" style="stroke-width:5"/><circle cx="126" cy="${y}" r="4.5" class="hub"/>` });
@@ -205,7 +205,7 @@ const EXERCISES = [
     tip40: 'Hammer curls (palms facing in) are gentler on the elbows if they get cranky.',
     easier: 'Hammer curl', harder: 'Incline curl',
     prop: 'db', es: -1, mus: { p: ['biceps'], s: ['forearms'] }, ...STAND_FEET,
-    frames: [{ ...STAND, hn: [122, 103] }, { ...STAND, hn: [138, 44] }],
+    frames: [{ ...STAND, hn: [126, 100] }, { ...STAND, hn: [140, 46] }],
     tempo: [{ label: 'Curl', dur: 1 }, { label: 'Lower', dur: 2 }],
   },
   {
@@ -304,8 +304,8 @@ const EXERCISES = [
     easier: 'Band-assisted pull-up or slow negatives', harder: 'Weighted pull-up',
     prop: null, es: 1, mus: { p: ['back'], s: ['biceps', 'forearms'] }, fn: [100, 148], ff: [96, 150], ...BAR_HIGH,
     frames: [
-      { hip: [129, 94], t: -95, hn: [126, -24], hf: [122, -24], fn: [100, 148], ff: [96, 150] },
-      { hip: [129, 46], t: -95, hn: [126, -24], hf: [122, -24], fn: [100, 100], ff: [96, 102] },
+      { hip: [129, 94], t: -95, hn: [126, -24], hf: [122, -24], fn: [118, 170], ff: [113, 171] },
+      { hip: [129, 46], t: -95, hn: [126, -24], hf: [122, -24], fn: [116, 122], ff: [111, 123] },
     ],
     tempo: [{ label: 'Pull', dur: 1 }, { label: 'Lower', dur: 2 }],
   },
@@ -318,8 +318,8 @@ const EXERCISES = [
     easier: 'Slow negatives or band-assisted', harder: 'Pause at the top for 2 seconds',
     prop: null, es: 1, mus: { p: ['biceps', 'back'], s: ['forearms'] }, fn: [100, 148], ff: [96, 150], ...BAR_HIGH,
     frames: [
-      { hip: [129, 94], t: -95, hn: [126, -24], hf: [122, -24], fn: [100, 148], ff: [96, 150] },
-      { hip: [129, 46], t: -95, hn: [126, -24], hf: [122, -24], fn: [100, 100], ff: [96, 102] },
+      { hip: [129, 94], t: -95, hn: [126, -24], hf: [122, -24], fn: [118, 170], ff: [113, 171] },
+      { hip: [129, 46], t: -95, hn: [126, -24], hf: [122, -24], fn: [116, 122], ff: [111, 123] },
     ],
     tempo: [{ label: 'Pull', dur: 1 }, { label: 'Lower', dur: 2 }],
   },
@@ -494,7 +494,7 @@ const EXERCISES = [
     tip40: 'Go light and lift slightly in front of your body (the “scapular plane”) — it’s far kinder to aging shoulders.',
     easier: 'One arm at a time, or water bottles', harder: 'Slow 3-second lowering',
     prop: 'db', es: 1, mus: { p: ['delts'], s: [] }, ...STAND_FEET,
-    frames: [{ ...STAND, hn: [122, 103], hf: [118, 103] }, { ...STAND, hn: [170, 50], hf: [166, 50] }],
+    frames: [{ ...STAND, hn: [123, 102], hf: [117, 102], aS: 1 }, { ...STAND, hn: [134, 46], hf: [110, 46], aS: 0.42, aSf: 0.42 }],
     tempo: [{ label: 'Raise', dur: 1 }, { label: 'Lower', dur: 2 }],
   },
   {
@@ -850,7 +850,10 @@ const IronRig = (() => {
   // 2-bone IK: returns [joint, end]. s picks which side the joint bends to.
   function ik(a, t, l1, l2, s) {
     let d = Math.hypot(t[0] - a[0], t[1] - a[1]);
-    d = Math.min(Math.max(d, Math.abs(l1 - l2) + 0.01), l1 + l2 - 0.01);
+    // Soft limit: approach full extension smoothly instead of locking with a visible snap
+    const max = l1 + l2, soft = max * 0.965;
+    if (d > soft) d = soft + (max - soft) * (1 - Math.exp(-(d - soft) / (max - soft)));
+    d = Math.max(d, Math.abs(l1 - l2) + 0.01);
     const base = Math.atan2(t[1] - a[1], t[0] - a[0]);
     const ang = Math.acos((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d));
     const j = base - s * ang;
@@ -859,16 +862,20 @@ const IronRig = (() => {
     return [[jx, jy], [jx + l2 * Math.cos(e), jy + l2 * Math.sin(e)]];
   }
 
+  const headAngle = (t) => (t > -100 && t < -12 ? t + (-90 - t) * 0.3 : t);
   function solve(p, ex) {
     const t = (p.t * Math.PI) / 180, c = Math.cos(t), s = Math.sin(t);
     const hip = p.hip;
     const sh = [hip[0] + L.torso * c, hip[1] + L.torso * s];
-    const hd = [hip[0] + (L.torso + L.neck + L.head) * c, hip[1] + (L.torso + L.neck + L.head) * s];
+    // Head: when hinged forward on your feet the gaze lifts a little toward the horizon (neutral neck)
+    const na = headAngle(p.t), nc = Math.cos((na * Math.PI) / 180), ns = Math.sin((na * Math.PI) / 180);
+    const hd = [sh[0] + (L.neck + L.head) * nc, sh[1] + (L.neck + L.head) * ns];
     const hnT = p.hn, hfT = p.hf || [hnT[0] - 4, hnT[1]];
     const fnT = p.fn || ex.fn, ffT = p.ff || ex.ff || [fnT[0] - 6, fnT[1]];
     const es = ex.es ?? 1, ks = ex.ks ?? 1;
-    const [en, hn] = ik(sh, hnT, L.upper, L.fore, es);
-    const [ef, hf] = ik(sh, hfT, L.upper, L.fore, ex.esf ?? es);
+    const aN = p.aS ?? 1, aF = p.aSf ?? aN; // arm length scale: <1 reads as the arm reaching toward the viewer
+    const [en, hn] = ik(sh, hnT, L.upper * aN, L.fore * aN, es);
+    const [ef, hf] = ik(sh, hfT, L.upper * aF, L.fore * aF, ex.esf ?? es);
     const [kn, an] = ik(hip, fnT, L.thigh, L.shin, ks);
     const [kf, af] = ik(hip, ffT, L.thigh, L.shin, ex.ksf ?? ks);
     return { hip, sh, hd, en, hn, ef, hf, kn, an, kf, af };
@@ -884,8 +891,27 @@ const IronRig = (() => {
     }
     return a;
   };
-  const ease = (u) => 0.5 - 0.5 * Math.cos(Math.PI * u);
+  // Smootherstep with a brief settle at each end, like a coached rep (no robotic constant speed)
+  const ease = (u) => { const v = Math.min(1, Math.max(0, (u - 0.07) / 0.86)); return v * v * v * (v * (6 * v - 15) + 10); };
 
+  // Detect moves where toes, hips and shoulders stay collinear in every key frame (push-up family)
+  const lineCache = new WeakMap();
+  function straightLine(ex) {
+    if (lineCache.has(ex)) return lineCache.get(ex);
+    let res = null;
+    const feetOf = (f) => f.fn || ex.fn;
+    const ok = ex.frames.length > 1 && ex.frames.every((f) => {
+      const F = feetOf(f); if (!F) return false;
+      const ang = (Math.atan2(f.hip[1] - F[1], f.hip[0] - F[0]) * 180) / Math.PI;
+      return Math.abs(ang - f.t) < 4 && Math.abs(f.t) < 45;
+    });
+    if (ok) {
+      const dist = (f) => Math.hypot(f.hip[0] - feetOf(f)[0], f.hip[1] - feetOf(f)[1]);
+      res = { feet: (p) => p.fn || ex.fn, r: (p, a, b, u) => dist(a) + (dist(b) - dist(a)) * u };
+    }
+    lineCache.set(ex, res);
+    return res;
+  }
   function poseAt(ex, time) {
     const total = ex.tempo.reduce((s, p) => s + p.dur, 0);
     let tt = ((time % total) + total) % total;
@@ -893,7 +919,14 @@ const IronRig = (() => {
       const dur = ex.tempo[i].dur;
       if (tt <= dur) {
         const a = ex.frames[i], b = ex.frames[(i + 1) % ex.frames.length];
-        return { pose: lerp(a, b, ease(tt / dur)), phase: ex.tempo[i], index: i };
+        const pose = lerp(a, b, ease(tt / dur));
+        const line = straightLine(ex);
+        if (line) { // rotate the rigid body about the toes instead of letting the hips sag mid-rep
+          const ang = (pose.t * Math.PI) / 180;
+          const F = line.feet(pose), r = line.r(pose, a, b, ease(tt / dur));
+          pose.hip = [F[0] + r * Math.cos(ang), F[1] + r * Math.sin(ang)];
+        }
+        return { pose, phase: ex.tempo[i], index: i };
       }
       tt -= dur;
     }
@@ -942,23 +975,28 @@ const IronRig = (() => {
     };
     const joint = (parent, r) => el('circle', { r, class: 'm joint' }, parent);
 
+    const core = (parent, w) => el('path', { class: 'limbcore', 'stroke-width': w }, parent);
     const farG = side(true);
+    const farLeg = core(farG, 15), farArm = core(farG, 9.5);
     f.far = {
       jK: joint(farG, 7), jE: joint(farG, 5.5), jA: joint(farG, 4.5),
       thigh: limb(farG, 'thigh'), shin: limb(farG, 'shin'), foot: el('path', { class: 'm joint' }, farG),
       upper: limb(farG, 'upper'), fore: limb(farG, 'fore'), hand: joint(farG, 4.5),
       delt: el('ellipse', { rx: 11, ry: 8, class: muscleClass(ex, 'delts') }, farG),
+      legCore: farLeg, armCore: farArm,
     };
     const nearG = side(false);
     f.neck = el('line', { class: 'neck' }, nearG);
     f.head = el('ellipse', { rx: 9.5, ry: 10.5, class: 'm head' }, nearG);
     f.torso = TORSO_REGIONS.map(([m, s, t0, t1]) => ({ m, s, t0, t1, el: el('path', { class: muscleClass(ex, m === 'pelvis' ? null : m) }, nearG) }));
     f.near = {
+      legCore: core(nearG, 15),
       jK: joint(nearG, 7), jA: joint(nearG, 4.5),
       thigh: limb(nearG, 'thigh'), shin: limb(nearG, 'shin'), foot: el('path', { class: 'm joint' }, nearG),
     };
     f.propG = el('g', {}, g);
     const armG = side(false);
+    f.near.armCore = core(armG, 9.5);
     Object.assign(f.near, {
       jE: joint(armG, 5.5),
       upper: limb(armG, 'upper'), fore: limb(armG, 'fore'), hand: joint(armG, 4.5),
@@ -1004,6 +1042,8 @@ const IronRig = (() => {
     const ang = Math.atan2(el_[1] - j.sh[1], el_[0] - j.sh[0]);
     const dc = [j.sh[0] + Math.cos(ang) * 5, j.sh[1] + Math.sin(ang) * 5];
     place(s.delt, dc); s.delt.setAttribute('transform', `rotate(${f1((ang * 180) / Math.PI)} ${f1(dc[0])} ${f1(dc[1])})`);
+    const pl = (pts) => 'M' + pts.map((q) => f1(q[0]) + ' ' + f1(q[1])).join(' L');
+    s.legCore.setAttribute('d', pl([hip, kn, an])); s.armCore.setAttribute('d', pl([j.sh, el_, hd]));
     drawLimb(s.thigh, hip, kn); drawLimb(s.shin, kn, an);
     s.foot.setAttribute('d', footPath(an));
     drawLimb(s.upper, j.sh, el_); drawLimb(s.fore, el_, hd);
@@ -1032,7 +1072,7 @@ const IronRig = (() => {
     f.neck.setAttribute('x1', f1(nb[0])); f.neck.setAttribute('y1', f1(nb[1]));
     f.neck.setAttribute('x2', f1(hc[0])); f.neck.setAttribute('y2', f1(hc[1]));
     place(f.head, hc);
-    f.head.setAttribute('transform', `rotate(${f1((pose.t + 90))} ${f1(hc[0])} ${f1(hc[1])})`);
+    f.head.setAttribute('transform', `rotate(${f1((headAngle(pose.t) + 90))} ${f1(hc[0])} ${f1(hc[1])})`);
     const pos = ex.prop === 'db' ? [j.hf, j.hn] : [propAnchor(ex, j)];
     f.props.forEach((p, i) => p.setAttribute('transform', `translate(${f1(pos[i][0])} ${f1(pos[i][1])})`));
     return j;
