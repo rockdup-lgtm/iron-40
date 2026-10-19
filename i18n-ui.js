@@ -982,3 +982,11 @@ Object.assign(I18N.pt, {
   "Couldn’t finish every set? Tap Repeat tomorrow — today’s sets still count.": "Não terminou todas as séries? Toque em Repetir amanhã: as séries de hoje contam mesmo assim.",
   "Tick ✓ after each set to log it.": "Marque ✓ depois de cada série para registrá-la.",
 });
+Object.assign(I18N.es, {
+  "Search, or type a new exercise": "Busca o escribe un ejercicio nuevo",
+  "e.g. Pull-up or Leg press": "p. ej., Dominada o Prensa de piernas",
+});
+Object.assign(I18N.pt, {
+  "Search, or type a new exercise": "Busque ou digite um exercício novo",
+  "e.g. Pull-up or Leg press": "ex.: Barra fixa ou Leg press",
+});

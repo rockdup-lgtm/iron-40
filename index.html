@@ -536,6 +536,7 @@ details summary::-webkit-details-marker { display: none; }
 .ed-sets input::placeholder { color: var(--faint); opacity: .7; }
 .ed-add { min-height: 40px; padding: 0 14px; font-size: 13px; border-radius: 12px; margin-top: 4px; }
 .pick-list { max-height: 52vh; overflow-y: auto; margin: 0 -6px; padding: 0 6px; }
+.pick-list button[hidden] { display: none; }
 .pick-list button { display: flex; flex-direction: column; width: 100%; text-align: left; padding: 11px 4px; border-top: 1px solid var(--line); }
 .pick-list button:first-child { border-top: 0; }
 .prog-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -943,17 +944,18 @@ function renderToday() {
     return `<button class="tile2 ${wide ? 'wide' : ''} ${(pick || '') === (key === gym ? '' : key) ? 'on' : ''}" data-pick="${key === gym ? '' : key}" aria-pressed="${(pick || '') === (key === gym ? '' : key)}">
       <span class="map">${MuscleMap.svg(lv, { views: back ? 'back' : 'front' })}</span><span><b>${label}</b><small>${sub}</small></span></button>`;
   };
-  $('#focus').innerHTML = active ? '' : `<button class="btn btn-ghost btn-block custom-btn" id="customBtn">${license ? '' : LOCK}${store.get(DRAFT_KEY, null) ? t('Resume custom workout') : t('+ Log a custom workout')}</button>
+  // custom logging and the challenges stay reachable even while a workout is paused or in progress
+  $('#focus').innerHTML = `<button class="btn btn-ghost btn-block custom-btn" id="customBtn">${license ? '' : LOCK}${store.get(DRAFT_KEY, null) ? t('Resume custom workout') : t('+ Log a custom workout')}</button>
     <div class="small muted" style="margin:0 4px 20px">${t('Did something else? Log any exercise with its sets, reps and weight.')}</div>
-    <div class="row" style="justify-content:space-between"><div class="eyebrow">${t('Switch focus')}</div>
+    <div class="eyebrow">${t('30-day challenges')} · ${t('Free')}</div>
+    <div class="tiles" style="margin-bottom:18px">${Object.keys(CHAL).map(chalTile).join('')}</div>
+    ${active ? '' : `<div class="row" style="justify-content:space-between"><div class="eyebrow">${t('Switch focus')}</div>
       ${license ? '' : `<button class="unlock-link" data-lock="all">${LOCK}${t('Unlock everything · {price}', { price: SHOP.price })}</button>`}</div>
     <div class="tiles">${GYM_DAYS.map((k) => tile(k, esc(t('Gym · {name}', { name: PROGRAM[k].name })), k === gym ? (license ? t('Next in rotation') : t('Free · full-body dumbbell day')) : esc(PROGRAM[k].focus))).join('')}</div>
     <div class="eyebrow" style="margin-top:18px">${t('Calisthenics')}</div>
     <div class="tiles">${cali.map((k) => tile(k, esc(PROGRAM[k].chip), t('~{n} min · bodyweight', { n: PROGRAM[k].mins }))).join('')}</div>
-    <div class="eyebrow" style="margin-top:18px">${t('30-day challenges')} · ${t('Free')}</div>
-    <div class="tiles">${Object.keys(CHAL).map(chalTile).join('')}</div>
     <div class="eyebrow" style="margin-top:18px">${t('Stretching')}</div>
-    <div class="tiles">${stretch.map((k) => tile(k, esc(PROGRAM[k].chip), (!license && FREE_DAYS.includes(k) ? t('Free') + ' · ' : '') + t('~{n} min · stretch', { n: PROGRAM[k].mins }))).join('')}</div>`;
+    <div class="tiles">${stretch.map((k) => tile(k, esc(PROGRAM[k].chip), (!license && FREE_DAYS.includes(k) ? t('Free') + ' · ' : '') + t('~{n} min · stretch', { n: PROGRAM[k].mins }))).join('')}</div>`}`;
 
   mountMedia($('#nextCard')); mountMedia($('#exList'));
   $('#s-today').onclick = (e) => {
@@ -2151,8 +2153,8 @@ function pickExercise() {
   const musText = (e) => esc(e.mus.p.map((m) => MUSCLES[m]).join(' · ') || t('Your exercise'));
   const picked = new Set();
   openModal(`<h2 class="display">${t('Add exercise')}</h2>
-    <div class="cx-new"><div class="eyebrow" style="margin-bottom:8px">${t('Not in the list? Type it')}</div>
-      <input class="field" id="cxName" maxlength="40" autocomplete="off" placeholder="${esc(t('e.g. Leg press'))}" style="width:100%" aria-label="${esc(t('Exercise name'))}">
+    <div class="cx-new"><div class="eyebrow" style="margin-bottom:8px">${t('Search, or type a new exercise')}</div>
+      <input class="field" id="cxName" maxlength="40" autocomplete="off" placeholder="${esc(t('e.g. Pull-up or Leg press'))}" style="width:100%" aria-label="${esc(t('Exercise name'))}">
       <div class="small muted" style="margin:10px 0 6px">${t('Main muscles (optional, used for recovery)')}</div>
       <div class="chips-wrap">${Object.entries(MUSCLES).map(([k, l]) => `<button class="chip" data-cxm="${k}" aria-pressed="false">${esc(l)}</button>`).join('')}</div>
       <button class="btn btn-primary btn-block" id="cxAdd" style="margin-top:12px">${t('Add this exercise')}</button><div class="small" id="cxMsg" style="margin-top:6px"></div></div>
@@ -2175,6 +2177,11 @@ function pickExercise() {
     addExercise(id);
   };
   $('#cxName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+  // typing also searches: "pull" shows Pull-Up and Chin-Up below
+  $('#cxName').addEventListener('input', () => {
+    const q = $('#cxName').value.trim().toLowerCase();
+    $('#modalBody').querySelectorAll('.pick-list [data-m]').forEach((b) => { b.hidden = !!q && !b.querySelector('b').textContent.toLowerCase().includes(q); });
+  });
   $('#modalBody').onclick = (e) => {
     const c = e.target.closest('[data-cxm]');
     if (c) { const m = c.dataset.cxm; picked.has(m) ? picked.delete(m) : picked.add(m); c.classList.toggle('on', picked.has(m)); c.setAttribute('aria-pressed', picked.has(m)); return; }
