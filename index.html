@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Iron 40" />
 <meta name="theme-color" content="#09080d" />
 <title>Iron 40</title>
+<script>/* light/dark picked in the app wins over the phone setting; none saved = follow the phone */
+try { const th = JSON.parse(localStorage.getItem('iron40_theme')); if (th === 'light' || th === 'dark') document.documentElement.dataset.theme = th; } catch {}</script>
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -43,6 +45,20 @@
     --shadow: 0 1px 2px rgba(20,14,35,.05), 0 18px 40px -26px rgba(20,14,35,.35);
     color-scheme: light;
   }
+}
+/* picked in the app (iron40_theme) — same values as the system light theme above */
+:root[data-theme="light"] {
+  --bg: #f6f4f8; --bg-2: #ffffff; --surface: rgba(255,255,255,.85); --surface-solid: #ffffff; --surface-2: rgba(20,14,35,.05);
+  --line: rgba(20,14,35,.08); --line-strong: rgba(20,14,35,.14);
+  --text: #15111f; --muted: #6e677c; --faint: #a39cb0;
+  --accent: #e8285a; --accent-soft: rgba(232,40,90,.09); --ok: #13a565; --danger: #d63c4f; --gold: #a67b35;
+  --grad: linear-gradient(135deg, #e8285a 0%, #f2604a 100%);
+  --mus: #e8285a; --mus-sec: #ef93ad; --mm-base: #d9d3e3; --mm-line: #f6f4f8;
+  --body-a: #c9c1d8; --body-b: #9b91b0; --body-far-a: #e2dcea; --body-far-b: #c6bfd2;
+  --mus-a: #ff6b8a; --mus-b: #d0164a; --sec-a: #f4b3c6; --sec-b: #e07c9b;
+  --body: #b2a9c4; --bench: #d6d0e0; --plate: #2b2638; --plate-ring: #15111f; --path: rgba(232,40,90,.5);
+  --shadow: 0 1px 2px rgba(20,14,35,.05), 0 18px 40px -26px rgba(20,14,35,.35);
+  color-scheme: light;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
@@ -523,6 +539,18 @@ details summary::-webkit-details-marker { display: none; }
 .pick-list button { display: flex; flex-direction: column; width: 100%; text-align: left; padding: 11px 4px; border-top: 1px solid var(--line); }
 .pick-list button:first-child { border-top: 0; }
 .prog-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pick-list.short { max-height: 34vh; }
+.cx-new { padding: 14px; border-radius: 18px; background: var(--surface-2); border: 1px solid var(--line); }
+.custom-btn { margin-bottom: 6px; }
+/* 30-day challenges */
+.ch-strip { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; }
+.ch-strip i { aspect-ratio: 1; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; font: 600 11px Inter, sans-serif; font-style: normal; color: var(--muted); }
+.ch-strip i.off { background: transparent; border-style: dashed; color: var(--faint); }
+.ch-strip i.test { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+.ch-strip i.done { background: var(--accent); border-color: transparent; color: var(--accent-ink); }
+.ch-strip i.now { outline: 2px solid var(--accent); outline-offset: 2px; color: var(--text); }
+.ch-legend { display: flex; gap: 14px; flex-wrap: wrap; }
+.sets td.goal { text-align: center; color: var(--muted); font: 500 15px Sora, sans-serif; }
 .prog-pick .chip { justify-content: center; white-space: normal; text-align: center; padding: 10px 8px; }
 </style>
 </head>
@@ -549,7 +577,7 @@ details summary::-webkit-details-marker { display: none; }
   <div class="stack">
     <div class="today-top">
       <div><div class="eyebrow" id="bodyTag" data-i18n>Tap a muscle</div><h2 class="display brand">Iron <em>40</em></h2></div>
-      <button class="btn btn-primary body-go" data-go="today" data-i18n>Today's workout</button>
+      <div class="row" style="gap:8px"><button class="iconbtn theme-btn" data-theme-toggle aria-label="Switch to light mode"></button><button class="btn btn-primary body-go" data-go="today" data-i18n>Today's workout</button></div>
     </div>
     <div class="card body-card">
       <div class="seg body-modes" id="bodyModes"><button class="chip" data-mode="muscles" data-i18n>Muscles</button><button class="chip" data-mode="recovery" data-i18n>Recovery</button><button class="chip" data-mode="week" data-i18n>This week</button></div>
@@ -567,7 +595,7 @@ details summary::-webkit-details-marker { display: none; }
       <div class="today-top">
         <div><div class="eyebrow" id="todayTag" data-i18n>Today</div><h2 class="display brand">Iron <em>40</em></h2></div>
         <div class="row" style="gap:8px"><div class="pill" id="streakPill"></div>
-          <button class="iconbtn" id="profileBtn" aria-label="Your profile" data-i18n-aria><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></button></div>
+          <button class="iconbtn theme-btn" data-theme-toggle aria-label="Switch to light mode"></button><button class="iconbtn" id="profileBtn" aria-label="Your profile" data-i18n-aria><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></button></div>
       </div>
       <div class="dots" id="week"></div>
     </div>
@@ -611,6 +639,8 @@ details summary::-webkit-details-marker { display: none; }
   <button data-tab="history"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg><span data-i18n>Log</span></button>
 </nav>
 
+<!-- 30-day challenge -->
+<div class="overlay" id="challenge"><div class="inner" id="chalInner"></div></div>
 <!-- exercise detail -->
 <div class="overlay" id="detail"><div class="inner" id="detailInner"></div></div>
 <!-- workout -->
@@ -688,7 +718,8 @@ function licenseFrom(key, data) {
 const FREE_DAYS = ['A', 'SB']; // Workout A + the lower-back stretch routine are free
 const isLocked = (key) => !license && !FREE_DAYS.includes(key);
 // Free sample: Workout A's exercises are fully free; every other move's animated demo, scrubber and video need the unlock
-const FREE_EX = new Set(FREE_DAYS.flatMap((d) => PROGRAM[d].items.map((i) => i.id)));
+// The 30-day challenges are free too, so their moves' demos are open
+const FREE_EX = new Set([...FREE_DAYS.flatMap((d) => PROGRAM[d].items.map((i) => i.id)), 'push-up', 'incline-pushup', 'pull-up', 'inverted-row']);
 const exLocked = (id) => !license && !FREE_EX.has(id);
 const LOCK = '<svg class="icon lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 const photo = (id) => `img/${P().sex === 'f' ? 'f/' : ''}${id}.jpg`;
@@ -710,10 +741,24 @@ const ICON = {
 };
 
 // =====================================================
+// Custom exercises you type in, and names for days that aren't presets
+// =====================================================
+let customEx = store.get('iron40_customEx', []); // [{id: 'cx-…', name, mus: [muscle keys]}] — never removed, so old entries keep their names
+const regCustom = (c) => { EX_BY_ID[c.id] = { id: c.id, name: c.name, group: 'Custom', equip: [], custom: true, mus: { p: c.mus || [], s: [] } }; };
+customEx.forEach(regCustom);
+// anything in the log that isn't known here (e.g. restored from an older backup) still shows by its id
+const exOf = (id) => EX_BY_ID[id] || { id, name: id, group: 'Custom', equip: [], custom: true, mus: { p: [], s: [] } };
+const CUSTOM_DAY = 'CU'; // a one-off session: any exercises, logged straight into the log
+const DRAFT_KEY = 'iron40_customDraft'; // the custom session being logged right now (survives closing the app)
+const dayName = (k) => (PROGRAM[k] ? PROGRAM[k].name : k === CUSTOM_DAY ? t('Custom workout') : CHAL[k] ? t(CHAL[k].name) : k);
+const dayBadge = (k) => PROGRAM[k]?.badge || (k === CUSTOM_DAY ? '+' : CHAL[k] ? CHAL[k].badge : k);
+
+// =====================================================
 // Program logic
 // =====================================================
-// Gym days alternate A/B; calisthenics sessions don't shift the rotation.
-const nextDay = () => { const g = log.findLast((l) => l.day === 'A' || l.day === 'B'); return g && g.day === 'A' ? 'B' : 'A'; };
+// Gym days rotate A → F; calisthenics, custom sessions and challenges don't shift the rotation.
+const GYM_DAYS = ['A', 'B', 'C', 'D', 'E', 'F'];
+const nextDay = () => { const g = log.findLast((l) => GYM_DAYS.includes(l.day)); return g ? GYM_DAYS[(GYM_DAYS.indexOf(g.day) + 1) % GYM_DAYS.length] : 'A'; };
 let pick = store.get('iron40_pick', null); // workout chosen on the Today screen (null = A/B rotation)
 const upNext = () => {
   if (active) return active.day;
@@ -763,7 +808,7 @@ const weekOf = (dateKey) => { const d = new Date(dateKey + 'T12:00'); d.setDate(
 function easyWeek() {
   const now = weekOf(localKey(new Date())), last = store.get('iron40_lastEasy', null);
   if (last === now) return log.some((l) => l.easy && weekOf(l.date) === now) || false; // already did (or skipped) this week
-  const weeks = new Set(log.filter((l) => !PROGRAM[l.day]?.stretch && (!last || weekOf(l.date) > last)).map((l) => weekOf(l.date)));
+  const weeks = new Set(log.filter((l) => !PROGRAM[l.day]?.stretch && !CHAL[l.day] && (!last || weekOf(l.date) > last)).map((l) => weekOf(l.date)));
   weeks.delete(now);
   return weeks.size >= (P().age === '30' ? 5 : 4);
 }
@@ -898,17 +943,23 @@ function renderToday() {
     return `<button class="tile2 ${wide ? 'wide' : ''} ${(pick || '') === (key === gym ? '' : key) ? 'on' : ''}" data-pick="${key === gym ? '' : key}" aria-pressed="${(pick || '') === (key === gym ? '' : key)}">
       <span class="map">${MuscleMap.svg(lv, { views: back ? 'back' : 'front' })}</span><span><b>${label}</b><small>${sub}</small></span></button>`;
   };
-  $('#focus').innerHTML = active ? '' : `<div class="row" style="justify-content:space-between"><div class="eyebrow">${t('Switch focus')}</div>
+  $('#focus').innerHTML = active ? '' : `<button class="btn btn-ghost btn-block custom-btn" id="customBtn">${license ? '' : LOCK}${store.get(DRAFT_KEY, null) ? t('Resume custom workout') : t('+ Log a custom workout')}</button>
+    <div class="small muted" style="margin:0 4px 20px">${t('Did something else? Log any exercise with its sets, reps and weight.')}</div>
+    <div class="row" style="justify-content:space-between"><div class="eyebrow">${t('Switch focus')}</div>
       ${license ? '' : `<button class="unlock-link" data-lock="all">${LOCK}${t('Unlock everything · {price}', { price: SHOP.price })}</button>`}</div>
-    <div class="tiles">${tile(gym, t('Gym · {name}', { name: license ? PROGRAM[gym].name : PROGRAM.A.name }), license ? esc(t('Alternates dumbbell & barbell days')) : t('Free · full-body dumbbell day'), true)}
-      ${license ? '' : tile('B', t('Gym · {name}', { name: PROGRAM.B.name }), t('Barbell day'), true)}
-      ${cali.map((k) => tile(k, esc(PROGRAM[k].chip), t('~{n} min · bodyweight', { n: PROGRAM[k].mins }))).join('')}</div>
+    <div class="tiles">${GYM_DAYS.map((k) => tile(k, esc(t('Gym · {name}', { name: PROGRAM[k].name })), k === gym ? (license ? t('Next in rotation') : t('Free · full-body dumbbell day')) : esc(PROGRAM[k].focus))).join('')}</div>
+    <div class="eyebrow" style="margin-top:18px">${t('Calisthenics')}</div>
+    <div class="tiles">${cali.map((k) => tile(k, esc(PROGRAM[k].chip), t('~{n} min · bodyweight', { n: PROGRAM[k].mins }))).join('')}</div>
+    <div class="eyebrow" style="margin-top:18px">${t('30-day challenges')} · ${t('Free')}</div>
+    <div class="tiles">${Object.keys(CHAL).map(chalTile).join('')}</div>
     <div class="eyebrow" style="margin-top:18px">${t('Stretching')}</div>
     <div class="tiles">${stretch.map((k) => tile(k, esc(PROGRAM[k].chip), (!license && FREE_DAYS.includes(k) ? t('Free') + ' · ' : '') + t('~{n} min · stretch', { n: PROGRAM[k].mins }))).join('')}</div>`;
 
   mountMedia($('#nextCard')); mountMedia($('#exList'));
   $('#s-today').onclick = (e) => {
     if (e.target.closest('#startBtn')) return startWorkout();
+    if (e.target.closest('#customBtn')) return license ? openCustom() : openUnlock();
+    const ch = e.target.closest('[data-ch]'); if (ch) return openChallenge(ch.dataset.ch);
     if (e.target.closest('[data-lock]')) return openUnlock();
     if (e.target.closest('#skipEasy')) { store.set('iron40_lastEasy', weekOf(localKey(new Date()))); return renderToday(); }
     const p = e.target.closest('[data-pick]');
@@ -1654,7 +1705,7 @@ function heatmapCard() {
   log.forEach((l) => {
     const b = byDay[l.date] || (byDay[l.date] = { sets: 0, names: [] });
     b.sets += l.ex.reduce((a, e) => a + e.sets.filter((s) => s.done).length, 0);
-    b.names.push(PROGRAM[l.day]?.name || l.day);
+    b.names.push(dayName(l.day));
   });
   const today = new Date(), todayKey = localKey(today), start = mondayOf(today); start.setDate(start.getDate() - (HM_WEEKS - 1) * 7);
   let cells = '', months = '', lastMonth = -1, workouts = 0;
@@ -1766,16 +1817,17 @@ function renderHistory() {
     fillPhotos();
     return;
   }
-  const prs = EXERCISES.filter((e) => !e.stretch).flatMap((e) => liftHistory(e.id).filter((p, i) => p.pr && i > 0).map((p) => ({ ...p, ex: e })))
+  const allEx = [...EXERCISES, ...customEx.map((c) => EX_BY_ID[c.id])];
+  const prs = allEx.filter((e) => !e.stretch).flatMap((e) => liftHistory(e.id).filter((p, i) => p.pr && i > 0).map((p) => ({ ...p, ex: e })))
     .sort((a, b) => b.ts - a.ts).slice(0, 6);
   const prCard = prs.length ? `<div class="card"><h3>${t('Recent personal records')}</h3>${prs.map((p) => `<button class="pr-row" data-ex="${p.ex.id}"><span class="pr-badge">${t('PR')}</span><span><b>${esc(p.ex.name)}</b><span class="small muted">${fmtDate(p.date)} · ${pointText(p, p.ex)}</span></span></button>`).join('')}</div>` : '';
-  const lifts = EXERCISES.map((e) => {
+  const lifts = allEx.map((e) => {
     const last = !e.stretch && lastFor(e.id); if (!last) return null;
     const h = liftHistory(e.id), top = h.reduce((b, p) => (p.v > b.v ? p : b), h[0]);
     if (top && top.weighted) return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">${h.length > 1 ? t('Est. 1RM {v} lb · {n} sessions', { v: top.v, n: h.length }) : t('Est. 1RM {v} lb · {n} session', { v: top.v, n: h.length })}</div></td><td>${Math.max(...last.sets.filter((s) => s.done).map((s) => s.w))} lb</td></tr>`;
     const best = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.w))));
     const lw = Math.max(...last.sets.filter((s) => s.done).map((s) => s.w));
-    if (e.bw && !best) {
+    if ((e.bw || e.custom) && !best) {
       const u = e.timed ? t('sec') : t('reps'), lr = Math.max(...last.sets.filter((s) => s.done).map((s) => s.r));
       const br = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.r))));
       return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">${t('Best {n} {unit}', { n: br, unit: u })}</div></td><td>${lr} ${u}</td></tr>`;
@@ -1788,10 +1840,10 @@ function renderHistory() {
       <div class="small muted" style="margin-top:4px">${t('Tap a workout to fix its date, weights or reps.')}</div>
       ${log.map((l, li) => [l, li]).reverse().map(([l, li]) => {
         const sets = l.ex.reduce((a, e) => a + e.sets.filter((s) => s.done).length, 0);
-        const vol = l.ex.reduce((a, e) => a + (EX_BY_ID[e.id].timed ? 0 : e.sets.filter((s) => s.done).reduce((b, s) => b + s.w * s.r, 0)), 0);
+        const vol = l.ex.reduce((a, e) => a + (exOf(e.id).timed ? 0 : e.sets.filter((s) => s.done).reduce((b, s) => b + s.w * s.r, 0)), 0);
         const d = new Date(l.date + 'T12:00');
-        return `<button class="hist" data-li="${li}" aria-label="${esc(t('Edit workout') + ' · ' + d.toLocaleDateString(LOCALE, { weekday: 'long', month: 'long', day: 'numeric' }))}"><div class="badge" style="${(PROGRAM[l.day]?.badge || l.day).length > 1 ? 'font-size:15px' : ''}">${esc(PROGRAM[l.day]?.badge || l.day)}</div><div><b>${d.toLocaleDateString(LOCALE, { weekday: 'short', month: 'short', day: 'numeric' })}</b>
-          <div class="small muted">${t('{n} sets', { n: sets })} · ${vol ? vol.toLocaleString(LOCALE) + ' lb' : l.ex.reduce((a, e) => a + (EX_BY_ID[e.id].timed ? 0 : e.sets.filter((s) => s.done).reduce((b, s) => b + s.r, 0)), 0) + ' ' + t('reps')} · ${l.mins || '—'} min</div></div>
+        return `<button class="hist" data-li="${li}" aria-label="${esc(t('Edit workout') + ' · ' + d.toLocaleDateString(LOCALE, { weekday: 'long', month: 'long', day: 'numeric' }))}"><div class="badge" style="${dayBadge(l.day).length > 1 ? 'font-size:15px' : ''}">${esc(dayBadge(l.day))}</div><div><b>${d.toLocaleDateString(LOCALE, { weekday: 'short', month: 'short', day: 'numeric' })}</b>
+          <div class="small muted">${CHAL[l.day] && l.cday ? esc(t(CHAL[l.day].short)) + ' · ' + t('Day {n}', { n: l.cday }) + ' · ' : ''}${t('{n} sets', { n: sets })} · ${vol ? vol.toLocaleString(LOCALE) + ' lb' : l.ex.reduce((a, e) => a + (exOf(e.id).timed ? 0 : e.sets.filter((s) => s.done).reduce((b, s) => b + s.r, 0)), 0) + ' ' + t('reps')} · ${l.mins || '—'} min</div></div>
           <svg class="icon chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>`;
       }).join('')}
     </div>`;
@@ -1801,7 +1853,7 @@ function histClick(e) {
   if (bodyClick(e)) return;
   if (e.target.closest('#pastBtn')) return openPastPicker();
   const w = e.target.closest('[data-li]'); if (w) return openEditor(+w.dataset.li);
-  const r = e.target.closest('[data-ex]'); if (r) openDetail(r.dataset.ex);
+  const r = e.target.closest('[data-ex]'); if (r && !exOf(r.dataset.ex).custom) openDetail(r.dataset.ex);
 }
 
 // =====================================================
@@ -2009,26 +2061,40 @@ function bodyChange(e) {
 // =====================================================
 let edit = null; // { i: index in log (-1 = new), w: draft entry }
 const blankSet = (hint) => ({ w: '', r: '', done: false, hint });
-function openEditor(i, draft) {
-  edit = { i, w: draft || JSON.parse(JSON.stringify(log[i])) };
+function openEditor(i, draft, keep) {
+  edit = { i, w: draft || JSON.parse(JSON.stringify(log[i])), keep: !!keep }; // keep = save the draft as you go (today's custom session)
   $('#editor').classList.add('open'); renderEditor(); $('#editor').scrollTop = 0;
 }
-function closeEditor() { edit = null; $('#editor').classList.remove('open'); $('#editorInner').innerHTML = ''; }
+const saveDraft = () => { if (edit && edit.keep) store.set(DRAFT_KEY, edit.w); };
+function closeEditor() {
+  const kept = edit && edit.keep;
+  if (kept && !edit.w.ex.length) store.del(DRAFT_KEY); // nothing added yet: nothing to resume
+  edit = null; $('#editor').classList.remove('open'); $('#editorInner').innerHTML = '';
+  if (kept && $('#s-today').classList.contains('active')) renderToday();
+}
+// "+ Log a custom workout": a blank session for today (or the one you left open), then pick what you did
+function openCustom() {
+  const d = store.get(DRAFT_KEY, null);
+  openEditor(-1, d || { date: today(), day: CUSTOM_DAY, start: Date.now(), ex: [] }, true);
+  if (!edit.w.ex.length) pickExercise();
+}
 function renderEditor() {
-  const w = edit.w, isNew = edit.i < 0, prog = PROGRAM[w.day];
+  const w = edit.w, isNew = edit.i < 0, prog = PROGRAM[w.day], custom = isNew && w.day === CUSTOM_DAY;
+  saveDraft();
   $('#editorInner').innerHTML = `
     <div class="topbar"><button class="iconbtn" id="edClose" aria-label="${t('Close')}">${ICON.back}</button><div class="spacer"></div>
-      ${isNew ? '' : `<button class="btn btn-ghost" id="edDel" style="min-height:44px;padding:0 16px;font-size:14px;color:var(--danger)">${t('Delete workout')}</button>`}</div>
+      ${edit.keep ? `<button class="btn btn-ghost" id="edDiscard" style="min-height:44px;padding:0 16px;font-size:14px;color:var(--danger)">${t('Discard')}</button>`
+        : isNew ? '' : `<button class="btn btn-ghost" id="edDel" style="min-height:44px;padding:0 16px;font-size:14px;color:var(--danger)">${t('Delete workout')}</button>`}</div>
     <div class="stack">
-      <div><div class="small muted">${esc(prog ? (prog.cali ? t('Calisthenics') + ' · ' + prog.chip : prog.name) : w.day)}</div><h2 class="display" style="font-size:30px">${isNew ? t('Log a past workout') : t('Edit workout')}</h2></div>
+      <div><div class="small muted">${custom ? t('Any exercise, any order. Saved as you go.') : esc(prog ? (prog.cali ? t('Calisthenics') + ' · ' + prog.chip : prog.name) : dayName(w.day))}</div><h2 class="display" style="font-size:30px">${custom ? t('Custom workout') : isNew ? t('Log a past workout') : t('Edit workout')}</h2></div>
       <div><div class="eyebrow" style="margin-bottom:8px">${t('Date')}</div><input type="date" class="field" id="edDate" value="${w.date}" max="${today()}" style="width:100%"></div>
       ${w.ex.map((x, xi) => {
-        const ex = EX_BY_ID[x.id], str = !!ex.stretch, unit = ex.timed ? t('sec') : t('reps');
+        const ex = exOf(x.id), str = !!ex.stretch, unit = ex.timed ? t('sec') : t('reps');
         return `<div class="card ed-ex" data-xi="${xi}">
           <div class="row"><h3>${esc(ex.name)}</h3><button class="del-x" data-rmex aria-label="${esc(t('Remove {name}', { name: ex.name }))}">${ICON.close}</button></div>
           ${x.sets.length ? `<table class="ed-sets"><thead><tr><th>${t('Set')}</th>${str ? '' : `<th>${ex.bw ? '+lb' : 'lb'}</th>`}<th>${unit}</th><th>${t('Done')}</th><th></th></tr></thead><tbody>
             ${x.sets.map((st, si) => `<tr data-si="${si}"><td>${si + 1}</td>
-              ${str ? '' : `<td><input inputmode="decimal" data-k="w" value="${esc(st.w === 0 && ex.bw ? '' : st.w)}" placeholder="${ex.bw ? t('BW') : '0'}" aria-label="${ex.bw ? t('Set {n} added weight', { n: si + 1 }) : t('Set {n} weight', { n: si + 1 })}"></td>`}
+              ${str ? '' : `<td><input inputmode="decimal" data-k="w" value="${esc(st.w === 0 && ex.bw ? '' : st.w)}" placeholder="${st.wh || (ex.bw ? t('BW') : '0')}" aria-label="${ex.bw ? t('Set {n} added weight', { n: si + 1 }) : t('Set {n} weight', { n: si + 1 })}"></td>`}
               <td><input inputmode="numeric" data-k="r" value="${esc(st.r === 0 && !st.done ? '' : st.r)}" placeholder="${st.hint || ''}" aria-label="${t('Set {n} {unit}', { n: si + 1, unit })}"></td>
               <td class="c"><button class="check ${st.done ? 'on' : ''}" data-done aria-pressed="${!!st.done}" aria-label="${t('Complete set {n}', { n: si + 1 })}">${ICON.check}</button></td>
               <td class="x"><button class="del-x" data-rmset aria-label="${t('Remove set {n}', { n: si + 1 })}">${ICON.close}</button></td></tr>`).join('')}
@@ -2036,6 +2102,7 @@ function renderEditor() {
           <button class="btn btn-ghost ed-add" data-addset>${t('+ Add set')}</button>
         </div>`;
       }).join('')}
+      ${w.ex.length ? '' : `<div class="card empty small muted">${t('No exercises yet. Add the first one you did.')}</div>`}
       <button class="btn btn-ghost btn-block" id="edAddEx">${t('+ Add exercise')}</button>
       <div class="small" id="edMsg"></div>
       <div class="footer-nav"><button class="btn btn-ghost" id="edCancel">${t('Cancel')}</button><button class="btn btn-primary" id="edSave">${isNew ? t('Add to log') : t('Save changes')}</button></div>
@@ -2049,6 +2116,9 @@ $('#editorInner').addEventListener('input', (e) => {
   st[k] = e.target.value;
   // typing reps into a fresh set counts it as done (tap ✓ to undo)
   if (k === 'r' && numIn(e.target.value) > 0 && !st.done && !st.touched) { st.done = true; tr.querySelector('[data-done]').classList.add('on'); }
+  // custom session: a weight carries forward to the later sets you haven't filled in yet
+  if (k === 'w' && edit.keep) x.sets.forEach((o, j) => { if (j > +tr.dataset.si && !o.done && o.w === '') { o.w = e.target.value; const inp = tr.parentElement.rows[j]?.querySelector('[data-k=w]'); if (inp) inp.value = e.target.value; } });
+  saveDraft();
 });
 $('#editorInner').addEventListener('change', (e) => { if (edit && e.target.id === 'edDate') edit.w.date = e.target.value; });
 $('#editorInner').addEventListener('click', (e) => {
@@ -2056,9 +2126,12 @@ $('#editorInner').addEventListener('click', (e) => {
   if (e.target.closest('#edClose, #edCancel')) return closeEditor();
   if (e.target.closest('#edSave')) return saveEditor();
   if (e.target.closest('#edAddEx')) return pickExercise();
+  if (e.target.closest('#edDiscard')) return openModal(`<h3>${t('Discard this custom workout?')}</h3><div class="muted">${t('Nothing from it will be saved.')}</div>
+      <button class="btn btn-block" style="color:var(--danger)" data-m="del">${t('Discard')}</button><button class="btn btn-ghost btn-block" data-m="keep">${t('Keep logging')}</button>`,
+    (a) => { if (a !== 'del') return; edit.w.ex = []; closeEditor(); });
   if (e.target.closest('#edDel')) {
     const l = log[edit.i];
-    return openModal(`<h3>${t('Delete this workout?')}</h3><div class="muted">${esc(dateLong(l.date))} · ${esc(PROGRAM[l.day]?.name || l.day)}. ${t('This can’t be undone.')}</div>
+    return openModal(`<h3>${t('Delete this workout?')}</h3><div class="muted">${esc(dateLong(l.date))} · ${esc(dayName(l.day))}. ${t('This can’t be undone.')}</div>
       <button class="btn btn-block" style="color:var(--danger)" data-m="del">${t('Delete workout')}</button><button class="btn btn-ghost btn-block" data-m="keep">${t('Cancel')}</button>`,
     (a) => { if (a !== 'del') return; log.splice(edit.i, 1); store.set('iron40_log', log); closeEditor(); renderHistory(); });
   }
@@ -2069,20 +2142,53 @@ $('#editorInner').addEventListener('click', (e) => {
   const tr = e.target.closest('tr[data-si]'); if (!tr) return;
   if (e.target.closest('[data-rmset]')) { x.sets.splice(+tr.dataset.si, 1); return renderEditor(); }
   const b = e.target.closest('[data-done]');
-  if (b) { const st = x.sets[+tr.dataset.si]; st.done = !st.done; st.touched = true; b.classList.toggle('on', st.done); b.setAttribute('aria-pressed', st.done); }
+  if (b) { const st = x.sets[+tr.dataset.si]; st.done = !st.done; st.touched = true; b.classList.toggle('on', st.done); b.setAttribute('aria-pressed', st.done); saveDraft(); }
 });
 function pickExercise() {
   const have = new Set(edit.w.ex.map((x) => x.id));
   const list = EXERCISES.filter((e) => !have.has(e.id)).sort((a, b) => (!!a.stretch - !!b.stretch) || a.name.localeCompare(b.name, LOCALE));
+  const mine = customEx.filter((c) => !have.has(c.id)).map((c) => EX_BY_ID[c.id]);
+  const musText = (e) => esc(e.mus.p.map((m) => MUSCLES[m]).join(' · ') || t('Your exercise'));
+  const picked = new Set();
   openModal(`<h2 class="display">${t('Add exercise')}</h2>
-    <div class="pick-list">${list.map((e) => `<button data-m="ex:${e.id}"><b>${esc(e.name)}</b><span class="small muted">${e.stretch ? t('Stretch') : esc(e.mus.p.map((m) => MUSCLES[m]).join(' · '))}</span></button>`).join('')}</div>
+    <div class="cx-new"><div class="eyebrow" style="margin-bottom:8px">${t('Not in the list? Type it')}</div>
+      <input class="field" id="cxName" maxlength="40" autocomplete="off" placeholder="${esc(t('e.g. Leg press'))}" style="width:100%" aria-label="${esc(t('Exercise name'))}">
+      <div class="small muted" style="margin:10px 0 6px">${t('Main muscles (optional, used for recovery)')}</div>
+      <div class="chips-wrap">${Object.entries(MUSCLES).map(([k, l]) => `<button class="chip" data-cxm="${k}" aria-pressed="false">${esc(l)}</button>`).join('')}</div>
+      <button class="btn btn-primary btn-block" id="cxAdd" style="margin-top:12px">${t('Add this exercise')}</button><div class="small" id="cxMsg" style="margin-top:6px"></div></div>
+    ${mine.length ? `<div class="eyebrow">${t('Your exercises')}</div><div class="pick-list short">${mine.map((e) => `<button data-m="ex:${e.id}"><b>${esc(e.name)}</b><span class="small muted">${musText(e)}</span></button>`).join('')}</div>` : ''}
+    <div class="eyebrow">${t('Library')}</div>
+    <div class="pick-list short">${list.map((e) => `<button data-m="ex:${e.id}"><b>${esc(e.name)}</b><span class="small muted">${e.stretch ? t('Stretch') : esc(e.mus.p.map((m) => MUSCLES[m]).join(' · '))}</span></button>`).join('')}</div>
     <button class="btn btn-block" data-m="close" style="color:var(--muted)">${t('Cancel')}</button>`, (a) => {
     if (!a || !a.startsWith('ex:') || !edit) return;
-    const id = a.slice(3), it = Object.values(PROGRAM).flatMap((p) => p.items).find((i) => i.id === id);
-    edit.w.ex.push({ id, sets: Array.from({ length: it ? it.sets : 3 }, () => blankSet(it ? it.hi : '')) });
-    renderEditor();
-    $('#editor').scrollTop = $('#editor').scrollHeight;
+    addExercise(a.slice(3));
   });
+  const add = () => {
+    const name = $('#cxName').value.trim().replace(/\s+/g, ' '), msg = $('#cxMsg');
+    if (!name) { msg.style.color = 'var(--danger)'; msg.textContent = t('Type a name first.'); return $('#cxName').focus(); }
+    // same name as one you have (or a library move) → use that one, so its history stays together
+    const same = [...EXERCISES, ...customEx.map((c) => EX_BY_ID[c.id])].find((x) => x.name.toLowerCase() === name.toLowerCase());
+    let id = same?.id;
+    if (!id) { const c = { id: 'cx-' + Date.now().toString(36), name, mus: [...picked] }; customEx.push(c); store.set('iron40_customEx', customEx); regCustom(c); id = c.id; }
+    $('#modal').classList.remove('open');
+    if (have.has(id)) return; // already in this session
+    addExercise(id);
+  };
+  $('#cxName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+  $('#modalBody').onclick = (e) => {
+    const c = e.target.closest('[data-cxm]');
+    if (c) { const m = c.dataset.cxm; picked.has(m) ? picked.delete(m) : picked.add(m); c.classList.toggle('on', picked.has(m)); c.setAttribute('aria-pressed', picked.has(m)); return; }
+    if (e.target.closest('#cxAdd')) add();
+  };
+}
+// New sets for an exercise: as many as last time (or the preset), with last time's numbers as hints
+function addExercise(id) {
+  const it = Object.values(PROGRAM).flatMap((p) => p.items).find((i) => i.id === id), last = lastFor(id);
+  const prev = last ? last.sets.filter((x) => x.done) : [];
+  const sets = prev.length ? prev.map((x) => ({ ...blankSet(x.r || ''), wh: x.w ? String(x.w) : '' })) : Array.from({ length: it ? it.sets : 3 }, () => blankSet(it ? it.hi : ''));
+  edit.w.ex.push({ id, sets });
+  renderEditor();
+  $('#editor').scrollTop = $('#editor').scrollHeight;
 }
 // Same time of day as before when only the date moves; past days default to 6 pm (recovery uses this)
 function tsFor(date, old) {
@@ -2098,17 +2204,21 @@ function saveEditor() {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today()) return err(t('Pick today or an earlier date.'));
   // empty rows (no weight, no reps, not ticked) are dropped; exercises left with no sets go too
   const ex = w.ex.map((x) => {
-    const str = !!EX_BY_ID[x.id].stretch;
+    const str = !!exOf(x.id).stretch;
     return { id: x.id, sets: x.sets.map((s) => ({ w: str ? 0 : numIn(s.w), r: Math.round(numIn(s.r)), done: !!s.done, ...(s.rir != null ? { rir: s.rir } : {}) }))
-      .filter((s) => s.done || s.w || s.r) };
+      .filter((s) => s.done || s.r || (s.w && !edit.keep)) }; // custom session: a carried-down weight alone isn't a set
   }).filter((x) => x.sets.length);
   if (!ex.length) return err(t('Add at least one set.'));
   const old = edit.i >= 0 ? log[edit.i] : null;
-  const entry = { ...w, date, ts: tsFor(date, old), ex };
+  const { start, ...rest } = w;
+  const entry = { ...rest, date, ts: tsFor(date, old), ex };
+  if (start && !old && date === today()) entry.mins = Math.max(1, Math.min(240, Math.round((Date.now() - start) / 60000)));
   if (old) log[edit.i] = entry; else log.push(entry);
   log.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : (a.ts || 0) - (b.ts || 0)));
   store.set('iron40_log', log);
-  closeEditor(); renderHistory();
+  const kept = edit.keep;
+  if (kept) { store.del(DRAFT_KEY); edit.keep = false; }
+  closeEditor(); kept ? showTab('history') : renderHistory();
 }
 // "Log a past workout": pick a date and a workout, then fill in the sets
 function openPastPicker() {
@@ -2118,13 +2228,166 @@ function openPastPicker() {
   openModal(`<h2 class="display">${t('Log a past workout')}</h2>
     <div class="small muted">${t('Forgot to log a session? Add it here and your streak, records and recovery catch up.')}</div>
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Date')}</div><input type="date" class="field" id="pwDate" value="${localKey(y)}" max="${today()}" style="width:100%"></div>
-    <div><div class="eyebrow" style="margin-bottom:8px">${t('Workout')}</div><div class="prog-pick">${keys.map((k) => `<button class="chip" data-m="p:${k}">${esc(label(k))}</button>`).join('')}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">${t('Workout')}</div><div class="prog-pick"><button class="chip" data-m="p:${CUSTOM_DAY}">${t('Custom workout')}</button>${keys.map((k) => `<button class="chip" data-m="p:${k}">${esc(label(k))}</button>`).join('')}</div></div>
     <button class="btn btn-block" data-m="close" style="color:var(--muted)">${t('Cancel')}</button>`, (a) => {
     if (!a || !a.startsWith('p:')) return;
     const k = a.slice(2), date = $('#pwDate').value && $('#pwDate').value <= today() ? $('#pwDate').value : localKey(y);
+    if (k === CUSTOM_DAY) { openEditor(-1, { date, day: CUSTOM_DAY, ex: [] }); return pickExercise(); }
     openEditor(-1, { date, day: k, ...(PROGRAM[k].mins ? { mins: PROGRAM[k].mins } : {}), ex: PROGRAM[k].items.map((it) => ({ id: it.id, sets: Array.from({ length: it.sets }, () => blankSet(it.hi)) })) });
   });
 }
+
+// =====================================================
+// 30-DAY CHALLENGES — free for everyone. Each challenge keeps its progress in its own key
+// ({next, last, done:[{d, date, res|rest, repeat?, run}], cur?, run?}); a finished day also goes
+// into the log (real push-up / pull-up / row sets only) so streaks, records and charts count it.
+// =====================================================
+const MOVES = {
+  push: { ex: 'push-up' }, row: { ex: 'inverted-row' }, pull: { ex: 'pull-up' },
+  hang: { name: 'Dead hang', timed: true, cue: 'Hang from the bar with straight arms. Keep your shoulders gently pulled down, away from your ears.' },
+  scap: { name: 'Scap pulls', cue: 'Hang with straight arms, then pull your shoulder blades down and back to rise an inch. Arms stay straight.' },
+  neg: { name: 'Negatives', cue: 'Jump or step up until your chin is over the bar, then lower yourself as slowly as you can — aim for 5 seconds.' },
+  negt: { name: 'Slowest negative', timed: true, cue: 'One negative, as slow as you can. Count the seconds from the top to straight arms.' },
+  hold: { name: 'Top hold', timed: true, cue: 'Jump or step up until your chin is over the bar and hold there, elbows tucked in.' },
+};
+const moveName = (m) => (MOVES[m].ex ? EX_BY_ID[MOVES[m].ex].name : t(MOVES[m].name));
+// a day is null (rest) or blocks of [move, targets per set]; a target of 0 = as many as you can (a test)
+const P_ = (...sets) => [['push', sets]];
+const CHAL = {
+  PU: {
+    key: 'iron40_pushup', name: 'Push-up challenge', short: 'Push-ups', badge: 'Pu', ex: 'push-up', rest: 75,
+    intro: 'For beginners who can do about 5 push-ups. Each day is a few sets with 60–90 seconds of rest. Stop every set 1–2 reps before you can’t do another.',
+    days: [P_(3, 3, 2), P_(3, 3, 3), null, P_(4, 3, 3), P_(4, 4, 3), P_(4, 4, 4), null,
+      P_(5, 4, 4), P_(5, 5, 4), P_(0), null, P_(5, 5, 5, 3), P_(6, 5, 5, 4), null,
+      P_(6, 6, 5, 5), P_(7, 6, 6, 5), P_(7, 7, 6, 6), null, P_(8, 7, 7, 6), P_(0), null,
+      P_(8, 8, 7, 7), P_(9, 8, 8, 7), null, P_(9, 9, 8, 8), P_(10, 9, 9, 8), P_(10, 10, 9, 9), null, P_(10, 10, 10, 10), P_(0)],
+  },
+  PL: {
+    key: 'iron40_pullup', name: 'Pull-up challenge', short: 'Pull-ups', badge: 'Pl', ex: 'pull-up', rest: 90, bar: true,
+    intro: 'From zero to your first pull-ups. You need a pull-up bar. Rest 60–90 seconds between sets.',
+    days: [
+      [['hang', [15, 15, 15]], ['row', [5, 5, 5]]], [['hang', [15, 15, 15]], ['scap', [5, 5, 5]]], null,
+      [['hang', [20, 20, 20]], ['row', [6, 6, 6]]], [['neg', [2, 2, 2]], ['hang', [20, 20]]], [['row', [8, 8, 8]], ['scap', [6, 6, 6]]], null,
+      [['neg', [3, 3, 3]], ['hang', [25, 25]]], [['row', [8, 8, 8, 8]]], [['hang', [0]], ['pull', [1]]], null,
+      [['neg', [3, 3, 3, 3]], ['row', [8, 8, 8]]], [['hold', [10, 10, 10]], ['hang', [30, 30]]], null,
+      [['neg', [4, 4, 4, 4]], ['hold', [10, 10, 10]]], [['row', [10, 10, 10, 10]]], [['pull', [1, 1, 1]], ['neg', [3, 3, 3]]], null,
+      [['neg', [5, 5, 5]], ['hold', [15, 15, 15]]], [['pull', [0]], ['negt', [0]]], null,
+      [['pull', [1, 1, 1, 1, 1]]], [['row', [10, 10, 10, 10]], ['neg', [4, 4, 4]]], null,
+      [['pull', [1, 1, 1, 1, 1, 1]], ['hold', [15, 15]]], [['pull', [2, 2, 2]], ['neg', [3, 3]]], [['neg', [5, 5, 5]], ['hang', [40, 40]]], null,
+      [['pull', [2, 2, 2, 2]]], [['pull', [0]]]],
+  },
+};
+const isTest = (day) => !!day && day.some(([, r]) => r.includes(0));
+const chalProg = (k) => store.get(CHAL[k].key, null) || { next: 0, last: null, done: [] };
+const saveChal = (k, p) => store.set(CHAL[k].key, p);
+let chal = null; // the challenge that's open
+
+function chalTile(k) {
+  const C = CHAL[k], p = chalProg(k), mus = EX_BY_ID[C.ex].mus, lv = Object.fromEntries(mus.p.map((m) => [m, 1]));
+  const sub = p.next >= C.days.length ? t('Complete ✓') : p.last === today() ? t('Day {n} done today', { n: p.done.at(-1).d + 1 })
+    : p.next || p.cur ? t('Day {n} of 30', { n: p.next + 1 }) : t('Start · 30 days');
+  return `<button class="tile2" data-ch="${k}"><span class="map">${MuscleMap.svg(lv, { views: mus.p.every((m) => BACK_VIEW.has(m)) ? 'back' : 'front' })}</span><span><b>${esc(t(C.short))}</b><small>${sub}</small></span></button>`;
+}
+function openChallenge(k) {
+  chal = k; primeAudio();
+  $('#challenge').classList.add('open'); keepAwake(true); renderChallenge(); $('#challenge').scrollTop = 0;
+}
+function closeChallenge() {
+  chal = null; $('#challenge').classList.remove('open'); $('#chalInner').innerHTML = '';
+  keepAwake(false); stopRest(); renderToday();
+}
+// what you did on a day, e.g. "9 reps" or "Dead hang 40 sec · Pull-Up 1 rep"
+function chalResult(day, res) {
+  return day.map(([m], bi) => {
+    const v = Math.max(0, ...(res[bi] || []).filter((x) => x != null));
+    return `${day.length > 1 ? moveName(m) + ' ' : ''}${v} ${MOVES[m].timed ? t('sec') : v === 1 ? t('rep') : t('reps')}`;
+  }).join(' · ');
+}
+function renderChallenge() {
+  const k = chal, C = CHAL[k], p = chalProg(k), n = p.next, total = C.days.length, day = C.days[n];
+  const strip = `<div class="ch-strip">${C.days.map((d, i) => `<i class="${d ? '' : 'off'} ${isTest(d) ? 'test' : ''} ${i < n ? 'done' : ''} ${i === n ? 'now' : ''}" aria-label="${esc(t('Day {n}', { n: i + 1 }) + (d ? isTest(d) ? ' · ' + t('test') : '' : ' · ' + t('rest')))}">${i + 1}</i>`).join('')}</div>
+    <div class="ch-legend small muted"><span>${t('Dashed = rest day')}</span><span style="color:var(--gold)">${t('Gold = test day')}</span></div>`;
+  const head = `<div class="topbar"><button class="iconbtn" id="chClose" aria-label="${t('Close')}">${ICON.close}</button><div class="spacer"></div></div>`;
+  const title = (h) => `<div><div class="small muted">${esc(t(C.name))}</div><h2 class="display" style="font-size:32px">${h}</h2></div>`;
+  let body;
+  if (n >= total) { // finished
+    const tests = p.done.filter((x) => (x.run || 1) === (p.run || 1) && x.res && isTest(C.days[x.d]));
+    body = title(t('Challenge complete!')) + strip + `<div class="card"><h3>${t('Your tests')}</h3>${tests.map((x) => `<div class="row" style="justify-content:space-between;padding:6px 0"><span>${t('Day {n}', { n: x.d + 1 })}</span><b>${esc(chalResult(C.days[x.d], x.res))}</b></div>`).join('') || `<div class="small muted">—</div>`}</div>
+      <button class="btn btn-primary btn-block" id="chAgain">${t('Start again from Day 1')}</button>`;
+  } else if (p.last === today()) { // one day per calendar day
+    const preview = day ? day.map(([m, r]) => `<div class="small">${esc(moveName(m))}: ${r.map((v) => v || t('max')).join(' · ')}${MOVES[m].timed ? ' ' + t('sec') : ''}</div>`).join('') : `<div class="small">${t('Rest day')}</div>`;
+    body = title(t('Done for today')) + strip + `<div class="card"><div class="muted">${t('Nice work. Come back tomorrow for Day {n}.', { n: n + 1 })}</div><div class="eyebrow" style="margin:12px 0 6px">${t('Day {n}', { n: n + 1 })}</div>${preview}</div>
+      <div class="footer-nav"><button class="btn btn-primary" id="chClose2">${t('Close')}</button></div>`;
+  } else if (!day) { // rest day
+    body = title(t('Day {n} of 30', { n: n + 1 })) + strip + `<div class="card"><h3>${t('Rest day')}</h3><div class="muted">${t('Muscles get stronger while they rest. Take today off, then mark it done.')}</div></div>
+      <div class="footer-nav"><button class="btn btn-primary" id="chRest">${t('Mark rest day done')}</button></div>`;
+  } else {
+    const cur = p.cur && p.cur.d === n ? p.cur : { d: n, res: day.map(([, r]) => r.map((v) => ({ r: v ? String(v) : '', done: false }))) };
+    const noBar = C.bar && !gearOf().includes('Pull-up bar');
+    body = title((isTest(day) ? t('Test · ') : '') + t('Day {n} of 30', { n: n + 1 })) + strip
+      + (n === 0 ? `<div class="callout small">${esc(t(C.intro))}</div>` : '')
+      + (noBar ? `<div class="callout warn small">${t('Your profile says you don’t have a pull-up bar. This challenge needs one (a doorway bar works).')}</div>` : '')
+      + (isTest(day) ? `<div class="callout small">${t('Test day: one set, as many good reps as you can. Type what you did.')}</div>` : '')
+      + day.map(([m, r], bi) => {
+        const M = MOVES[m], unit = M.timed ? t('sec') : t('reps');
+        return `<div class="card" data-bi="${bi}">
+          <div class="row" style="justify-content:space-between;align-items:center"><h3>${esc(moveName(m))}</h3>${M.ex ? `<button class="btn btn-ghost swap-btn" data-detail="${M.ex}">${t('Form tips')}</button>` : ''}</div>
+          ${M.cue ? `<div class="small muted" style="margin-top:4px">${esc(t(M.cue))}</div>` : ''}
+          <table class="sets"><thead><tr><th>${t('Set')}</th><th>${t('Goal')}</th><th>${unit}</th><th></th></tr></thead><tbody>
+            ${r.map((v, si) => { const st = cur.res[bi][si]; return `<tr class="${st.done ? 'done' : ''}" data-si="${si}"><td>${si + 1}</td><td class="goal">${v || t('max')}</td>
+              <td><input inputmode="numeric" data-k="r" value="${esc(st.r)}" placeholder="${v || ''}" aria-label="${esc(t('Set {n} {unit}', { n: si + 1, unit }))}"></td>
+              <td><button class="check ${st.done ? 'on' : ''}" data-done aria-label="${t('Complete set {n}', { n: si + 1 })}">${ICON.check}</button></td></tr>`; }).join('')}
+          </tbody></table></div>`;
+      }).join('')
+      + (k === 'PU' ? `<button class="btn btn-ghost btn-block" data-detail="incline-pushup">${esc(t('Too hard? Do them with your hands on a bench: {name}', { name: EX_BY_ID['incline-pushup'].name }))}</button>` : '')
+      + `<div class="small" id="chMsg"></div>
+      <div class="footer-nav"><button class="btn btn-ghost" id="chRepeat">${t('Repeat tomorrow')}</button><button class="btn btn-primary" id="chFinish">${n === total - 1 ? t('Finish challenge') : t('Finish day {n}', { n: n + 1 })}</button></div>
+      <div class="small muted" style="text-align:center">${t('Couldn’t finish every set? Tap Repeat tomorrow — today’s sets still count.')}</div>`;
+    chalCur = cur;
+  }
+  $('#chalInner').innerHTML = head + `<div class="stack">${body}</div>`;
+}
+let chalCur = null; // the day's sets while you do them (saved to the challenge on every change)
+const saveCur = () => { const p = chalProg(chal); p.cur = chalCur; saveChal(chal, p); };
+function finishChal(advance) {
+  const k = chal, C = CHAL[k], p = chalProg(k), n = p.next, day = C.days[n], cur = chalCur;
+  if (!cur.res.flat().some((x) => x.done)) { $('#chMsg').style.color = 'var(--danger)'; $('#chMsg').textContent = t('Tick ✓ after each set to log it.'); return; }
+  const res = cur.res.map((b) => b.map((x) => (x.done ? Math.max(0, Math.round(numIn(x.r))) : null)));
+  p.done.push({ d: n, date: today(), res, run: p.run || 1, ...(advance ? {} : { repeat: true }) });
+  if (advance) p.next++;
+  p.last = today(); delete p.cur; saveChal(k, p);
+  // the log gets the real lifts; hangs, scap pulls, negatives and holds stay in the challenge
+  const ex = {};
+  day.forEach(([m], bi) => { const id = MOVES[m].ex; if (id) res[bi].forEach((r) => { if (r > 0) (ex[id] ||= []).push({ w: 0, r, done: true }); }); });
+  log.push({ date: today(), ts: Date.now(), day: k, cday: n + 1, mins: Math.max(1, Math.min(120, Math.round((Date.now() - (cur.start || Date.now())) / 60000))), ex: Object.entries(ex).map(([id, sets]) => ({ id, sets })) });
+  store.set('iron40_log', log);
+  chalCur = null;
+  if (advance && p.next >= C.days.length && !matchMedia('(prefers-reduced-motion: reduce)').matches) confetti();
+  renderChallenge(); $('#challenge').scrollTop = 0;
+}
+$('#chalInner').addEventListener('input', (e) => {
+  if (!chalCur || e.target.dataset.k !== 'r') return;
+  chalCur.res[+e.target.closest('[data-bi]').dataset.bi][+e.target.closest('tr').dataset.si].r = e.target.value; saveCur();
+});
+$('#chalInner').addEventListener('click', (e) => {
+  if (!chal) return;
+  if (e.target.closest('#chClose, #chClose2')) return closeChallenge();
+  const dt = e.target.closest('[data-detail]'); if (dt) return openDetail(dt.dataset.detail);
+  const p = chalProg(chal);
+  if (e.target.closest('#chRest')) { p.done.push({ d: p.next, date: today(), rest: true, run: p.run || 1 }); p.next++; p.last = today(); saveChal(chal, p); return renderChallenge(); }
+  if (e.target.closest('#chAgain')) { saveChal(chal, { next: 0, last: p.last, done: p.done, run: (p.run || 1) + 1 }); return renderChallenge(); }
+  if (e.target.closest('#chFinish')) return finishChal(true);
+  if (e.target.closest('#chRepeat')) return finishChal(false);
+  const b = e.target.closest('[data-done]'); if (!b || !chalCur) return;
+  const bi = +b.closest('[data-bi]').dataset.bi, tr = b.closest('tr'), si = +tr.dataset.si, st = chalCur.res[bi][si];
+  st.done = !st.done; b.classList.toggle('on', st.done); tr.classList.toggle('done', st.done);
+  if (st.done && !chalCur.start) chalCur.start = Date.now();
+  saveCur();
+  if (!st.done) return;
+  const day = CHAL[chal].days[p.next], blk = chalCur.res[bi], more = blk.findIndex((x) => !x.done);
+  const nextLabel = more >= 0 ? t('Next: set {n}', { n: more + 1 }) : bi < day.length - 1 ? t('Next: {name}', { name: moveName(day[bi + 1][0]) }) : t('Last set done!');
+  if (more >= 0 || bi < day.length - 1) startRest(CHAL[chal].rest, nextLabel, null);
+});
 
 // =====================================================
 // Modal + first-launch disclaimer
@@ -2233,6 +2496,7 @@ function openProfile(first) {
     <h2 class="display">${first ? t('Welcome to Iron 40') : t('Your profile')}</h2>
     ${first ? `<div>${t('Free-weight and bodyweight training for men and women in their 30s and 40+: animated form demos, joint-smart tips and automatic progression.')}</div>` : ''}
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Language')}</div><div class="chips-wrap">${Object.entries(LANGS).map(([c, l]) => `<button class="chip ${c === LANG ? 'on' : ''}" data-lang="${c}" lang="${c === 'pt' ? 'pt-BR' : c}">${l}</button>`).join('')}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">${t('Appearance')}</div><div class="seg" id="themeSeg">${[['', t('System')], ['light', t('Light')], ['dark', t('Dark')]].map(([v, l]) => `<button class="chip ${(store.get('iron40_theme', null) || '') === v ? 'on' : ''}" data-theme-opt="${v}" aria-pressed="${(store.get('iron40_theme', null) || '') === v}">${l}</button>`).join('')}</div></div>
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Show me')}</div>${seg('sex', [['m', t('Men')], ['f', t('Women')]])}</div>
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Age group')}</div>${seg('age', [['30', t('30s')], ['40', '40+']])}</div>
     <div class="small muted">${t('Sets the photos, coaching tips and recovery times. You can change it anytime from the profile button.')}</div>
@@ -2269,6 +2533,8 @@ function openProfile(first) {
       else { profile = cur; store.set('iron40_profile', profile); }
       return setLang(lb.dataset.lang);
     }
+    const tb = e.target.closest('[data-theme-opt]');
+    if (tb) { setTheme(tb.dataset.themeOpt || null); tb.parentElement.querySelectorAll('.chip').forEach((c) => { c.classList.toggle('on', c === tb); c.setAttribute('aria-pressed', c === tb); }); return; }
     const bb = e.target.closest('[data-bar]');
     if (bb) { cur.bar = +bb.dataset.bar; bb.parentElement.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c === bb)); return; }
     const fb = e.target.closest('[data-flash]');
@@ -2283,6 +2549,27 @@ function openProfile(first) {
 $('#profileBtn').addEventListener('click', () => openProfile(false));
 
 // =====================================================
+// Light / dark — follows the phone until you pick one; the pick is kept in iron40_theme
+// =====================================================
+const sysLight = matchMedia('(prefers-color-scheme: light)');
+const themeNow = () => document.documentElement.dataset.theme || (sysLight.matches ? 'light' : 'dark');
+const SUN = '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON = '<svg class="icon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+function applyTheme(th) { // 'light' | 'dark' | null (= follow the phone)
+  if (th) document.documentElement.dataset.theme = th; else delete document.documentElement.dataset.theme;
+  const now = themeNow();
+  document.querySelector('meta[name=theme-color]').content = now === 'light' ? '#f6f4f8' : '#09080d';
+  document.querySelectorAll('[data-theme-toggle]').forEach((b) => {
+    b.innerHTML = now === 'light' ? MOON : SUN; // shows where a tap takes you
+    b.setAttribute('aria-label', now === 'light' ? t('Switch to dark mode') : t('Switch to light mode'));
+  });
+}
+function setTheme(th) { th ? store.set('iron40_theme', th) : store.del('iron40_theme'); applyTheme(th); }
+document.querySelectorAll('[data-theme-toggle]').forEach((b) => b.addEventListener('click', (e) => { e.stopPropagation(); setTheme(themeNow() === 'light' ? 'dark' : 'light'); }));
+sysLight.addEventListener('change', () => applyTheme(store.get('iron40_theme', null)));
+applyTheme(store.get('iron40_theme', null));
+
+// =====================================================
 // Backup / restore / CSV export — all on-device, no account
 // =====================================================
 function download(name, text, type) {
@@ -2293,13 +2580,13 @@ function download(name, text, type) {
 const today = () => localKey(new Date());
 $('#modalBody').addEventListener('click', (e) => {
   if (e.target.closest('#dExport')) {
-    const backup = { app: 'iron40', version: 1, exportedAt: new Date().toISOString(), profile, license, log, active, pick, weights, goal: goalW }; // photos stay in IndexedDB, not in the file
+    const backup = { app: 'iron40', version: 1, exportedAt: new Date().toISOString(), profile, license, log, active, pick, weights, goal: goalW, customEx, pushup: store.get('iron40_pushup', null), pullup: store.get('iron40_pullup', null) }; // photos stay in IndexedDB, not in the file
     download(`iron40-backup-${today()}.json`, JSON.stringify(backup, null, 1), 'application/json');
     $('#dMsg').textContent = t('Backup saved. Keep it somewhere safe (Files, iCloud Drive, email to yourself).');
   }
   if (e.target.closest('#dCsv')) {
     const rows = [['date', 'workout', 'exercise', 'set', 'weight_lb', 'reps_or_sec', 'done', 'est_1rm_lb']];
-    log.forEach((l) => l.ex.forEach((x) => x.sets.forEach((st, i) => rows.push([l.date, PROGRAM[l.day]?.name || l.day, EX_BY_ID[x.id]?.name || x.id, i + 1, st.w || 0, st.r || 0, st.done ? 'yes' : 'no', st.done ? e1rm(+st.w, +st.r) || '' : '']))));
+    log.forEach((l) => l.ex.forEach((x) => x.sets.forEach((st, i) => rows.push([l.date, dayName(l.day), EX_BY_ID[x.id]?.name || x.id, i + 1, st.w || 0, st.r || 0, st.done ? 'yes' : 'no', st.done ? e1rm(+st.w, +st.r) || '' : '']))));
     download(`iron40-workouts-${today()}.csv`, rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n'), 'text/csv');
     $('#dMsg').textContent = t('CSV saved — opens in Numbers, Excel or Google Sheets.');
   }
@@ -2320,6 +2607,9 @@ $('#modalBody').addEventListener('change', async (e) => {
     data.active ? store.set('iron40_active', data.active) : store.del('iron40_active');
     if (Array.isArray(data.weights)) store.set('iron40_weights', data.weights.filter((x) => x && /^\d{4}-\d{2}-\d{2}$/.test(x.date) && +x.lb > 0));
     if ('goal' in data) data.goal ? store.set('iron40_goal', +data.goal) : store.del('iron40_goal');
+    if (Array.isArray(data.customEx)) store.set('iron40_customEx', data.customEx.filter((c) => c && /^cx-/.test(c.id) && c.name));
+    if (data.pushup) store.set('iron40_pushup', data.pushup);
+    if (data.pullup) store.set('iron40_pullup', data.pullup);
     location.reload();
   } catch (err) { msg.style.color = 'var(--danger)'; msg.textContent = err.message === NOT_BACKUP() ? err.message : t('Couldn’t read that file. Choose the .json backup Iron 40 saved.'); }
 });

@@ -496,6 +496,10 @@ I18N_DATA.es = {
   programs: {
     A: { name: 'Entrenamiento A', focus: 'Cuerpo completo · día de mancuernas' },
     B: { name: 'Entrenamiento B', focus: 'Cuerpo completo · día de barra' },
+    C: { name: 'Entrenamiento C', focus: 'Tren superior · empuje y jalón' },
+    D: { name: 'Entrenamiento D', focus: 'Tren inferior y core' },
+    E: { name: 'Entrenamiento E', focus: 'Cuerpo completo · espalda y pecho' },
+    F: { name: 'Entrenamiento F', focus: 'Cuerpo completo · brazos y cargadas' },
     CF: { name: 'Calistenia', chip: 'Cuerpo completo', focus: 'Cuerpo completo · peso corporal' },
     CL: { name: 'Calistenia · Piernas', chip: 'Piernas', focus: 'Cuádriceps, glúteos, isquiotibiales' },
     CC: { name: 'Calistenia · Pecho', chip: 'Pecho', focus: 'Pecho, hombros, tríceps' },
@@ -1067,6 +1071,10 @@ I18N_DATA.pt = {
   programs: {
     A: { name: 'Treino A', focus: 'Corpo inteiro · dia de halteres' },
     B: { name: 'Treino B', focus: 'Corpo inteiro · dia de barra' },
+    C: { name: 'Treino C', focus: 'Parte superior · empurrar e puxar' },
+    D: { name: 'Treino D', focus: 'Parte inferior e core' },
+    E: { name: 'Treino E', focus: 'Corpo inteiro · costas e peito' },
+    F: { name: 'Treino F', focus: 'Corpo inteiro · braços e carregamentos' },
     CF: { name: 'Calistenia', chip: 'Corpo inteiro', focus: 'Corpo inteiro · peso do corpo' },
     CL: { name: 'Calistenia · Pernas', chip: 'Pernas', focus: 'Quadríceps, glúteos, posteriores de coxa' },
     CC: { name: 'Calistenia · Peito', chip: 'Peito', focus: 'Peito, ombros, tríceps' },

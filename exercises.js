@@ -686,7 +686,7 @@ const WARMUPS = [
   },
 ];
 
-// Two alternating full-body days. lo/hi = rep range; rest in seconds.
+// Gym days A–F run in rotation (GYM_DAYS in index.html). lo/hi = rep range; rest in seconds.
 const PROGRAM = {
   A: {
     name: 'Workout A', focus: 'Full body · dumbbell day',
@@ -711,9 +711,54 @@ const PROGRAM = {
       { id: 'farmer-carry', sets: 3, lo: 30, hi: 40, rest: 60, timed: true },
     ],
   },
+  C: {
+    name: 'Workout C', focus: 'Upper body · press & pull',
+    items: [
+      { id: 'bb-ohp', sets: 3, lo: 6, hi: 10, rest: 90 },
+      { id: 'db-bench', sets: 3, lo: 8, hi: 12, rest: 90 },
+      { id: 'cs-row', sets: 3, lo: 10, hi: 12, rest: 60 },
+      { id: 'chin-up', sets: 3, lo: 3, hi: 8, rest: 120 },
+      { id: 'lateral-raise', sets: 2, lo: 12, hi: 15, rest: 45 },
+      { id: 'bench-dip', sets: 2, lo: 8, hi: 12, rest: 60 },
+    ],
+  },
+  D: {
+    name: 'Workout D', focus: 'Lower body & core',
+    items: [
+      { id: 'back-squat', sets: 3, lo: 6, hi: 8, rest: 120 },
+      { id: 'bb-rdl', sets: 3, lo: 8, hi: 10, rest: 90 },
+      { id: 'reverse-lunge', sets: 2, lo: 8, hi: 12, rest: 60, perSide: true },
+      { id: 'calf-raise', sets: 3, lo: 12, hi: 20, rest: 45 },
+      { id: 'side-plank', sets: 2, lo: 20, hi: 40, rest: 45, timed: true, perSide: true },
+      { id: 'dead-bug', sets: 2, lo: 6, hi: 10, rest: 45, perSide: true },
+    ],
+  },
+  E: {
+    name: 'Workout E', focus: 'Full body · back & chest',
+    items: [
+      { id: 'pull-up', sets: 3, lo: 3, hi: 8, rest: 120 },
+      { id: 'incline-db', sets: 3, lo: 8, hi: 12, rest: 90 },
+      { id: 'goblet-squat', sets: 3, lo: 10, hi: 12, rest: 90 },
+      { id: 'db-rdl', sets: 3, lo: 10, hi: 12, rest: 90 },
+      { id: 'db-pullover', sets: 2, lo: 10, hi: 12, rest: 60 },
+      { id: 'y-raise', sets: 2, lo: 10, hi: 12, rest: 45 },
+    ],
+  },
+  F: {
+    name: 'Workout F', focus: 'Full body · arms & carries',
+    items: [
+      { id: 'split-squat', sets: 3, lo: 8, hi: 10, rest: 60, perSide: true },
+      { id: 'bb-row', sets: 3, lo: 8, hi: 12, rest: 90 },
+      { id: 'push-up', sets: 3, lo: 8, hi: 15, rest: 60 },
+      { id: 'db-curl', sets: 3, lo: 10, hi: 12, rest: 60 },
+      { id: 'skull-crusher', sets: 2, lo: 10, hi: 12, rest: 60 },
+      { id: 'farmer-carry', sets: 3, lo: 30, hi: 40, rest: 60, timed: true },
+      { id: 'knee-raise', sets: 2, lo: 8, hi: 12, rest: 60 },
+    ],
+  },
   // ---- Calisthenics: pick a full-body day or one area to focus on ----
   CF: {
-    name: 'Calisthenics', chip: 'Full body', badge: 'C', cali: true, focus: 'Full body · bodyweight', mins: 40,
+    name: 'Calisthenics', chip: 'Full body', badge: 'Fb', cali: true, focus: 'Full body · bodyweight', mins: 40,
     items: [
       { id: 'push-up', sets: 3, lo: 8, hi: 15, rest: 90 },
       { id: 'inverted-row', sets: 3, lo: 8, hi: 12, rest: 90 },
