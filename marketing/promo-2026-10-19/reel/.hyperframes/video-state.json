@@ -1,0 +1,517 @@
+{
+  "version": 1,
+  "historyId": "2523637d-a8a7-4fea-b3df-83355ddd9c64",
+  "currentRevision": "1774ab91-a599-4c5c-a8a6-fd846d58a3df",
+  "pendingChanges": false,
+  "files": {
+    "AGENTS.md": {
+      "hash": "1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/1d/1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5"
+    },
+    "CLAUDE.md": {
+      "hash": "1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/1d/1d4f0c8ca2507b94fd7c9df709fff01416adbd51a0f922b9d6ed2f40129147d5"
+    },
+    "assets/d-workout.png": {
+      "hash": "3aad41a3598001774718aad928ebab97aa4364d9f8ce46229e995f92d5a1db1f",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/3a/3aad41a3598001774718aad928ebab97aa4364d9f8ce46229e995f92d5a1db1f"
+    },
+    "assets/fonts/Archivo-500.woff2": {
+      "hash": "7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/71/7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4"
+    },
+    "assets/fonts/Archivo-700.woff2": {
+      "hash": "7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/71/7150c0ec5ad356453013d11affec1fbab95de0dd2dcecb043b4f1cb7f87c4ba4"
+    },
+    "assets/fonts/Fraunces-600.woff2": {
+      "hash": "48282a415ec22e31beaf0a0666e6fae0c8cbddcd0b1f6e729f27c3ade8a64e43",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/48/48282a415ec22e31beaf0a0666e6fae0c8cbddcd0b1f6e729f27c3ade8a64e43"
+    },
+    "assets/fonts/Fraunces-900.woff2": {
+      "hash": "48282a415ec22e31beaf0a0666e6fae0c8cbddcd0b1f6e729f27c3ade8a64e43",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/48/48282a415ec22e31beaf0a0666e6fae0c8cbddcd0b1f6e729f27c3ade8a64e43"
+    },
+    "assets/fonts/IBMPlexMono-500.woff2": {
+      "hash": "a76f53ca6612e7b3828eec2311098675b7f9849ae4169a8bcef6302aec02a6c0",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/a7/a76f53ca6612e7b3828eec2311098675b7f9849ae4169a8bcef6302aec02a6c0"
+    },
+    "assets/fonts-local.css": {
+      "hash": "3ebb8c982cd2f82d4f6b1d5aea28a1ccdfb4eb03eefc706b1d71f045401688a8",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/3e/3ebb8c982cd2f82d4f6b1d5aea28a1ccdfb4eb03eefc706b1d71f045401688a8"
+    },
+    "assets/fonts.css": {
+      "hash": "a2339a751e01d00663ae170dd8e70b397b8a829b7884e46d1ac318c903c20708",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/a2/a2339a751e01d00663ae170dd8e70b397b8a829b7884e46d1ac318c903c20708"
+    },
+    "assets/l-chest.png": {
+      "hash": "36d697fe20dd028bb496fdbad3988115cb77763f97aaae64feb3ea6ff4083620",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/36/36d697fe20dd028bb496fdbad3988115cb77763f97aaae64feb3ea6ff4083620"
+    },
+    "assets/l-push.png": {
+      "hash": "909f4bfa1b609fd47e2caf04f35eb6361346b66ef74c02755ddee315710dad8f",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/90/909f4bfa1b609fd47e2caf04f35eb6361346b66ef74c02755ddee315710dad8f"
+    },
+    "assets/l-workout.png": {
+      "hash": "3d24cbf182e33ece7c525329a3539fa603c983f65b959ec8398b1850e1175885",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/3d/3d24cbf182e33ece7c525329a3539fa603c983f65b959ec8398b1850e1175885"
+    },
+    "assets/s-body.png": {
+      "hash": "ee3ce30fa9a1b5d212fb26573df728eae5d8f07b55b6bc5fddc77124858a5435",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/ee/ee3ce30fa9a1b5d212fb26573df728eae5d8f07b55b6bc5fddc77124858a5435"
+    },
+    "hyperframes.json": {
+      "hash": "ad5dadeef78a520800a9e5cdd27a92ff5ac37f11b6a07f611b6b52b9f8c79a17",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/ad/ad5dadeef78a520800a9e5cdd27a92ff5ac37f11b6a07f611b6b52b9f8c79a17"
+    },
+    "index.html": {
+      "hash": "bf9db2eac531262301fa3181c08464918e1fa689edab02e2701914211b8317fb",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/bf/bf9db2eac531262301fa3181c08464918e1fa689edab02e2701914211b8317fb"
+    },
+    "meta.json": {
+      "hash": "780870054fddc6da2be80b0743d4a640c2c105182576373e65f2fd1f094e5c3a",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/78/780870054fddc6da2be80b0743d4a640c2c105182576373e65f2fd1f094e5c3a"
+    },
+    "package.json": {
+      "hash": "4397ea12861b0d6ba915a3261415ab8922705b952f71a6368b123ff9f7d452e1",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/43/4397ea12861b0d6ba915a3261415ab8922705b952f71a6368b123ff9f7d452e1"
+    },
+    "assets/music.wav": {
+      "hash": "9ab63c68fe6c826bf3d06ff0dc90dafdc4aab0907acde5b2c8843a6288f71bdf",
+      "content": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/9a/9ab63c68fe6c826bf3d06ff0dc90dafdc4aab0907acde5b2c8843a6288f71bdf"
+    }
+  },
+  "revisions": {
+    "df9b769c-6fa1-4848-a387-d255af7c3cc7": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1792442230893,
+      "endedAt": 1792442230894,
+      "files": {
+        "index.html": {
+          "before": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/b8/b89cc1d1a93e16b3a153fe13127ec68ad256b4279383fd3071369e4b373cb412",
+          "after": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/e5/e577ade1ecbf2476cc91da95fc00416ee8219c4ca625c9bcef95d4d95423642c"
+        }
+      }
+    },
+    "1774ab91-a599-4c5c-a8a6-fd846d58a3df": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1792442360827,
+      "endedAt": 1792442360831,
+      "files": {
+        "index.html": {
+          "before": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/e5/e577ade1ecbf2476cc91da95fc00416ee8219c4ca625c9bcef95d4d95423642c",
+          "after": "/Users/kennethbussey/.cache/hyperframes/history/2523637d-a8a7-4fea-b3df-83355ddd9c64/blobs/bf/bf9db2eac531262301fa3181c08464918e1fa689edab02e2701914211b8317fb"
+        }
+      }
+    }
+  },
+  "checks": {
+    "latest": {
+      "revision": null,
+      "id": "bbe553a2-fe4a-45eb-befe-fb558c35b201"
+    },
+    "revisions": {},
+    "unversioned": [
+      {
+        "id": "bbe553a2-fe4a-45eb-befe-fb558c35b201",
+        "scope": "project",
+        "report": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/checks/bbe553a2-fe4a-45eb-befe-fb558c35b201.json",
+        "metadata": {
+          "ok": true,
+          "browserSkipped": false,
+          "options": {
+            "samples": 9,
+            "atTransitions": false,
+            "maxIssues": 80,
+            "collapseStatic": true,
+            "tolerance": 2,
+            "timeout": 3000,
+            "contrast": true,
+            "strict": false,
+            "snapshots": false,
+            "browserGpuMode": "auto"
+          }
+        },
+        "createdAt": 1792442129555,
+        "contentHash": "7ffbd79261ecb6ef55e7d2e0477444e5682a8d30cd3036a49c853c0c2b64d2f5",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      }
+    ]
+  },
+  "snapshots": {
+    "latest": {
+      "revision": "df9b769c-6fa1-4848-a387-d255af7c3cc7",
+      "id": "2bcb2ab8-1546-42b8-9372-4e4e671a7d9f-1"
+    },
+    "revisions": {
+      "df9b769c-6fa1-4848-a387-d255af7c3cc7": [
+        {
+          "scope": "full",
+          "id": "2bcb2ab8-1546-42b8-9372-4e4e671a7d9f-0",
+          "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/s4/frame-00-at-11.4s.png",
+          "time": 11.4,
+          "metadata": {
+            "width": 1080,
+            "height": 1920,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1792442246805,
+          "contentHash": "26285b85fa3fe0b571da0593345f3b1afc5a937463f9f9a0bab2d87e554ae45d",
+          "revision": "df9b769c-6fa1-4848-a387-d255af7c3cc7",
+          "inputFingerprint": "34c17e4786e60e36cad8f6a66331022b3df86f5c70c2d3cb0a650b68994b2d1d",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "full",
+          "id": "2bcb2ab8-1546-42b8-9372-4e4e671a7d9f-1",
+          "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/s4/frame-01-at-12.9s.png",
+          "time": 12.9,
+          "metadata": {
+            "width": 1080,
+            "height": 1920,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1792442246806,
+          "contentHash": "62c583f13efd972339047070cceaee922ffec5460c5327a069047ac5bb1ce6e9",
+          "revision": "df9b769c-6fa1-4848-a387-d255af7c3cc7",
+          "inputFingerprint": "34c17e4786e60e36cad8f6a66331022b3df86f5c70c2d3cb0a650b68994b2d1d",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        }
+      ]
+    },
+    "unversioned": [
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-0",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-00-at-0.9s.png",
+        "time": 0.9,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193380,
+        "contentHash": "1ba3d6688f8bab82572eee158ccc79f8a566fde706de6dd8a8f90830cb0079fe",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-1",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-01-at-2.2s.png",
+        "time": 2.2,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193380,
+        "contentHash": "af39c9056a6068a7e113caf68d36e3d84eaae0f0a23b40aff18c287d56bd035f",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-2",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-02-at-3.6s.png",
+        "time": 3.6,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193380,
+        "contentHash": "cf9c86d8197dcb25db405fa3c4526dc1f807b4899cf19781cd3cae187be36859",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-3",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-03-at-4.3s.png",
+        "time": 4.3,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193380,
+        "contentHash": "a0f31952f9aad96d59fd39fed7347ab6be7fd38efdb95d99eecee996f20d7ebb",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-4",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-04-at-5.3s.png",
+        "time": 5.3,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193380,
+        "contentHash": "636a36592e46b6bc92a3153de520bac7f8099891ba3968bff6d1abd890612c29",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-5",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-05-at-7.2s.png",
+        "time": 7.2,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193381,
+        "contentHash": "57bf1a7de8d850cac9f97fcd73f42a17ed64fca92a293931a869e8e4f8191741",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-6",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-06-at-9.4s.png",
+        "time": 9.4,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193381,
+        "contentHash": "554a2435cc71a2b68b6d6e59be8e1abb6c96e40d10bb223e5dad514237c8f482",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-7",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-07-at-11.2s.png",
+        "time": 11.2,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193381,
+        "contentHash": "ef94196554b97a9b92d95ab17bb57628044df8a21eea1bc36749f9e2a5365095",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-8",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-08-at-12.9s.png",
+        "time": 12.9,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193381,
+        "contentHash": "4346b15fba475ab37ea240935599d9e7d7ad6287cca368d740a93811872649b0",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-9",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-09-at-14.6s.png",
+        "time": 14.6,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193381,
+        "contentHash": "455b4819b515e6fa3cf5611c0d23656c15279bc91a82c26d2cca912997654c6a",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-10",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-10-at-15.4s.png",
+        "time": 15.4,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193381,
+        "contentHash": "6af0b376f394973ee0366100c6b21c8a17a1a0aa3ae61266526ca5811087c999",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-11",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-11-at-16.2s.png",
+        "time": 16.2,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193381,
+        "contentHash": "f03a8bdf8b86d3ae18767feaa1051d138a46e1a75146a654cd733c3bc658dd4e",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-12",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-12-at-17s.png",
+        "time": 17,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193381,
+        "contentHash": "2be3ea74b36d37de7593e4230c97712bdd4b0614feb601d94d4fe4c532eab837",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-13",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-13-at-19.5s.png",
+        "time": 19.5,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193381,
+        "contentHash": "9b32b097fccdd092fce641e8dd77cf2387a76defe0f7c31d582dbcd6ad40e36f",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "60e874d6-7aa8-4b20-b01f-a537643fb797-14",
+        "image": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/.hyperframes/artifacts/snapshots/2c853fba-395e-4081-9135-18fdaed948f1/frame-14-at-19.885s.png",
+        "time": 19.885,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792442193381,
+        "contentHash": "9b32b097fccdd092fce641e8dd77cf2387a76defe0f7c31d582dbcd6ad40e36f",
+        "revision": null,
+        "inputFingerprint": "a9d6555ffd178560d9a5343cbcce43363c4cef11fbd401c63baaab64a116d902",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      }
+    ]
+  },
+  "renders": {
+    "latest": {
+      "id": "1ea0c1ea-bdef-47b2-9740-bfea136bb527",
+      "completedAt": 1792442629022,
+      "output": "/Users/kennethbussey/Desktop/CLAUDE PROJECTS/IRON 40/marketing/promo-2026-10-19/reel/renders/iron40-reel.mp4",
+      "status": "completed",
+      "revision": "1774ab91-a599-4c5c-a8a6-fd846d58a3df"
+    },
+    "retainedRevisions": [
+      "1774ab91-a599-4c5c-a8a6-fd846d58a3df"
+    ]
+  },
+  "pendingArtifactCleanup": []
+}

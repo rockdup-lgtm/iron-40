@@ -1,0 +1,13 @@
+import { createRequire } from 'module';
+const require = createRequire('/Users/kennethbussey/Desktop/CLAUDE PROJECTS/service-tracker/');
+const { chromium } = require('playwright');
+const b = await chromium.launch(); const p = await b.newPage({viewport:{width:430,height:932}});
+await p.goto('https://iron-40.pages.dev/', {waitUntil:'networkidle'});
+await p.waitForTimeout(800); await p.click('[data-m="ok"]'); await p.waitForTimeout(600);
+const vis=async()=>JSON.stringify(await p.evaluate(()=>[...document.querySelectorAll('button,a,input')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&r.bottom>0&&r.top<932&&getComputedStyle(e).visibility!='hidden'}).map(e=>(e.innerText||e.getAttribute('aria-label')||e.placeholder||'').replace(/\s+/g,' ').slice(0,22)+JSON.stringify(e.dataset)+(e.id?'#'+e.id:''))));
+await p.click('[data-mus="chest"]'); await p.waitForTimeout(700); await p.screenshot({path:'y1.png'}); console.log('Y1',await vis());
+await p.keyboard.press('Escape'); await p.waitForTimeout(500);
+await p.click('[data-tab="today"]'); await p.waitForTimeout(500);
+await p.click('[data-ex="goblet-squat"]', {force:true}).catch(e=>console.log('noex',e.message.slice(0,80)));
+await p.waitForTimeout(1200); await p.screenshot({path:'y2.png'}); console.log('Y2',await vis());
+await b.close();

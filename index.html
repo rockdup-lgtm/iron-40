@@ -192,6 +192,11 @@ h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
 .rig .bar .plate { stroke-width: 2.5; }
 .rig .hub { fill: var(--plate-ring); }
 .rig .far-prop { opacity: .5; }
+.rig .lever { stroke: var(--bench); stroke-width: 6; stroke-linecap: round; }
+.rig .cable { stroke: var(--plate-ring); stroke-width: 1.3; opacity: .75; }
+.rig .roller { fill: url(#g-bench); stroke: var(--plate-ring); stroke-width: 1.2; stroke-opacity: .6; }
+.rig .grip { fill: var(--plate-ring); }
+.rig .frame { stroke: var(--bench); stroke-width: 4; stroke-linecap: round; fill: none; }
 .rig .wpath { fill: none; stroke: var(--path); stroke-width: 1.5; stroke-dasharray: 2 5; stroke-linecap: round; }
 .rig .ghost { opacity: .18; }
 .rig .floor { fill: url(#g-floor); }
@@ -409,6 +414,12 @@ details summary::-webkit-details-marker { display: none; }
 .effort .chip { flex: 1; justify-content: center; padding: 10px 6px; font-size: 13px; }
 .effort-help { margin-top: 6px; font-size: 11.5px; }
 .effort .chip.on { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 8px 20px -10px var(--accent); }
+.news-card { border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.news-card .iconbtn { flex: none; width: 36px; height: 36px; }
+.up-hero .why { margin-top: 8px; font-size: 13.5px; line-height: 1.4; color: rgba(255,255,255,.78); }
+.ex-why { color: var(--muted); font-style: italic; margin: 2px 0 2px; }
+.plan-line { justify-content: space-between; align-items: center; margin: 10px 4px 0; gap: 10px; }
+.plan-line .unlock-link { white-space: nowrap; flex: none; }
 .easy-card { border-color: color-mix(in srgb, var(--ok) 35%, transparent); background: color-mix(in srgb, var(--ok) 7%, var(--surface)); }
 .chart { margin-top: 10px; }
 .chart svg { width: 100%; height: auto; display: block; overflow: visible; }
@@ -600,6 +611,7 @@ details summary::-webkit-details-marker { display: none; }
       </div>
       <div class="dots" id="week"></div>
     </div>
+    <div id="planNews"></div>
     <div id="easyCard"></div>
     <div class="hero up-hero" id="nextCard"></div>
     <details class="card" id="exList"></details>
@@ -728,7 +740,9 @@ const photo = (id) => `img/${P().sex === 'f' ? 'f/' : ''}${id}.jpg`;
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const DAYS = [t('Sun'), t('Mon'), t('Tue'), t('Wed'), t('Thu'), t('Fri'), t('Sat')];
-const TRAIN_DAYS = [1, 3, 5];
+// Suggested training weekdays for the plan's days per week (0 = Sun)
+const TRAIN_WEEK = { 2: [1, 4], 3: [1, 3, 5], 4: [1, 2, 4, 5], 5: [1, 2, 3, 4, 5] };
+const trainDays = () => TRAIN_WEEK[daysOf()];
 const dayKey = (d) => d.toISOString().slice(0, 10);
 const localKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const imgTag = (id, cls = '') => `<img class="${cls}" src="${photo(id)}" alt="" loading="lazy" onerror="this.remove()">`;
@@ -757,15 +771,21 @@ const dayBadge = (k) => PROGRAM[k]?.badge || (k === CUSTOM_DAY ? '+' : CHAL[k] ?
 // =====================================================
 // Program logic
 // =====================================================
-// Gym days rotate A → F; calisthenics, custom sessions and challenges don't shift the rotation.
-const GYM_DAYS = ['A', 'B', 'C', 'D', 'E', 'F'];
-const nextDay = () => { const g = log.findLast((l) => GYM_DAYS.includes(l.day)); return g ? GYM_DAYS[(GYM_DAYS.indexOf(g.day) + 1) % GYM_DAYS.length] : 'A'; };
-let pick = store.get('iron40_pick', null); // workout chosen on the Today screen (null = A/B rotation)
+// Your plan's routines rotate in order: the next one after the last logged routine from this plan.
+// Classic A/B, calisthenics, stretching, custom sessions and challenges don't shift the rotation.
+const daysOf = () => ([2, 3, 4, 5].includes(+P().days) ? +P().days : 3);
+// Where you train; older profiles without it get one from their equipment
+const locFromGear = (g) => (g.includes('Barbell') ? 'full' : g.includes('Machine') || g.includes('Cable') ? 'machines' : g.includes('Dumbbell') ? 'home' : 'bw');
+const locOf = () => (LOCATIONS[P().loc] ? P().loc : locFromGear(P().gear || Object.keys(GEAR)));
+const planKeys = () => PLAN_TEMPLATES[daysOf()].map((tp) => tp.key);
+const nextDay = () => { const keys = planKeys(), g = log.findLast((l) => keys.includes(l.day)); return g ? keys[(keys.indexOf(g.day) + 1) % keys.length] : keys[0]; };
+let pick = store.get('iron40_pick', null); // workout chosen on the Today screen (null = the plan rotation)
 const upNext = () => {
   if (active) return active.day;
-  const d = pick && PROGRAM[pick] ? pick : nextDay();
+  const d = pick && PROGRAM[pick] && !PROGRAM[pick].hidden ? pick : nextDay();
   return isLocked(d) ? 'A' : d; // free users stay on the free workout
 };
+const itemsOf = (a) => a.items || PROGRAM[a.day].items; // a workout keeps the plan it started with
 
 function lastFor(id) {
   for (let i = log.length - 1; i >= 0; i--) {
@@ -794,6 +814,56 @@ function alternatives(id, timed) {
     .map((e) => ({ e, score: e.mus.p.filter((m) => o.mus.p.includes(m)).length * 3 + e.mus.s.filter((m) => o.mus.s.includes(m) || o.mus.p.includes(m)).length + (e.group === o.group ? 1 : 0) }))
     .filter((x) => x.score >= 3).sort((a, b) => b.score - a.score).map((x) => x.e);
 }
+// =====================================================
+// Plans: each routine's slots resolve to the first candidate that fits your gear and joints
+// =====================================================
+const gearFits = (e) => e.equip.every((q) => q === 'Bodyweight' || gearOf().includes(q));
+const MACHINE_GEAR = ['Machine', 'Cable', 'Smith machine'];
+const PULLUPS = new Set(['pull-up', 'chin-up', 'neutral-pullup']);
+const PUSHUPS = new Set(['push-up', 'decline-pushup', 'pike-pushup', 'diamond-pushup']);
+// sets × reps and rest for an exercise in a slot role ('c' compound, 'g' glute compound, 'i' isolation)
+function scheme(e, role) {
+  if (e.id === 'farmer-carry') return { sets: 3, lo: 30, hi: 40, rest: 60, timed: true };
+  if (e.id === 'side-plank') return { sets: 2, lo: 20, hi: 40, rest: 45, timed: true };
+  if (e.timed) return { sets: 3, lo: 30, hi: 45, rest: 60, timed: true };
+  if (['seated-calf', 'calf-raise', 'hip-abduction'].includes(e.id)) return { sets: 3, lo: 12, hi: 20, rest: 60 };
+  if (PULLUPS.has(e.id)) return { sets: 3, lo: 3, hi: 8, rest: 120 };
+  if (e.id === 'tower-dip') return { sets: 3, lo: 5, hi: 10, rest: 90 };
+  if (PUSHUPS.has(e.id)) return { sets: 3, lo: 8, hi: 15, rest: 90 };
+  if (e.bw) return { sets: 3, lo: 10, hi: 15, rest: 60 };
+  if (e.id === 'db-pullover') return { sets: 3, lo: 10, hi: 12, rest: 60 };
+  const machine = e.equip.some((q) => MACHINE_GEAR.includes(q));
+  if (role === 'i') return { sets: 3, lo: 12, hi: 15, rest: 60 };
+  if (machine || role === 'g') return { sets: 3, lo: 8, hi: 12, rest: 90 };
+  return { sets: 3, lo: 6, hi: 10, rest: 120 };
+}
+// ~minutes: 5 warm-up + a minute to set up each exercise + every set's work (~40 s, or the hold) and rest
+const planMins = (items) => Math.round((5 + items.reduce((m, it) => m + 1 + (it.sets * ((it.timed ? it.hi : 40) * (it.perSide ? 2 : 1) + it.rest)) / 60, 0)) / 5) * 5;
+function buildPlans() {
+  Object.entries(PLAN_TEMPLATES).forEach(([days, tps]) => {
+    const inPlan = new Set(); // compounds already used on another day of this plan
+    tps.forEach((tp) => {
+      const used = new Set(), items = [];
+      tp.slots.forEach((sk) => {
+        const sl = SLOTS[sk], ok = (id) => !used.has(id) && fits(EX_BY_ID[id]);
+        let id = sl.ids.find((x) => ok(x) && !(sl.role !== 'i' && inPlan.has(x))) || sl.ids.find(ok), swap = '';
+        if (!id) { // every candidate loads a joint you protect: the closest gentler move for the same muscles, or the original with a warning
+          const base = sl.ids.find((x) => !used.has(x) && gearFits(EX_BY_ID[x]));
+          if (!base) return; // no equipment for this pattern: the routine skips it
+          const alt = alternatives(base, EX_BY_ID[base].timed).find((e) => !used.has(e.id) && !inPlan.has(e.id)) || alternatives(base, EX_BY_ID[base].timed).find((e) => !used.has(e.id));
+          id = alt ? alt.id : base;
+          if (alt) swap = t('Swapped from {name}: {why}', { name: EX_BY_ID[base].name, why: whyNot(EX_BY_ID[base]) });
+        }
+        used.add(id); if (sl.role !== 'i') inPlan.add(id);
+        const e = EX_BY_ID[id];
+        items.push({ id, ...scheme(e, sl.role), ...(PER_SIDE.has(id) ? { perSide: true } : {}), note: PATTERNS[sl.pat], ...(swap ? { swap } : {}) });
+      });
+      PROGRAM[tp.key] = { name: tp.name, focus: tp.focus, why: tp.why, badge: tp.badge, plan: +days, mins: planMins(items), items };
+    });
+  });
+}
+buildPlans();
+
 function personalize(item, used = new Set()) {
   const e = EX_BY_ID[item.id];
   if (fits(e)) return { id: item.id };
@@ -825,8 +895,10 @@ function suggest(item) {
   if (ex.stretch) return { w: '', text: t('Ease into mild tension and breathe. Never bounce.') };
   const unit = item.timed ? t('sec') : t('reps');
   if (ex.bw && !last) return { w: '', text: t('Aim for {lo}–{hi} clean {unit}. Too hard? {easier}.', { lo: item.lo, hi: item.hi, unit, easier: ex.easier }) };
+  if (!last && ex.assist) return { w: '', text: t('First time: pick the assistance that lets you do {lo}–{hi} clean reps. More weight on the stack means more help.', { lo: item.lo, hi: item.hi }) };
   if (!last) return { w: '', text: t('First time: choose a weight you could do for ~3 more {unit} than the target.', { unit }) };
   const done = last.sets.filter((s) => s.done);
+  const inc = ex.inc || 5; // stack machines and the leg press jump 10 lb; cables, isolation and free weights 5 lb
   const w = Math.max(0, ...done.map((s) => +s.w || 0));
   const hitTop = done.length >= item.sets && done.every((s) => +s.r >= item.hi);
   if (ex.bw && !w) {
@@ -836,12 +908,18 @@ function suggest(item) {
     return { w: '', text: t('Last time best {n} {unit}. Stay here until every set reaches {hi}.', { n: Math.max(...done.map((s) => +s.r || 0)), unit, hi: item.hi }) };
   }
   const rated = done.filter((s) => s.rir != null), grind = rated.length && rated.reduce((a, s) => a + s.rir, 0) / rated.length < 0.75;
+  if (ex.assist) { // the weight is help: progress by taking it away
+    const lw = Math.min(...done.map((s) => +s.w || 0));
+    if (hitTop && !lw) return { w: 0, up: true, text: t('You hit {hi} reps with no help — time for real pull-ups.', { hi: item.hi }) };
+    if (hitTop && !grind) { const nw = Math.max(0, lw - inc); return { w: nw, up: true, text: t('You hit {hi} reps on every set last time — take {inc} lb of help off: {w} lb.', { hi: item.hi, inc, w: nw }) }; }
+    return { w: lw, text: t('Last time {w} lb of help. Stay here until all sets reach {hi} reps.', { w: lw, hi: item.hi }) };
+  }
   if (hitTop && w > 0 && grind) return { w, text: t('You hit {hi} {unit} last time, but it was all-out. Stay at {w} lb until it feels solid.', { hi: item.hi, unit, w }) };
-  if (hitTop && w > 0) return { w: w + 5, up: true, text: t('You hit {hi} {unit} on every set last time — go up to {w} lb (+5).', { hi: item.hi, unit, w: w + 5 }) };
+  if (hitTop && w > 0) return { w: w + inc, up: true, text: t('You hit {hi} {unit} on every set last time — go up to {w} lb (+{inc}).', { hi: item.hi, unit, w: w + inc, inc }) };
   // Stalled: same weight for the last 3 sessions without hitting the top → back off 10% and build again
   const recent = liftHistory(item.id).slice(-3);
   if (w > 0 && recent.length === 3 && recent.every((p) => p.w === w) && recent[2].v <= recent[0].v) {
-    const back = Math.max(5, Math.round((w * 0.9) / 5) * 5);
+    const back = Math.max(inc, Math.round((w * 0.9) / inc) * inc);
     return { w: back, text: t("Stuck at {w} lb for 3 sessions. Drop to {back} lb today and build back up — that's how you break through.", { w, back }) };
   }
   return { w: w || '', text: w ? t('Last time {w} lb. Stay here until all sets reach {hi} {unit}.', { w, hi: item.hi, unit }) : '' };
@@ -887,7 +965,7 @@ function renderToday() {
     const d = new Date(monday); d.setDate(monday.getDate() + i);
     const k = localKey(d), done = doneDates.has(k);
     if (done) weekDone++;
-    const cls = [TRAIN_DAYS.includes(d.getDay()) ? 'train' : '', done ? 'done' : '', k === localKey(now) ? 'today' : ''].join(' ');
+    const cls = [trainDays().includes(d.getDay()) ? 'train' : '', done ? 'done' : '', k === localKey(now) ? 'today' : ''].join(' ');
     weekHtml += `<div class="${cls}" aria-label="${done ? t('{day} {n}, trained', { day: DAYS[d.getDay()], n: d.getDate() }) : `${DAYS[d.getDay()]} ${d.getDate()}`}">${DAYS[d.getDay()][0]}<i></i></div>`;
   }
   $('#week').innerHTML = weekHtml;
@@ -897,14 +975,14 @@ function renderToday() {
   $('#streakPill').classList.add('flame');
   $('#streakPill').innerHTML = flameIcon(streak > 0) + (streak ? t('{n}-week streak', { n: streak }) : log.length ? (log.length === 1 ? t('{n} workout', { n: 1 }) : t('{n} workouts', { n: log.length })) : t('Start your streak'));
 
-  const isTrain = TRAIN_DAYS.includes(now.getDay());
+  const isTrain = trainDays().includes(now.getDay());
   const trainedToday = doneDates.has(localKey(now));
   $('#todayTag').textContent = trainedToday ? t('Done for today — nice work') : isTrain ? t('{day} · training day', { day: DAYS[now.getDay()] }) : t('{day} · rest day', { day: DAYS[now.getDay()] });
   if (trialDaysLeft() !== null) $('#todayTag').textContent += ' · ' + (trialDaysLeft() === 1 ? t('Trial: 1 day left') : t('Trial: {n} days left', { n: trialDaysLeft() }));
 
   // ---- the hero is the workout: what's next, and Start ----
-  const day = upNext(), prog = PROGRAM[day];
-  const plan = active ? active.ex.map((x, i) => ({ ...prog.items[i], id: x.id, why: x.why })) : personalizePlan(prog.items).map((pe, i) => ({ ...prog.items[i], id: pe.id, why: pe.why || pe.warn }));
+  const day = upNext(), prog = PROGRAM[day], items = active ? itemsOf(active) : prog.items;
+  const plan = active ? active.ex.map((x, i) => ({ ...items[i], id: x.id, why: x.why, note: x.note })) : personalizePlan(items).map((pe, i) => ({ ...items[i], id: pe.id, why: pe.why || pe.warn || items[i].swap }));
   const first = EX_BY_ID[plan[0].id];
   const shown = plan.slice(0, 3);
   const easy = active ? active.easy : !prog.stretch && easyWeek();
@@ -912,16 +990,24 @@ function renderToday() {
       <div><div class="eyebrow" style="color:var(--ok)">${t('Easy week')}</div><h3 style="margin-top:4px">${t('Recover to get stronger')}</h3>
       <div class="small muted">${t("You've trained hard for {n} weeks. This week: one fewer set and 10% less weight on everything. Joints and tendons catch up, and you come back stronger.", { n: P().age === '30' ? 5 : 4 })}</div></div></div>
       ${active ? '' : `<button class="btn btn-ghost" id="skipEasy" style="margin-top:12px;min-height:40px;font-size:13px">${t('Skip easy week')}</button>`}</div>` : '';
+  // one-time note for people who set up their profile before plans existed
+  const news = profile && !profile.loc && !store.get('iron40_planNews', false) && !active;
+  $('#planNews').innerHTML = news ? `<div class="card news-card"><div class="row" style="justify-content:space-between;align-items:flex-start;gap:12px">
+      <div><div class="eyebrow" style="color:var(--accent)">${t('New')}</div><h3 style="margin-top:4px">${t('New: plans built for your gym')}</h3>
+      <div class="small muted">${t('Tell Iron 40 where you train and how many days a week. Your workouts are rebuilt around your equipment, with a reason for every exercise.')}</div></div>
+      <button class="iconbtn" id="newsX" aria-label="${t('Dismiss')}">${ICON.close}</button></div>
+      <button class="btn btn-primary" id="newsGo" style="margin-top:12px;min-height:40px;font-size:13px">${t('Set up my plan')}</button></div>` : '';
   $('#nextCard').innerHTML = `<div>
-    <div class="tag eyebrow">${active ? t('In progress') : trainedToday ? t('Next session') : t('Up next')} · ${t('{n} of 3 this week', { n: Math.min(weekDone + (trainedToday || active ? 0 : 1), 3) })}</div>
+    <div class="tag eyebrow">${active ? t('In progress') : trainedToday ? t('Next session') : t('Up next')} · ${t('{n} of {target} this week', { n: Math.min(weekDone + (trainedToday || active ? 0 : 1), daysOf()), target: daysOf() })}</div>
     <h1 class="display">${progTitle(prog)}</h1>
-    <div class="meta">${prog.cali ? t('Calisthenics') + ' · ' : prog.stretch ? t('Stretching') + ' · ' : ''}${esc(prog.focus)} · ${t('{n} exercises', { n: prog.items.length })} · ~${prog.mins || 45} min</div>
+    <div class="meta">${prog.cali ? t('Calisthenics') + ' · ' : prog.stretch ? t('Stretching') + ' · ' : ''}${esc(prog.focus)} · ${t('{n} exercises', { n: items.length })} · ~${prog.mins || 45} min</div>
+    ${prog.why ? `<div class="why">${esc(prog.why)}</div>` : ''}
     <div class="row2">
-      <div class="avatars">${shown.map((it) => `<div class="mini" data-media="${it.id}"><div class="rigbox"></div>${imgTag(it.id)}</div>`).join('')}${prog.items.length > 3 ? `<div class="more">+${prog.items.length - 3}</div>` : ''}</div>
+      <div class="avatars">${shown.map((it) => `<div class="mini" data-media="${it.id}"><div class="rigbox"></div>${imgTag(it.id)}</div>`).join('')}${items.length > 3 ? `<div class="more">+${items.length - 3}</div>` : ''}</div>
       <span class="small">${esc(t('{name} first', { name: first.name }))}</span>
     </div>
     <button class="btn btn-primary btn-block" id="startBtn">${active ? t('Resume workout') : prog.stretch ? t('Start stretching') : t('Start workout')}</button>
-    ${!isTrain && !active ? `<div class="note">${t('Plan: Mon · Wed · Fri — rest days help, but you can train anytime.')}</div>` : ''}
+    ${!isTrain && !active ? `<div class="note">${t('Plan: {days} — rest days help, but you can train anytime.', { days: trainDays().map((d) => DAYS[d]).join(' · ') })}</div>` : ''}
   </div>`;
 
   // ---- full exercise list, one tap away ----
@@ -929,7 +1015,7 @@ function renderToday() {
     <div style="margin-top:6px">${plan.map((it) => `
       <button class="ex-line" style="width:100%;text-align:left" data-ex="${it.id}">
         ${mediaHtml(it.id)}
-        <div><h3>${esc(EX_BY_ID[it.id].name)}</h3><div class="small muted">${t('{n} sets', { n: it.sets })} · ${it.lo}–${it.hi} ${it.timed ? t('sec') : t('reps')}${it.perSide ? ' / ' + t('side') : ''}</div>${it.why ? `<div class="small swap-note">${esc(it.why)}</div>` : ''}</div>
+        <div><h3>${esc(EX_BY_ID[it.id].name)}</h3>${it.note ? `<div class="small ex-why">${esc(it.note)}</div>` : ''}<div class="small muted">${t('{n} sets', { n: it.sets })} · ${it.lo}–${it.hi} ${it.timed ? t('sec') : t('reps')}${it.perSide ? ' / ' + t('side') : ''} · ${t('rest {n}s', { n: it.rest })}</div>${it.why ? `<div class="small swap-note">${esc(it.why)}</div>` : ''}</div>
         <svg class="icon chev" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M9 6l6 6-6 6"/></svg>
       </button>`).join('')}</div>`;
 
@@ -951,7 +1037,10 @@ function renderToday() {
     <div class="tiles" style="margin-bottom:18px">${Object.keys(CHAL).map(chalTile).join('')}</div>
     ${active ? '' : `<div class="row" style="justify-content:space-between"><div class="eyebrow">${t('Switch focus')}</div>
       ${license ? '' : `<button class="unlock-link" data-lock="all">${LOCK}${t('Unlock everything · {price}', { price: SHOP.price })}</button>`}</div>
-    <div class="tiles">${GYM_DAYS.map((k) => tile(k, esc(t('Gym · {name}', { name: PROGRAM[k].name })), k === gym ? (license ? t('Next in rotation') : t('Free · full-body dumbbell day')) : esc(PROGRAM[k].focus))).join('')}</div>
+    <div class="tiles">${planKeys().map((k) => tile(k, esc(PROGRAM[k].name), k === gym ? t('Next in rotation') + ' · ' + esc(PROGRAM[k].focus) : esc(PROGRAM[k].focus))).join('')}</div>
+    <div class="row small muted plan-line"><span>${esc(t('{loc} · {n} days a week', { loc: LOCATIONS[locOf()].name, n: daysOf() }))}</span><button class="unlock-link" id="planEdit">${t('Change plan')}</button></div>
+    <div class="eyebrow" style="margin-top:18px">${t('Classic workouts')}</div>
+    <div class="tiles">${['A', 'B'].map((k) => tile(k, esc(t('Gym · {name}', { name: PROGRAM[k].name })), k === gym ? t('Free · full-body dumbbell day') : esc(PROGRAM[k].focus))).join('')}</div>
     <div class="eyebrow" style="margin-top:18px">${t('Calisthenics')}</div>
     <div class="tiles">${cali.map((k) => tile(k, esc(PROGRAM[k].chip), t('~{n} min · bodyweight', { n: PROGRAM[k].mins }))).join('')}</div>
     <div class="eyebrow" style="margin-top:18px">${t('Stretching')}</div>
@@ -964,6 +1053,8 @@ function renderToday() {
     const ch = e.target.closest('[data-ch]'); if (ch) return openChallenge(ch.dataset.ch);
     if (e.target.closest('[data-lock]')) return openUnlock();
     if (e.target.closest('#skipEasy')) { store.set('iron40_lastEasy', weekOf(localKey(new Date()))); return renderToday(); }
+    if (e.target.closest('#newsX')) { store.set('iron40_planNews', true); return renderToday(); }
+    if (e.target.closest('#newsGo, #planEdit')) return openProfile(false);
     const p = e.target.closest('[data-pick]');
     if (p) { pick = p.dataset.pick || null; pick ? store.set('iron40_pick', pick) : store.del('iron40_pick'); renderToday(); return window.scrollTo({ top: 0, behavior: 'smooth' }); }
     const b = e.target.closest('[data-ex]'); if (b) openDetail(b.dataset.ex);
@@ -1044,7 +1135,7 @@ function renderBody() {
 // =====================================================
 // LIBRARY
 // =====================================================
-const FILTERS = ['All', 'Fits me', 'Stretch', ...Object.keys(AREAS), 'Bodyweight', 'Dumbbell', 'Barbell'];
+const FILTERS = ['All', 'Fits me', 'Stretch', ...Object.keys(AREAS), 'Bodyweight', 'Dumbbell', 'Barbell', 'Machine', 'Cable'];
 let filter = store.get('iron40_filter', 'All');
 if (!FILTERS.includes(filter)) filter = 'All';
 function renderLibrary() {
@@ -1103,7 +1194,7 @@ function liftHistory(id) {
   log.forEach((l) => l.ex.filter((x) => x.id === id).forEach((x) => {
     const done = x.sets.filter((s) => s.done && (+s.r || 0) > 0);
     if (!done.length) return;
-    const weighted = done.some((s) => +s.w > 0);
+    const weighted = !EX_BY_ID[id]?.assist && done.some((s) => +s.w > 0);
     const best = done.reduce((b, s) => {
       const v = weighted ? e1rm(+s.w, +s.r) : +s.r;
       return v > b.v ? { v, w: +s.w || 0, r: +s.r } : b;
@@ -1158,7 +1249,7 @@ function exInfo(ex) {
   const last = lastFor(ex.id);
   const best = log.flatMap((l) => l.ex.filter((x) => x.id === ex.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => +s.w || 0)));
   const bestReps = Math.max(0, ...log.flatMap((l) => l.ex.filter((x) => x.id === ex.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => +s.r || 0))));
-  const bestTxt = ex.bw && !Math.max(...best) ? t('Best {n} {unit}', { n: bestReps, unit: ex.timed ? t('sec') : t('reps') }) : t('Best {n} lb', { n: Math.max(...best) });
+  const bestTxt = (ex.bw && !Math.max(...best)) || ex.assist ? t('Best {n} {unit}', { n: bestReps, unit: ex.timed ? t('sec') : t('reps') }) : t('Best {n} lb', { n: Math.max(...best) });
   return `
     <div class="small muted">${ex.stretch ? t('Stretch · no equipment needed') : esc(ex.equip.map((q) => t(q)).join(' · '))}</div>
     <div><b>${t('Works:')}</b> ${esc(ex.muscles)}</div>
@@ -1218,15 +1309,15 @@ async function keepAwake(on) {
 
 function startWorkout() {
   if (!active) {
-    const day = upNext(), easy = !PROGRAM[day].stretch && easyWeek();
+    const day = upNext(), easy = !PROGRAM[day].stretch && easyWeek(), items = JSON.parse(JSON.stringify(PROGRAM[day].items));
     active = {
-      day, start: Date.now(), step: 0, easy,
-      ex: personalizePlan(PROGRAM[day].items).map((pe, i) => {
-        const it = PROGRAM[day].items[i], s = suggest({ ...it, id: pe.id });
-        // easy week: 10% under your last working weight, one fewer set
+      day, start: Date.now(), step: 0, easy, items,
+      ex: personalizePlan(items).map((pe, i) => {
+        const it = items[i], s = suggest({ ...it, id: pe.id });
+        // easy week: 10% under your last working weight (10% more help on assisted moves), one fewer set
         const lastW = Math.max(0, ...(lastFor(pe.id)?.sets.filter((x) => x.done).map((x) => +x.w || 0) || [0]));
-        const w = easy && lastW > 0 ? Math.max(5, Math.round((lastW * 0.9) / 5) * 5) : s.w;
-        return { id: pe.id, orig: it.id, why: pe.why || pe.warn || '', sets: Array.from({ length: easy ? Math.max(1, it.sets - 1) : it.sets }, () => ({ w, r: it.hi, done: false })) };
+        const w = easy && lastW > 0 ? (EX_BY_ID[pe.id].assist ? Math.round((lastW * 1.1) / 5) * 5 : Math.max(5, Math.round((lastW * 0.9) / 5) * 5)) : s.w;
+        return { id: pe.id, orig: it.id, why: pe.why || pe.warn || it.swap || '', note: it.note || '', sets: Array.from({ length: easy ? Math.max(1, it.sets - 1) : it.sets }, () => ({ w, r: it.hi, done: false })) };
       }),
     };
     saveActive();
@@ -1238,7 +1329,7 @@ function startWorkout() {
 const saveActive = () => store.set('iron40_active', active);
 
 function renderStep() {
-  const prog = PROGRAM[active.day], total = prog.items.length + 1, step = active.step;
+  const prog = PROGRAM[active.day], items = itemsOf(active), total = items.length + 1, step = active.step;
   const head = `
     <div class="topbar">
       <button class="iconbtn" id="wClose" aria-label="${t('Close')}">${ICON.close}</button>
@@ -1262,21 +1353,22 @@ function renderStep() {
         <div class="footer-nav"><button class="btn btn-primary" id="wNext">${t('Start lifting')}</button></div>
       </div>`;
     document.querySelectorAll('[data-wu]').forEach((d) => mountStage(d, EX_BY_ID[d.dataset.wu], true));
-  } else if (step <= prog.items.length) {
-    const it = prog.items[step - 1], rec = active.ex[step - 1], ex = EX_BY_ID[rec.id], s = suggest({ ...it, id: rec.id });
+  } else if (step <= items.length) {
+    const it = items[step - 1], rec = active.ex[step - 1], ex = EX_BY_ID[rec.id], s = suggest({ ...it, id: rec.id });
     const unit = it.timed ? t('sec') : t('reps'), str = !!ex.stretch;
     $('#workoutInner').innerHTML = head + `
       <div class="stack">
-        <div><div class="small muted">${t('Exercise {n} of {total}', { n: step, total: prog.items.length })}</div>
+        <div><div class="small muted">${t('Exercise {n} of {total}', { n: step, total: items.length })}</div>
           <div class="row" style="justify-content:space-between;align-items:flex-start"><h2 class="display" style="font-size:30px">${esc(ex.name)}</h2>
             <button class="btn btn-ghost swap-btn" id="wSwap">${t('Swap')}</button></div>
+          ${rec.note ? `<div class="small ex-why">${esc(rec.note)}</div>` : ''}
           ${rec.why ? `<div class="small swap-note">${esc(rec.why)}</div>` : ''}
           ${active.easy ? `<div class="small swap-note">${t('Easy week · 10% lighter, one fewer set')}</div>` : ''}
           <div class="small muted">${t('{n} sets', { n: it.sets })} × ${it.lo}–${it.hi} ${unit}${it.perSide ? ' ' + t('each side') : ''} · ${t('rest {n}s', { n: it.rest })}${str ? '' : ' · ' + t('effort: 2–3 {unit} left in the tank', { unit })}</div></div>
         <div class="media" style="aspect-ratio:16/10;display:none" id="wPhoto"><img src="${photo(ex.id)}" alt="${esc(t('{name} demonstration photo', { name: ex.name }))}" onload="this.parentElement.style.display=''" onerror="this.parentElement.remove()"><div class="inset" style="width:24%;height:52%">${MuscleMap.forExercise(ex)}</div></div>
         <div id="wStage"></div>
         ${s.text ? `<div class="hint ${s.up ? 'up' : ''}">${s.up ? '↑ ' : ''}${esc(s.text)}</div>` : ''}
-        <table class="sets"><thead><tr><th>${t('Set')}</th>${str ? '' : `<th>${ex.bw ? '+lb' : 'lb'}</th>`}<th>${unit}</th><th></th></tr></thead><tbody>
+        <table class="sets"><thead><tr><th>${t('Set')}</th>${str ? '' : `<th>${ex.bw ? '+lb' : ex.assist ? t('help lb') : 'lb'}</th>`}<th>${unit}</th><th></th></tr></thead><tbody>
           ${rec.sets.map((st, i) => `<tr class="${st.done ? 'done' : ''}" data-i="${i}">
             <td>${i + 1}</td>
             ${str ? '' : `<td><input inputmode="decimal" readonly data-k="w" value="${esc(st.w)}" placeholder="${ex.bw ? t('BW') : '0'}" aria-label="${ex.bw ? t('Set {n} added weight', { n: i + 1 }) : t('Set {n} weight', { n: i + 1 })}"></td>`}
@@ -1287,7 +1379,7 @@ function renderStep() {
         <details class="card"><summary>${t('Form tips')}</summary><div class="stack" style="margin-top:12px">${exInfo(ex)}</div></details>
         <div class="footer-nav">
           <button class="btn btn-ghost" id="wPrev">${tc('nav', 'Back')}</button>
-          <button class="btn btn-primary" id="wNext">${step === prog.items.length ? t('Finish') : t('Next exercise')}</button>
+          <button class="btn btn-primary" id="wNext">${step === items.length ? t('Finish') : t('Next exercise')}</button>
         </div>
       </div>`;
     mountStage($('#wStage'), ex);
@@ -1315,7 +1407,7 @@ function renderStep() {
       saveActive(); updPlates();
       if (st.done) {
         const more = rec.sets.some((x) => !x.done);
-        const nextName = more ? t('Next: set {n}', { n: rec.sets.findIndex((x) => !x.done) + 1 }) : step < prog.items.length ? t('Next: {name}', { name: EX_BY_ID[active.ex[step].id].name }) : t('Last set done!');
+        const nextName = more ? t('Next: set {n}', { n: rec.sets.findIndex((x) => !x.done) + 1 }) : step < items.length ? t('Next: {name}', { name: EX_BY_ID[active.ex[step].id].name }) : t('Last set done!');
         // stretching: no effort rating and no PRs — holds aren't a performance
         startRest(active.easy ? Math.max(45, it.rest - 15) : it.rest, nextName, str ? null : st);
         const pr = !str && prCheck(rec.id, st, ex);
@@ -1362,10 +1454,10 @@ function openSwap(it, rec) {
 }
 
 function renderSummary(head) {
-  const prog = PROGRAM[active.day];
+  const prog = PROGRAM[active.day], items = itemsOf(active);
   const sets = active.ex.flatMap((e) => e.sets.filter((s) => s.done));
-  const volume = active.ex.reduce((sum, e, i) => sum + (prog.items[i].timed ? 0 : e.sets.filter((s) => s.done).reduce((a, s) => a + (+s.w || 0) * (+s.r || 0), 0)), 0);
-  const reps = active.ex.reduce((sum, e, i) => sum + (prog.items[i].timed ? 0 : e.sets.filter((s) => s.done).reduce((a, s) => a + (+s.r || 0), 0)), 0);
+  const volume = active.ex.reduce((sum, e, i) => sum + (items[i].timed ? 0 : e.sets.filter((s) => s.done).reduce((a, s) => a + (+s.w || 0) * (+s.r || 0), 0)), 0);
+  const reps = active.ex.reduce((sum, e, i) => sum + (items[i].timed ? 0 : e.sets.filter((s) => s.done).reduce((a, s) => a + (+s.r || 0), 0)), 0);
   const mins = Math.max(1, Math.round((Date.now() - active.start) / 60000));
   const stretched = active.ex.filter((e) => e.sets.some((s) => s.done)).length;
   $('#workoutInner').innerHTML = head + `
@@ -1380,7 +1472,7 @@ function renderSummary(head) {
       ${sets.length ? '' : `<div class="callout warn" style="text-align:left">${t('No sets were checked off. Tap ✓ after each set to log it.')}</div>`}
       ${(() => { // compare today's best sets with everything logged before
         const news = active.ex.map((e) => {
-          const ex = EX_BY_ID[e.id], done = e.sets.filter((s) => s.done && +s.r > 0); if (!done.length || ex.stretch) return null;
+          const ex = EX_BY_ID[e.id], done = e.sets.filter((s) => s.done && +s.r > 0); if (!done.length || ex.stretch || ex.assist) return null;
           const weighted = done.some((s) => +s.w > 0), v = Math.max(...done.map((s) => (weighted ? e1rm(+s.w, +s.r) : +s.r)));
           const prev = liftHistory(e.id).filter((p) => p.weighted === weighted).reduce((m, p) => Math.max(m, p.v), 0);
           return prev && v > prev ? `<div class="pr-row"><span class="pr-badge">${t('PR')}</span><span><b>${esc(ex.name)}</b><span class="small muted">${weighted ? t('est. 1RM {v} lb (was {prev})', { v, prev }) : t('{v} {unit} (was {prev})', { v, unit: ex.timed ? t('sec') : t('reps'), prev })}</span></span></div>` : null;
@@ -1524,7 +1616,7 @@ function beep() {
 // PR CELEBRATION — a set that beats every earlier session's best (est. 1RM, or reps for bodyweight)
 // =====================================================
 function prCheck(id, st, ex) {
-  const w = +st.w || 0, r = +st.r || 0; if (!r) return null;
+  const w = +st.w || 0, r = +st.r || 0; if (!r || ex.assist) return null; // assisted: less help is the progress, not a record
   const weighted = w > 0, v = weighted ? e1rm(w, r) : r;
   const hist = liftHistory(id).filter((p) => p.weighted === weighted);
   if (!hist.length) return null; // first time logging it: nothing to beat yet
@@ -1612,7 +1704,7 @@ function openWheel(tbody, i, ex, it, focusKey) {
   $('#wsW').parentElement.style.display = wIn ? '' : 'none'; // stretches log time/reps only
   $('#wsW').closest('.ws-cols').style.gridTemplateColumns = wIn ? '' : '1fr';
   $('#wsTitle').textContent = t('{name} · set {n}', { name: ex.name, n: i + 1 });
-  $('#wsWL').textContent = ex.bw ? t('added lb') : 'lb';
+  $('#wsWL').textContent = ex.bw ? t('added lb') : ex.assist ? t('lb of help') : 'lb';
   $('#wsRL').textContent = it.timed ? t('seconds') : t('reps');
   const ws = []; for (let v = 0; v <= (ex.bw ? 100 : 400); v += 2.5) ws.push(v);
   const rs = []; for (let v = 0; v <= (it.timed ? 300 : 50); v += it.timed ? 5 : 1) rs.push(v);
@@ -1686,17 +1778,19 @@ function platesHtml(total, setN) {
 const flameIcon = (lit) => `<svg class="flame-ic ${lit ? 'lit' : 'out'}" viewBox="0 0 16 18" aria-hidden="true"><path fill="url(#g-flame)" d="M8 0c.6 3-2.2 4.4-3.6 6.6C3.3 8.3 2 9.6 2 12a6 6 0 0 0 12 0c0-2.6-1.4-4.3-2.3-5.6-.3 1.4-.9 2.3-1.9 2.8C10.4 5.6 9.9 2.3 8 0z"/><path fill="#ffe9a8" opacity=".85" d="M8 9.5c-.2 1.3-1.8 2-1.8 3.8a1.8 1.8 0 0 0 3.6 0c0-1.3-1-2.3-1.8-3.8z"/></svg>`;
 const mondayOf = (d) => { const m = new Date(d); m.setHours(12, 0, 0, 0); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return m; };
 // A streak week = 3+ workouts. Current streak counts this week once it hits 3, otherwise ends last week.
+const streakN = () => Math.min(3, daysOf()); // a 2-day plan counts a week at 2 workouts
 function weekStreak() {
   const weeks = {};
   log.forEach((l) => { const k = localKey(mondayOf(new Date(l.date + 'T12:00'))); weeks[k] = (weeks[k] || 0) + 1; });
   const w = mondayOf(new Date()); let current = 0;
-  if ((weeks[localKey(w)] || 0) < 3) w.setDate(w.getDate() - 7);
-  while ((weeks[localKey(w)] || 0) >= 3) { current++; w.setDate(w.getDate() - 7); }
+  const need = streakN();
+  if ((weeks[localKey(w)] || 0) < need) w.setDate(w.getDate() - 7);
+  while ((weeks[localKey(w)] || 0) >= need) { current++; w.setDate(w.getDate() - 7); }
   let longest = 0, run = 0;
   if (log.length) {
     const end = mondayOf(new Date());
     for (const d = mondayOf(new Date(log.reduce((a, l) => (l.date < a ? l.date : a), log[0].date) + 'T12:00')); d <= end; d.setDate(d.getDate() + 7)) {
-      run = (weeks[localKey(d)] || 0) >= 3 ? run + 1 : 0; longest = Math.max(longest, run);
+      run = (weeks[localKey(d)] || 0) >= need ? run + 1 : 0; longest = Math.max(longest, run);
     }
   }
   return { current, longest };
@@ -1733,7 +1827,7 @@ function heatmapCard() {
     </div>
     <div style="--wks:${HM_WEEKS}"><div class="hm-months"><span></span>${months}</div>
       <div class="hm"><b>${DAYS[1][0]}</b><b></b><b>${DAYS[3][0]}</b><b></b><b>${DAYS[5][0]}</b><b></b><b>${DAYS[0][0]}</b>${cells}</div></div>
-    <div class="hm-foot"><span id="hmInfo">${t('A streak week = 3+ workouts. Tap a day.')}</span>
+    <div class="hm-foot"><span id="hmInfo">${streakN() === 3 ? t('A streak week = 3+ workouts. Tap a day.') : t('A streak week = {n}+ workouts. Tap a day.', { n: streakN() })}</span>
       <span class="hm-legend">${t('Less')}<i></i><i style="background:color-mix(in srgb, var(--accent) 30%, var(--surface-solid))"></i><i style="background:color-mix(in srgb, var(--accent) 55%, var(--surface-solid))"></i><i style="background:color-mix(in srgb, var(--accent) 80%, var(--surface-solid))"></i><i style="background:var(--accent)"></i>${t('More')}</span></div>
   </div>`;
 }
@@ -1829,6 +1923,7 @@ function renderHistory() {
     if (top && top.weighted) return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">${h.length > 1 ? t('Est. 1RM {v} lb · {n} sessions', { v: top.v, n: h.length }) : t('Est. 1RM {v} lb · {n} session', { v: top.v, n: h.length })}</div></td><td>${Math.max(...last.sets.filter((s) => s.done).map((s) => s.w))} lb</td></tr>`;
     const best = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.w))));
     const lw = Math.max(...last.sets.filter((s) => s.done).map((s) => s.w));
+    if (e.assist) return `<tr data-ex="${e.id}"><td>${esc(e.name)}<div class="small muted">${t('Best {n} {unit}', { n: top ? top.v : 0, unit: t('reps') })}</div></td><td>${esc(t('{w} lb of help', { w: Math.min(...last.sets.filter((s) => s.done).map((s) => s.w)) }))}</td></tr>`;
     if ((e.bw || e.custom) && !best) {
       const u = e.timed ? t('sec') : t('reps'), lr = Math.max(...last.sets.filter((s) => s.done).map((s) => s.r));
       const br = Math.max(...log.flatMap((l) => l.ex.filter((x) => x.id === e.id).flatMap((x) => x.sets.filter((s) => s.done).map((s) => s.r))));
@@ -2230,7 +2325,7 @@ function saveEditor() {
 // "Log a past workout": pick a date and a workout, then fill in the sets
 function openPastPicker() {
   const y = new Date(); y.setDate(y.getDate() - 1);
-  const keys = Object.keys(PROGRAM).filter((k) => !isLocked(k));
+  const keys = Object.keys(PROGRAM).filter((k) => !isLocked(k) && !PROGRAM[k].hidden && (!PROGRAM[k].plan || planKeys().includes(k)));
   const label = (k) => (PROGRAM[k].cali ? t('Calisthenics') + ' · ' + PROGRAM[k].chip : PROGRAM[k].name);
   openModal(`<h2 class="display">${t('Log a past workout')}</h2>
     <div class="small muted">${t('Forgot to log a session? Add it here and your streak, records and recovery catch up.')}</div>
@@ -2492,17 +2587,25 @@ function openTrialSignup(code, days) {
   } catch (err) { console.warn('Unlock link failed', err); }
 })();
 
+// "3 days: Full Body A · Full Body B · Full Body C"
+const planBlurb = (d) => PLAN_TEMPLATES[d].map((tp) => tp.name).join(' · ');
 // Profile picker: first launch (with the safety note) and from the profile button
 function openProfile(first) {
   // a first-launch draft survives the reload that switching language needs
   let draft = null; try { draft = first && JSON.parse(sessionStorage.getItem('iron40_profile_draft')); } catch {}
-  const cur = draft || { ...P(), protect: [...protectOf()], gear: [...gearOf()], bar: barOf(), plates: platesOwned().map(String), flash: P().flash !== false };
+  const cur = draft || { ...P(), loc: locOf(), days: daysOf(), protect: [...protectOf()], gear: [...gearOf()], bar: barOf(), plates: platesOwned().map(String), flash: P().flash !== false };
   const multi = (k, opts) => `<div class="chips-wrap">${opts.map(([v, l]) => `<button class="chip ${cur[k].includes(v) ? 'on' : ''}" data-multi="${k}" data-v="${v}">${l}</button>`).join('')}</div>`;
   const seg = (k, opts) => `<div class="seg">${opts.map(([v, l]) => `<button class="chip ${cur[k] === v ? 'on' : ''}" data-${k}="${v}">${l}</button>`).join('')}</div>`;
   openModal(`
     <h2 class="display">${first ? t('Welcome to Iron 40') : t('Your profile')}</h2>
     ${first ? `<div>${t('Free-weight and bodyweight training for men and women in their 30s and 40+: animated form demos, joint-smart tips and automatic progression.')}</div>` : ''}
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Language')}</div><div class="chips-wrap">${Object.entries(LANGS).map(([c, l]) => `<button class="chip ${c === LANG ? 'on' : ''}" data-lang="${c}" lang="${c === 'pt' ? 'pt-BR' : c}">${l}</button>`).join('')}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">${t('Where you train')}</div>
+      <div class="chips-wrap" id="locChips">${Object.entries(LOCATIONS).map(([k, l]) => `<button class="chip ${cur.loc === k ? 'on' : ''}" data-loc="${k}" aria-pressed="${cur.loc === k}">${esc(l.name)}</button>`).join('')}</div>
+      <div class="small muted" id="locSub" style="margin-top:6px">${esc(LOCATIONS[cur.loc].sub)} · ${t('Sets your equipment below — fine-tune it anytime.')}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">${t('Days per week')}</div>
+      <div class="seg" id="daysSeg">${[2, 3, 4, 5].map((d) => `<button class="chip ${cur.days === d ? 'on' : ''}" data-days="${d}" aria-pressed="${cur.days === d}">${d}</button>`).join('')}</div>
+      <div class="small muted" id="daysSub" style="margin-top:6px">${esc(planBlurb(cur.days))}</div></div>
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Appearance')}</div><div class="seg" id="themeSeg">${[['', t('System')], ['light', t('Light')], ['dark', t('Dark')]].map(([v, l]) => `<button class="chip ${(store.get('iron40_theme', null) || '') === v ? 'on' : ''}" data-theme-opt="${v}" aria-pressed="${(store.get('iron40_theme', null) || '') === v}">${l}</button>`).join('')}</div></div>
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Show me')}</div>${seg('sex', [['m', t('Men')], ['f', t('Women')]])}</div>
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Age group')}</div>${seg('age', [['30', t('30s')], ['40', '40+']])}</div>
@@ -2528,7 +2631,9 @@ function openProfile(first) {
     (a) => {
       if (a !== 'ok') return;
       try { sessionStorage.removeItem('iron40_profile_draft'); } catch {}
-      profile = cur; store.set('iron40_profile', profile); store.set('iron40_ack', true);
+      profile = cur; store.set('iron40_profile', profile); store.set('iron40_ack', true); store.set('iron40_planNews', true);
+      buildPlans(); // routines follow the new gear, joints and days
+      if (pick && PROGRAM[pick]?.plan && !planKeys().includes(pick)) { pick = null; store.del('iron40_pick'); }
       showTab(document.querySelector('#tabs button.on')?.dataset.tab || 'today');
     });
   $('#modalBody').onclick = (e) => {
@@ -2542,6 +2647,16 @@ function openProfile(first) {
     }
     const tb = e.target.closest('[data-theme-opt]');
     if (tb) { setTheme(tb.dataset.themeOpt || null); tb.parentElement.querySelectorAll('.chip').forEach((c) => { c.classList.toggle('on', c === tb); c.setAttribute('aria-pressed', c === tb); }); return; }
+    const lc = e.target.closest('[data-loc]');
+    if (lc) { // a location presets the equipment chips
+      cur.loc = lc.dataset.loc; cur.gear = [...LOCATIONS[cur.loc].gear];
+      $('#locChips').querySelectorAll('.chip').forEach((c) => { c.classList.toggle('on', c === lc); c.setAttribute('aria-pressed', c === lc); });
+      $('#locSub').textContent = LOCATIONS[cur.loc].sub + ' · ' + t('Sets your equipment below — fine-tune it anytime.');
+      $('#modalBody').querySelectorAll('[data-multi="gear"]').forEach((c) => c.classList.toggle('on', cur.gear.includes(c.dataset.v)));
+      return;
+    }
+    const dy = e.target.closest('[data-days]');
+    if (dy) { cur.days = +dy.dataset.days; dy.parentElement.querySelectorAll('.chip').forEach((c) => { c.classList.toggle('on', c === dy); c.setAttribute('aria-pressed', c === dy); }); $('#daysSub').textContent = planBlurb(cur.days); return; }
     const bb = e.target.closest('[data-bar]');
     if (bb) { cur.bar = +bb.dataset.bar; bb.parentElement.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c === bb)); return; }
     const fb = e.target.closest('[data-flash]');

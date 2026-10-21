@@ -58,6 +58,13 @@ function applyDataLang() {
     if (!PROGRAM[k]) return;
     ['name', 'focus', 'chip'].forEach((f) => { if (p[f] != null) PROGRAM[k][f] = p[f]; });
   });
+  // Plan routines (name / focus / why), why each movement pattern is there, and the training locations
+  Object.values(PLAN_TEMPLATES).flat().forEach((tp) => {
+    const p = D.plans && D.plans[tp.key]; if (!p) return;
+    ['name', 'focus', 'why'].forEach((f) => { if (p[f] != null) tp[f] = p[f]; });
+  });
+  Object.assign(PATTERNS, D.patterns || {});
+  Object.entries(D.locations || {}).forEach(([k, l]) => { if (LOCATIONS[k]) Object.assign(LOCATIONS[k], l); });
   Object.assign(MUSCLES, D.muscles || {});
   Object.assign(TIP30, D.tip30 || {});
   Object.assign(JOINTS, D.joints || {});

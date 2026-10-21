@@ -25,6 +25,8 @@ const BAR_TOP = bar(-46);
 // Stretching props: an exercise mat on the floor, and a wall / door frame at x
 const MAT = `<rect x="14" y="176" width="212" height="4" rx="2" class="bench"/>`;
 const wall = (x) => `<rect x="${x}" y="-40" width="8" height="220" rx="2" class="bench"/>`;
+// Machine props: a weight-stack tower at x (frame + plates), drawn behind the figure
+const STACK = (x) => `<path d="M${x} 180V24H${x + 20}V180" class="frame"/>${[0, 1, 2, 3, 4, 5].map((i) => `<rect x="${x + 4}" y="${152 + i * 4.4}" width="12" height="3.6" rx="1" class="plate"/>`).join('')}<line x1="${x + 10}" y1="24" x2="${x + 10}" y2="152" class="cable"/>`;
 
 const EXERCISES = [
   // ---------------- PUSH ----------------
@@ -508,6 +510,244 @@ const EXERCISES = [
     frames: [{ hip: [99, 146], t: -19, hn: [108, 136], hf: [178, 176] }, { hip: [99, 143], t: -20, hn: [108, 133], hf: [178, 176] }],
     tempo: [{ label: 'Hold', dur: 2 }, { label: 'Breathe', dur: 2 }],
   },
+  // ---------------- MACHINES & CABLES (gym with machines: Planet Fitness style) ----------------
+  // lever = fixed pivot of a machine arm, cable = pulley point, pad = roller on the shin/thigh, sled = leg-press foot plate
+  {
+    id: 'leg-press', name: 'Leg Press', group: 'Legs', equip: ['Machine'], inc: 10,
+    muscles: 'Quads, glutes, hamstrings',
+    cues: ['Hips and lower back flat against the seat pad', 'Feet shoulder-width in the middle of the plate; lower until your knees reach about 90°', 'Press through your whole foot and stop just short of locking your knees'],
+    mistake: 'Lowering so deep that your hips curl up off the seat — that rounds the lower back under load.',
+    tip40: 'Heavy leg work with no bar on your spine. Keep the range where your hips stay down and your knees feel smooth.',
+    easier: 'Shorter range, lighter stack', harder: 'Pause 2 seconds at the bottom, or one leg at a time',
+    prop: 'sled', sled: true, footAng: -90, es: -1, mus: { p: ['quads', 'glutes'], s: ['hams'] }, fn: [146, 102], ff: [142, 103],
+    scene: `${STACK(196)}<line x1="116" y1="120" x2="186" y2="142" class="frame"/><line x1="186" y1="142" x2="186" y2="180" class="frame"/>
+      <rect x="44" y="134" width="58" height="8" rx="3" class="bench"/><rect x="66" y="142" width="6" height="38" class="bench-leg"/>
+      <line x1="54" y1="132" x2="24" y2="90" class="bench-pad"/>`,
+    frames: [{ hip: [70, 126], t: -125, hn: [80, 128], fn: [146, 102], ff: [142, 103] }, { hip: [70, 126], t: -125, hn: [80, 128], fn: [116, 92], ff: [112, 93] }],
+    tempo: [{ label: 'Lower', dur: 2 }, { label: 'Press', dur: 1 }],
+  },
+  {
+    id: 'leg-extension', name: 'Leg Extension', group: 'Legs', equip: ['Machine'],
+    muscles: 'Quads',
+    cues: ['Line your knees up with the machine’s pivot, pad just above your ankles', 'Straighten your legs smoothly and squeeze your quads for a second', 'Lower under control — don’t let the stack crash'],
+    mistake: 'Kicking the weight up fast and swinging it back down.',
+    tip40: 'Start light: it’s the one quad move with zero back load. If your kneecaps complain, stop a little short of fully straight.',
+    easier: 'Lighter, or one leg at a time', harder: 'Pause 2 seconds at the top',
+    prop: 'pad', pad: { seg: 'shin', u: 0.86, n: 8, r: 6.5 }, lever: [142, 112], footAng: 'shin', es: -1, mus: { p: ['quads'], s: [] }, fn: [140, 154], ff: [136, 155],
+    scene: `${STACK(24)}<rect x="74" y="120" width="70" height="8" rx="3" class="bench"/><rect x="104" y="128" width="6" height="52" class="bench-leg"/>
+      <line x1="80" y1="118" x2="78" y2="62" class="bench-pad"/><circle cx="142" cy="112" r="4.5" class="hub"/>`,
+    frames: [{ hip: [96, 112], t: -92, hn: [114, 120], fn: [140, 154], ff: [136, 155] }, { hip: [96, 112], t: -93, hn: [114, 120], fn: [178, 108], ff: [174, 109] }],
+    tempo: [{ label: 'Extend', dur: 1 }, { label: 'Lower', dur: 2 }],
+  },
+  {
+    id: 'leg-curl', name: 'Seated Leg Curl', group: 'Legs', equip: ['Machine'],
+    muscles: 'Hamstrings, calves',
+    cues: ['Knees lined up with the pivot, thigh pad snug on top of your legs', 'Curl your heels down and back under the seat', 'Let the pad rise slowly until your legs are straight again'],
+    mistake: 'Lifting your hips off the seat to finish the rep.',
+    tip40: 'Hamstrings protect your knees and back, and this is the easiest way to train them hard without loading your spine.',
+    easier: 'Smaller range, lighter stack', harder: 'Slow 3-second return',
+    prop: 'pad', pad: { seg: 'shin', u: 0.9, n: -8, r: 6.5 }, lever: [138, 112], footAng: 'shin', es: -1, mus: { p: ['hams'], s: ['calves'] }, fn: [178, 106], ff: [174, 107],
+    scene: `${STACK(20)}<rect x="68" y="120" width="72" height="8" rx="3" class="bench"/><rect x="100" y="128" width="6" height="52" class="bench-leg"/>
+      <line x1="76" y1="118" x2="70" y2="60" class="bench-pad"/><rect x="114" y="91" width="30" height="8" rx="4" class="bench"/>
+      <line x1="146" y1="95" x2="146" y2="112" class="frame"/><circle cx="138" cy="112" r="4.5" class="hub"/>`,
+    frames: [{ hip: [94, 112], t: -95, hn: [110, 120], fn: [178, 106], ff: [174, 107] }, { hip: [94, 112], t: -95, hn: [110, 120], fn: [128, 152], ff: [124, 153] }],
+    tempo: [{ label: 'Curl', dur: 1 }, { label: 'Return', dur: 2 }],
+  },
+  {
+    id: 'seated-calf', name: 'Seated Calf Raise', group: 'Legs', equip: ['Machine'],
+    muscles: 'Calves (the deep soleus), ankles',
+    cues: ['Balls of your feet on the platform edge, knee pad snug on your lower thighs', 'Push up onto your toes as high as you can and pause', 'Lower slowly into a deep calf stretch'],
+    mistake: 'Short, bouncy reps — the stretch and the pause do the work.',
+    tip40: 'Bent-knee calf work builds the soleus, the muscle that keeps your ankles steady when you walk and climb stairs.',
+    easier: 'Lighter, smaller range', harder: 'Pause 3 seconds at the top',
+    prop: 'pad', pad: { seg: 'thigh', u: 0.9, n: 11, r: 6.5 }, lever: [198, 146], es: -1, mus: { p: ['calves'], s: [] }, fn: [142, 176], ff: [138, 176],
+    scene: `<rect x="62" y="140" width="56" height="8" rx="3" class="bench"/><rect x="86" y="148" width="6" height="32" class="bench-leg"/>
+      <line x1="198" y1="146" x2="198" y2="180" class="frame"/><circle cx="198" cy="146" r="4.5" class="hub"/>`,
+    frames: [{ hip: [98, 134], t: -84, hn: [146, 118], fn: [142, 176], ff: [138, 176] }, { hip: [98, 134], t: -84, hn: [146, 112], fn: [142, 168], ff: [138, 168] }],
+    tempo: [{ label: 'Rise & pause', dur: 1.5 }, { label: 'Lower', dur: 2 }],
+  },
+  {
+    id: 'chest-press', name: 'Machine Chest Press', group: 'Push', equip: ['Machine'], inc: 10,
+    muscles: 'Chest, front shoulders, triceps',
+    cues: ['Seat height so the handles line up with your mid-chest', 'Shoulder blades back against the pad, then press straight out', 'Return slowly until your hands are just in front of your chest'],
+    mistake: 'Shoulders rolling forward off the pad at the end of each rep.',
+    tip40: 'The machine guides the path, so you can push hard safely without a spotter. Use the neutral handles if your shoulders ache.',
+    easier: 'Lighter stack, shorter range', harder: 'Slow 3-second return, or one arm at a time',
+    prop: 'handle', lever: [148, 6], es: -1, mus: { p: ['chest'], s: ['delts', 'triceps'] }, fn: [150, 176], ff: [146, 176],
+    scene: `${STACK(198)}<rect x="80" y="134" width="62" height="8" rx="3" class="bench"/><rect x="108" y="142" width="6" height="38" class="bench-leg"/>
+      <line x1="92" y1="132" x2="92" y2="56" class="bench-pad"/><line x1="148" y1="6" x2="198" y2="6" class="frame"/><circle cx="148" cy="6" r="4.5" class="hub"/>`,
+    frames: [{ hip: [104, 126], t: -90, hn: [130, 78] }, { hip: [104, 126], t: -90, hn: [166, 76] }],
+    tempo: [{ label: 'Press', dur: 1 }, { label: 'Return', dur: 2 }],
+  },
+  {
+    id: 'pec-deck', name: 'Pec Deck Fly', group: 'Push', equip: ['Machine'],
+    muscles: 'Chest, front shoulders',
+    cues: ['Seat so the handles sit at chest height, slight bend in your elbows', 'Hug the handles together in front of your chest', 'Open slowly until you feel a stretch across your chest — no further'],
+    mistake: 'Letting the arms fly back past your body at the open position.',
+    tip40: 'Stop the stretch when your hands are in line with your shoulders. That limit keeps the front of the shoulder happy.',
+    easier: 'Smaller range, lighter stack', harder: 'Pause 2 seconds with the handles together',
+    prop: 'handle', es: -1, mus: { p: ['chest'], s: ['delts'] }, fn: [150, 176], ff: [146, 176],
+    scene: `${STACK(198)}<rect x="80" y="134" width="62" height="8" rx="3" class="bench"/><rect x="108" y="142" width="6" height="38" class="bench-leg"/>
+      <line x1="92" y1="132" x2="92" y2="50" class="bench-pad"/><line x1="92" y1="20" x2="198" y2="20" class="frame"/><line x1="92" y1="20" x2="92" y2="46" class="frame"/>`,
+    frames: [{ hip: [104, 126], t: -90, hn: [121, 76], hf: [116, 76], aS: 0.34, aSf: 0.34 }, { hip: [104, 126], t: -90, hn: [158, 76], hf: [154, 76], aS: 1, aSf: 1 }],
+    tempo: [{ label: 'Squeeze', dur: 1 }, { label: 'Open', dur: 2 }],
+  },
+  {
+    id: 'machine-shoulder', name: 'Machine Shoulder Press', group: 'Push', equip: ['Machine'], inc: 10,
+    muscles: 'Shoulders, triceps',
+    cues: ['Seat height so the handles start at about ear level', 'Back flat on the pad, press up until your arms are nearly straight', 'Lower under control to ear height'],
+    mistake: 'Arching your lower back off the pad to move more weight.',
+    tip40: 'A fixed path and a back pad make this the safest way to load the shoulders. The neutral grip is the friendliest.',
+    easier: 'Lighter stack, stop at forehead height', harder: 'Slow 3-second lowering',
+    prop: 'handle', lever: [50, 44], es: -1, mus: { p: ['delts'], s: ['triceps'] }, fn: [150, 176], ff: [146, 176],
+    scene: `${STACK(16)}<rect x="80" y="134" width="62" height="8" rx="3" class="bench"/><rect x="108" y="142" width="6" height="38" class="bench-leg"/>
+      <line x1="92" y1="132" x2="92" y2="48" class="bench-pad"/><line x1="34" y1="44" x2="50" y2="44" class="frame"/><circle cx="50" cy="44" r="4.5" class="hub"/>`,
+    frames: [{ hip: [104, 126], t: -90, hn: [112, 68] }, { hip: [104, 126], t: -90, hn: [108, 12] }],
+    tempo: [{ label: 'Press', dur: 1 }, { label: 'Lower', dur: 2 }],
+  },
+  {
+    id: 'lat-pulldown', name: 'Lat Pulldown', group: 'Pull', equip: ['Cable'],
+    muscles: 'Lats, upper back, biceps',
+    cues: ['Thighs snug under the pad, hands just outside shoulder width', 'Lean back slightly and pull the bar to your upper chest, elbows down to your ribs', 'Let it rise until your arms are straight and you feel the lats stretch'],
+    mistake: 'Leaning way back and yanking the bar with your body weight.',
+    tip40: 'The best way to build pull-up strength and a strong back at any weight. Never pull the bar behind your neck.',
+    easier: 'Lighter stack, closer grip', harder: 'Pause 1 second with the bar at your chest',
+    prop: 'handle', cable: [110, -40], es: -1, mus: { p: ['back'], s: ['biceps', 'forearms'] }, fn: [150, 176], ff: [146, 176],
+    scene: `<line x1="164" y1="-44" x2="164" y2="180" class="frame"/><line x1="104" y1="-44" x2="164" y2="-44" class="frame"/><circle cx="110" cy="-40" r="5" class="hub"/>
+      <rect x="80" y="136" width="58" height="8" rx="3" class="bench"/><rect x="106" y="144" width="6" height="36" class="bench-leg"/>
+      <rect x="124" y="102" width="30" height="9" rx="4" class="bench"/><line x1="152" y1="106" x2="164" y2="106" class="frame"/>`,
+    frames: [{ hip: [102, 128], t: -98, hn: [110, 12], hf: [106, 12] }, { hip: [102, 128], t: -104, hn: [114, 82], hf: [110, 82] }],
+    tempo: [{ label: 'Pull', dur: 1 }, { label: 'Return', dur: 2 }],
+  },
+  {
+    id: 'cable-row', name: 'Seated Cable Row', group: 'Pull', equip: ['Cable'],
+    muscles: 'Mid-back, lats, rear shoulders, biceps',
+    cues: ['Feet on the platform, knees soft, sit tall', 'Row the handle to your belly button, squeezing your shoulder blades together', 'Reach forward slowly until your arms are straight — keep your back flat'],
+    mistake: 'Rocking far back and forth to swing the weight.',
+    tip40: 'A big back builder with your chest up and spine supported by your legs. Keep the lean small and the squeeze big.',
+    easier: 'Lighter stack, pause at the belly', harder: 'Slow 3-second return',
+    prop: 'handle', cable: [204, 150], footAng: -78, es: -1, mus: { p: ['back'], s: ['biceps', 'delts'] }, fn: [150, 150], ff: [146, 152],
+    scene: `<line x1="208" y1="70" x2="208" y2="180" class="frame"/><circle cx="204" cy="150" r="5" class="hub"/>
+      <line x1="160" y1="132" x2="166" y2="174" class="bench-pad"/><line x1="166" y1="174" x2="208" y2="174" class="frame"/>
+      <rect x="46" y="146" width="70" height="8" rx="3" class="bench"/><rect x="54" y="154" width="6" height="26" class="bench-leg"/><rect x="102" y="154" width="6" height="26" class="bench-leg"/>`,
+    frames: [{ hip: [80, 138], t: -78, hn: [150, 106], hf: [146, 106] }, { hip: [80, 138], t: -93, hn: [102, 114], hf: [98, 114] }],
+    tempo: [{ label: 'Row', dur: 1 }, { label: 'Return', dur: 2 }],
+  },
+  {
+    id: 'face-pull', name: 'Cable Face Pull', group: 'Pull', equip: ['Cable'],
+    muscles: 'Rear shoulders, upper back, rotator cuff',
+    cues: ['Rope at face height, palms facing in, step back until the arms are straight', 'Pull the rope toward your eyes, elbows high and out to the sides', 'Finish with your hands beside your ears, then return slowly'],
+    mistake: 'Going heavy and turning it into a low row with the elbows down.',
+    tip40: 'The shoulder-health move: it balances all the pressing. Light weight, slow squeeze — 15 clean reps beats 8 heavy ones.',
+    easier: 'Lighter, or use a band', harder: 'Hold the finish for 2 seconds',
+    prop: 'handle', cable: [214, 30], es: 1, mus: { p: ['delts'], s: ['back'] }, ...STAND_FEET,
+    scene: `<line x1="218" y1="-6" x2="218" y2="180" class="frame"/><circle cx="214" cy="30" r="5" class="hub"/>`,
+    frames: [{ hip: [118, 93], t: -94, hn: [176, 40], hf: [172, 40], aS: 1, aSf: 1 }, { hip: [118, 93], t: -96, hn: [136, 30], hf: [132, 30], aS: 0.6, aSf: 0.6 }],
+    tempo: [{ label: 'Pull', dur: 1 }, { label: 'Return', dur: 2 }],
+  },
+  {
+    id: 'pushdown', name: 'Cable Triceps Pushdown', group: 'Arms & Core', equip: ['Cable'],
+    muscles: 'Triceps',
+    cues: ['Stand close to the cable, elbows pinned to your sides', 'Push the handle down until your arms are straight', 'Let your forearms come back up to parallel — elbows stay put'],
+    mistake: 'Elbows drifting forward and the shoulders taking over.',
+    tip40: 'The most elbow-friendly triceps exercise there is. A rope lets your wrists turn naturally.',
+    easier: 'Lighter stack', harder: 'Slow 3-second return',
+    prop: 'handle', cable: [150, -34], es: -1, mus: { p: ['triceps'], s: [] }, ...STAND_FEET,
+    scene: `<line x1="178" y1="-38" x2="178" y2="180" class="frame"/><line x1="146" y1="-38" x2="178" y2="-38" class="frame"/><circle cx="150" cy="-34" r="5" class="hub"/>`,
+    frames: [{ hip: [120, 93], t: -82, hn: [158, 70], hf: [154, 70] }, { hip: [120, 93], t: -82, hn: [138, 102], hf: [134, 102] }],
+    tempo: [{ label: 'Push down', dur: 1 }, { label: 'Return', dur: 2 }],
+  },
+  {
+    id: 'cable-curl', name: 'Cable Biceps Curl', group: 'Arms & Core', equip: ['Cable'],
+    muscles: 'Biceps, forearms',
+    cues: ['Stand a step back from the low pulley, elbows at your sides', 'Curl the handle up toward your shoulders', 'Lower slowly until your arms are straight'],
+    mistake: 'Leaning back and swinging the hips to finish the rep.',
+    tip40: 'The cable keeps tension on the whole rep with a smooth pull that’s easy on the elbows.',
+    easier: 'Lighter stack', harder: 'Pause at the top for 2 seconds',
+    prop: 'handle', cable: [176, 168], es: -1, mus: { p: ['biceps'], s: ['forearms'] }, ...STAND_FEET,
+    scene: `<line x1="182" y1="96" x2="182" y2="180" class="frame"/><circle cx="176" cy="168" r="5" class="hub"/>`,
+    frames: [{ ...STAND, hn: [128, 100], hf: [124, 100] }, { ...STAND, hn: [140, 46], hf: [136, 46] }],
+    tempo: [{ label: 'Curl', dur: 1 }, { label: 'Lower', dur: 2 }],
+  },
+  {
+    id: 'smith-squat', name: 'Smith Machine Squat', group: 'Legs', equip: ['Smith machine'],
+    muscles: 'Quads, glutes, hamstrings',
+    cues: ['Bar across your upper back, feet a half step in front of it', 'Sit down and back until your thighs are about parallel', 'Drive up through your whole foot; twist the bar back onto the hooks when done'],
+    mistake: 'Feet directly under the bar — the fixed path then shoves your knees far forward.',
+    tip40: 'The rails take balance out of the picture, so you can squat heavy without a spotter. Set the safety stops just below your bottom position.',
+    easier: 'Squat to a bench', harder: 'Pause 2 seconds at the bottom',
+    prop: 'bb', es: 1, mus: { p: ['quads', 'glutes'], s: ['hams'] }, fn: [136, 176], ff: [130, 176],
+    scene: `<line x1="116" y1="-30" x2="116" y2="180" class="frame"/><line x1="96" y1="-30" x2="136" y2="-30" class="frame"/>`, top: -36,
+    frames: [{ hip: [123, 93], t: -88, hn: [116, 34] }, { hip: [99, 138], t: -62, hn: [116, 85] }],
+    tempo: [{ label: 'Sit down', dur: 2 }, { label: 'Stand', dur: 1 }],
+  },
+  {
+    id: 'hip-abduction', name: 'Hip Abduction Machine', group: 'Legs', equip: ['Machine'],
+    muscles: 'Outer glutes, hips',
+    cues: ['Sit tall, pads on the outside of your knees', 'Push your knees apart as wide as is comfortable', 'Bring them back together slowly — don’t let the plates touch'],
+    mistake: 'Rocking the torso to bang out fast reps.',
+    tip40: 'Strong side glutes keep your knees tracking straight and your hips steady on stairs and uneven ground.',
+    easier: 'Smaller range', harder: 'Lean slightly forward and pause 2 seconds open',
+    prop: 'pad', pad: { seg: 'thigh', u: 0.88, n: 0, r: 7.5 }, es: -1, mus: { p: ['glutes'], s: [] }, fn: [146, 150], ff: [142, 151],
+    scene: `${STACK(198)}<rect x="70" y="128" width="64" height="8" rx="3" class="bench"/><rect x="98" y="136" width="6" height="44" class="bench-leg"/>
+      <line x1="82" y1="126" x2="72" y2="64" class="bench-pad"/><line x1="136" y1="158" x2="160" y2="158" class="frame"/><line x1="146" y1="158" x2="146" y2="180" class="frame"/>`,
+    frames: [{ hip: [96, 120], t: -98, hn: [108, 126], lS: 1, lSf: 1, fn: [146, 150], ff: [142, 151] }, { hip: [96, 120], t: -98, hn: [108, 126], lS: 0.72, lSf: 0.72, fn: [134, 156], ff: [118, 138] }],
+    tempo: [{ label: 'Push out', dur: 1 }, { label: 'Return', dur: 2 }],
+  },
+  {
+    id: 'assisted-pullup', name: 'Assisted Pull-Up', group: 'Pull', equip: ['Machine'], assist: true, inc: 10,
+    muscles: 'Lats, upper back, biceps',
+    cues: ['Kneel on the pad and pick the assistance — more weight on the stack means more help', 'Pull your elbows down to your ribs until your chin clears the handles', 'Lower all the way to straight arms'],
+    mistake: 'Bouncing off the pad at the bottom instead of controlling the lowering.',
+    tip40: 'The weight is help, not load: take 10 lb off the assistance whenever every set reaches 12. Under ~40 lb of help, try real pull-ups.',
+    easier: 'More assistance', harder: 'Less assistance, or slow 3-second lowering',
+    prop: null, pad: { seg: 'shin', u: 0.18, n: 8, r: 7 }, lever: [52, 172], es: 1, mus: { p: ['back'], s: ['biceps', 'forearms'] }, fn: [92, 138], ff: [88, 139], ...BAR_HIGH,
+    frames: [
+      { hip: [129, 94], t: -95, hn: [126, -24], hf: [122, -24], fn: [92, 138], ff: [88, 139] },
+      { hip: [129, 46], t: -95, hn: [126, -24], hf: [122, -24], fn: [92, 90], ff: [88, 91] },
+    ],
+    tempo: [{ label: 'Pull', dur: 1 }, { label: 'Lower', dur: 2 }],
+  },
+  {
+    id: 'captains-chair', name: 'Captain’s Chair Knee Raise', group: 'Arms & Core', equip: ['Bodyweight', 'Power tower'], bw: true,
+    muscles: 'Abs, hip flexors',
+    cues: ['Back flat against the pad, forearms on the arm rests, legs hanging', 'Curl your knees up toward your chest, tilting your hips up at the top', 'Lower slowly without swinging'],
+    mistake: 'Swinging the legs up and arching your lower back off the pad.',
+    tip40: 'The arm pads take the strain off your grip and shoulders, so your abs do all the work. Exhale as the knees come up.',
+    easier: 'Smaller range, one knee at a time', harder: 'Straight-leg raises, or hold a light dumbbell between your feet',
+    prop: null, es: -1, mus: { p: ['abs'], s: ['quads'] }, fn: [116, 154], ff: [112, 154],
+    scene: `<line x1="82" y1="-10" x2="82" y2="180" class="frame"/><rect x="86" y="2" width="10" height="94" rx="4" class="bench"/>
+      <rect x="96" y="56" width="56" height="7" rx="3" class="bench"/><line x1="152" y1="44" x2="152" y2="66" class="frame"/><line x1="82" y1="60" x2="96" y2="60" class="frame"/>`,
+    frames: [{ hip: [112, 72], t: -90, hn: [146, 50], hf: [142, 50], fn: [116, 154], ff: [112, 154] }, { hip: [112, 72], t: -92, hn: [146, 50], hf: [142, 50], fn: [154, 100], ff: [150, 100] }],
+    tempo: [{ label: 'Raise', dur: 1 }, { label: 'Lower', dur: 2 }],
+  },
+  {
+    id: 'neutral-pullup', name: 'Neutral-Grip Pull-Up', group: 'Pull', equip: ['Bodyweight', 'Pull-up bar'], bw: true,
+    muscles: 'Lats, upper back, biceps, grip',
+    cues: ['Grab the parallel handles, palms facing each other', 'Pull your elbows down to your ribs until your chin clears the handles', 'Lower all the way to straight arms'],
+    mistake: 'Kicking and swinging to get the last rep.',
+    tip40: 'Palms facing in is the easiest grip on your elbows and shoulders — the best pull-up for most of us after 40.',
+    easier: 'Assisted pull-up machine or slow negatives', harder: 'Hold a dumbbell between your feet',
+    prop: null, es: 1, mus: { p: ['back'], s: ['biceps', 'forearms'] }, fn: [100, 148], ff: [96, 150],
+    scene: `${BAR_HIGH.scene}<line x1="124" y1="-31" x2="124" y2="-17" class="frame" style="stroke-width:5"/>`,
+    frames: [
+      { hip: [129, 94], t: -95, hn: [126, -24], hf: [122, -24], fn: [118, 170], ff: [113, 171] },
+      { hip: [129, 46], t: -95, hn: [126, -24], hf: [122, -24], fn: [116, 122], ff: [111, 123] },
+    ],
+    tempo: [{ label: 'Pull', dur: 1 }, { label: 'Lower', dur: 2 }],
+  },
+  {
+    id: 'tower-dip', name: 'Power Tower Dip', group: 'Arms & Core', equip: ['Bodyweight', 'Power tower'], bw: true,
+    muscles: 'Triceps, chest, front shoulders',
+    cues: ['Straight arms on the dip handles, shoulders pulled down away from your ears', 'Lean slightly forward and bend your elbows straight back', 'Stop when your upper arms are parallel to the floor, then press up'],
+    mistake: 'Sinking too deep and letting the shoulders roll forward.',
+    tip40: 'Go only to 90° at the elbow. Can’t do 6 clean reps yet? Use the assisted dip on the pull-up machine, or bench dips.',
+    easier: 'Assisted dip or bench dip', harder: 'Hold a dumbbell between your feet',
+    prop: null, es: -1, mus: { p: ['triceps', 'chest'], s: ['delts'] }, fn: [96, 132], ff: [92, 134],
+    scene: `<line x1="70" y1="-10" x2="70" y2="180" class="frame"/><line x1="70" y1="86" x2="182" y2="86" class="frame" style="stroke-width:5"/><line x1="182" y1="86" x2="182" y2="180" class="frame"/>`,
+    frames: [{ hip: [122, 72], t: -86, hn: [128, 80], hf: [124, 80], fn: [96, 132], ff: [92, 134] }, { hip: [111, 101], t: -78, hn: [128, 80], hf: [124, 80], fn: [86, 152], ff: [82, 154] }],
+    tempo: [{ label: 'Lower', dur: 2 }, { label: 'Press', dur: 1 }],
+  },
   // ---------------- STRETCHING (no load: never counted as training volume) ----------------
   {
     id: 'childs-pose', name: 'Child’s Pose', group: 'Stretch', equip: [], bw: true, stretch: true, timed: true,
@@ -686,7 +926,8 @@ const WARMUPS = [
   },
 ];
 
-// Gym days A–F run in rotation (GYM_DAYS in index.html). lo/hi = rep range; rest in seconds.
+// Workouts A and B are the classic days (A is the free one). C–F are retired (hidden) — plan routines
+// are built from PLAN_TEMPLATES below. lo/hi = rep range; rest in seconds.
 const PROGRAM = {
   A: {
     name: 'Workout A', focus: 'Full body · dumbbell day',
@@ -711,8 +952,8 @@ const PROGRAM = {
       { id: 'farmer-carry', sets: 3, lo: 30, hi: 40, rest: 60, timed: true },
     ],
   },
-  C: {
-    name: 'Workout C', focus: 'Upper body · press & pull',
+  C: { // retired: kept so old logs still show their name
+    hidden: true, name: 'Workout C', focus: 'Upper body · press & pull',
     items: [
       { id: 'bb-ohp', sets: 3, lo: 6, hi: 10, rest: 90 },
       { id: 'db-bench', sets: 3, lo: 8, hi: 12, rest: 90 },
@@ -722,8 +963,8 @@ const PROGRAM = {
       { id: 'bench-dip', sets: 2, lo: 8, hi: 12, rest: 60 },
     ],
   },
-  D: {
-    name: 'Workout D', focus: 'Lower body & core',
+  D: { // retired: kept so old logs still show their name
+    hidden: true, name: 'Workout D', focus: 'Lower body & core',
     items: [
       { id: 'back-squat', sets: 3, lo: 6, hi: 8, rest: 120 },
       { id: 'bb-rdl', sets: 3, lo: 8, hi: 10, rest: 90 },
@@ -733,8 +974,8 @@ const PROGRAM = {
       { id: 'dead-bug', sets: 2, lo: 6, hi: 10, rest: 45, perSide: true },
     ],
   },
-  E: {
-    name: 'Workout E', focus: 'Full body · back & chest',
+  E: { // retired: kept so old logs still show their name
+    hidden: true, name: 'Workout E', focus: 'Full body · back & chest',
     items: [
       { id: 'pull-up', sets: 3, lo: 3, hi: 8, rest: 120 },
       { id: 'incline-db', sets: 3, lo: 8, hi: 12, rest: 90 },
@@ -744,8 +985,8 @@ const PROGRAM = {
       { id: 'y-raise', sets: 2, lo: 10, hi: 12, rest: 45 },
     ],
   },
-  F: {
-    name: 'Workout F', focus: 'Full body · arms & carries',
+  F: { // retired: kept so old logs still show their name
+    hidden: true, name: 'Workout F', focus: 'Full body · arms & carries',
     items: [
       { id: 'split-squat', sets: 3, lo: 8, hi: 10, rest: 60, perSide: true },
       { id: 'bb-row', sets: 3, lo: 8, hi: 12, rest: 90 },
@@ -921,8 +1162,9 @@ const IronRig = (() => {
     const aN = p.aS ?? 1, aF = p.aSf ?? aN; // arm length scale: <1 reads as the arm reaching toward the viewer
     const [en, hn] = ik(sh, hnT, L.upper * aN, L.fore * aN, es);
     const [ef, hf] = ik(sh, hfT, L.upper * aF, L.fore * aF, ex.esf ?? es);
-    const [kn, an] = ik(hip, fnT, L.thigh, L.shin, ks);
-    const [kf, af] = ik(hip, ffT, L.thigh, L.shin, ex.ksf ?? ks);
+    const lN = p.lS ?? 1, lF = p.lSf ?? lN; // leg length scale: <1 reads as the leg turning toward/away from the viewer (hip abduction)
+    const [kn, an] = ik(hip, fnT, L.thigh * lN, L.shin * lN, ks);
+    const [kf, af] = ik(hip, ffT, L.thigh * lF, L.shin * lF, ex.ksf ?? ks);
     return { hip, sh, hd, en, hn, ef, hf, kn, an, kf, af };
   }
 
@@ -1021,9 +1263,11 @@ const IronRig = (() => {
     const joint = (parent, r) => el('circle', { r, class: 'm joint' }, parent);
 
     const core = (parent, w) => el('path', { class: 'limbcore', 'stroke-width': w }, parent);
+    if (ex.lever) f.lever = el('line', { class: 'lever' }, g); // behind the body
+    if (ex.cable) f.cable = el('line', { class: 'cable' }, g);
     const farG = side(true);
     const farLeg = core(farG, 15), farArm = core(farG, 9.5);
-    f.far = {
+    f.far = { footAng: ex.footAng,
       jK: joint(farG, 7), jE: joint(farG, 5.5), jA: joint(farG, 4.5),
       thigh: limb(farG, 'thigh'), shin: limb(farG, 'shin'), foot: el('path', { class: 'm joint' }, farG),
       upper: limb(farG, 'upper'), fore: limb(farG, 'fore'), hand: joint(farG, 4.5),
@@ -1037,7 +1281,7 @@ const IronRig = (() => {
     f.near = {
       legCore: core(nearG, 15),
       jK: joint(nearG, 7), jA: joint(nearG, 4.5),
-      thigh: limb(nearG, 'thigh'), shin: limb(nearG, 'shin'), foot: el('path', { class: 'm joint' }, nearG),
+      thigh: limb(nearG, 'thigh'), shin: limb(nearG, 'shin'), foot: el('path', { class: 'm joint' }, nearG), footAng: ex.footAng,
     };
     f.propG = el('g', {}, g);
     const armG = side(false);
@@ -1057,6 +1301,11 @@ const IronRig = (() => {
     if (ex.prop === 'db') f.props = [plate(7, 'prop far-prop'), plate(7, 'prop')];
     if (ex.prop === 'db1' || ex.prop === 'dbg') f.props = [plate(8, 'prop')];
     if (ex.prop === 'bb' || ex.prop === 'bbHip') f.props = [plate(17, 'prop bar')];
+    // Machine parts that move with the body: a lever arm from a fixed pivot, a cable from a pulley,
+    // a foot plate (leg press), a roller pad on the shin/thigh, and handle grips
+    if (ex.sled) f.sled = el('rect', { width: 7, height: 50, rx: 2.5, class: 'roller' }, f.propG);
+    if (ex.pad) f.pad = el('circle', { r: ex.pad.r || 6.5, class: 'roller' }, f.propG);
+    if (ex.prop === 'handle') f.props = [el('rect', { width: 5, height: 13, rx: 2.5, class: 'grip far-prop' }, f.propG), el('rect', { width: 5, height: 13, rx: 2.5, class: 'grip' }, f.propG)];
     return f;
   }
 
@@ -1091,11 +1340,23 @@ const IronRig = (() => {
     s.legCore.setAttribute('d', pl([hip, kn, an])); s.armCore.setAttribute('d', pl([j.sh, el_, hd]));
     drawLimb(s.thigh, hip, kn); drawLimb(s.shin, kn, an);
     s.foot.setAttribute('d', footPath(an));
+    // feet resting on a plate (fixed angle) or hanging free ('shin': sole square to the shin, e.g. leg extension)
+    const fa = s.footAng === 'shin' ? (Math.atan2(an[1] - kn[1], an[0] - kn[0]) * 180) / Math.PI - 90 : s.footAng;
+    if (fa) s.foot.setAttribute('transform', `rotate(${f1(fa)} ${f1(an[0])} ${f1(an[1])})`);
     drawLimb(s.upper, j.sh, el_); drawLimb(s.fore, el_, hd);
   }
 
+  // roller pad: a point along the near shin or thigh (u = 0 at the top joint), pushed off the front (n > 0) or back (n < 0)
+  function padPos(ex, j) {
+    const [A, B] = ex.pad.seg === 'thigh' ? [j.hip, j.kn] : [j.kn, j.an];
+    const dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy) || 1, u = ex.pad.u ?? 0.85, n = ex.pad.n ?? 0;
+    return [A[0] + dx * u + (dy / len) * n, A[1] + dy * u - (dx / len) * n];
+  }
+  const handsMid = (j) => [(j.hn[0] + j.hf[0]) / 2, (j.hn[1] + j.hf[1]) / 2];
   const propAnchor = (ex, j) =>
-    ex.prop === 'bbHip' ? [j.hip[0] + 2, j.hip[1] - 17]
+    ex.pad ? padPos(ex, j)
+      : ex.sled ? [j.an[0] + 9, j.an[1]]
+      : ex.prop === 'bbHip' ? [j.hip[0] + 2, j.hip[1] - 17]
       : ex.prop === 'dbg' ? [(j.hn[0] + j.hf[0]) / 2, (j.hn[1] + j.hf[1]) / 2]
       : j.hn;
 
@@ -1118,8 +1379,13 @@ const IronRig = (() => {
     f.neck.setAttribute('x2', f1(hc[0])); f.neck.setAttribute('y2', f1(hc[1]));
     place(f.head, hc);
     f.head.setAttribute('transform', `rotate(${f1((headAngle(pose.t) + 90))} ${f1(hc[0])} ${f1(hc[1])})`);
-    const pos = ex.prop === 'db' ? [j.hf, j.hn] : [propAnchor(ex, j)];
+    const pos = ex.prop === 'db' ? [j.hf, j.hn] : ex.prop === 'handle' ? [[j.hf[0] - 2.5, j.hf[1] - 6.5], [j.hn[0] - 2.5, j.hn[1] - 6.5]] : [propAnchor(ex, j)];
     f.props.forEach((p, i) => p.setAttribute('transform', `translate(${f1(pos[i][0])} ${f1(pos[i][1])})`));
+    const line = (l, a, b) => { l.setAttribute('x1', f1(a[0])); l.setAttribute('y1', f1(a[1])); l.setAttribute('x2', f1(b[0])); l.setAttribute('y2', f1(b[1])); };
+    if (f.pad) place(f.pad, padPos(ex, j));
+    if (f.sled) f.sled.setAttribute('transform', `translate(${f1(j.an[0] + 6)} ${f1(j.an[1] - 27)})`);
+    if (f.lever) line(f.lever, ex.lever, ex.pad ? padPos(ex, j) : ex.sled ? [j.an[0] + 12, j.an[1]] : handsMid(j));
+    if (f.cable) line(f.cable, ex.cable, handsMid(j));
     return j;
   }
 
@@ -1134,6 +1400,9 @@ const IronRig = (() => {
       const pr = ex.prop === 'bb' || ex.prop === 'bbHip' ? 18 : ex.prop ? 9 : 5;
       minY = Math.min(minY, j.hd[1] - 12, j.hn[1] - pr, j.hf[1] - pr, j.hip[1] - 20);
     }
+    // keep machine pulleys, pivots and frames in view
+    [ex.cable, ex.lever].forEach((pt) => { if (pt) minY = Math.min(minY, pt[1] - 10); });
+    if (ex.top != null) minY = Math.min(minY, ex.top);
     const vbY = Math.min(70, Math.floor(minY) - 8), vbH = 186 - vbY;
     const svg = el('svg', { viewBox: `0 ${vbY} 240 ${vbH}`, class: 'rig', role: 'img', 'aria-label': `${ex.name} demonstration` });
     if (opts.fit) container.style.aspectRatio = `240 / ${vbH}`;
@@ -1331,6 +1600,24 @@ const TIP30 = {
   'doorway-chest': 'Undo phone posture: a daily chest opener keeps your shoulders back where they belong.',
   'biceps-stretch': 'Lots of curls and pull-ups tighten the biceps. Turn away slowly and keep the elbow soft.',
   'wrist-stretch': 'Desk work, push-ups and heavy grips all load the wrists. Thirty seconds a day keeps them happy.',
+  'leg-press': 'Great for piling on leg volume after squats. Push the weight up over weeks, not the depth.',
+  'leg-extension': 'A strong finisher for quad size. Squeeze at the top instead of swinging heavy.',
+  'leg-curl': 'Most people under-train hamstrings. Build them now and your knees thank you later.',
+  'seated-calf': 'Pair this with standing calf raises: bent knees hit the deep soleus, straight knees the upper calf.',
+  'chest-press': 'Use it to push close to failure safely once your free-weight presses are done.',
+  'pec-deck': 'A great chest finisher. Control the stretch and the shoulders stay healthy for decades.',
+  'machine-shoulder': 'Lets you train shoulders hard on days your lower back or balance is tired.',
+  'lat-pulldown': 'Build up to pulling your body weight here, and real pull-ups follow.',
+  'cable-row': 'Row at least as much as you bench. Desk posture needs the extra pulling.',
+  'face-pull': 'Do these every upper day. Rear delts and rotator cuffs you build now keep pressing pain-free.',
+  'pushdown': 'High-rep pushdowns grow the triceps without beating up your elbows.',
+  'cable-curl': 'Constant tension makes light weights count. Slow the lowering for bigger gains.',
+  'smith-squat': 'Good for high-rep leg work or squatting without a spotter. Keep free squats in your week too.',
+  'hip-abduction': 'Side glutes keep your knees tracking straight under heavy squats. A few hard sets a week is plenty.',
+  'assisted-pullup': 'Treat it as a ladder: cut the assistance a little every few weeks until you need none.',
+  'captains-chair': 'Curl the hips up at the top, not just the knees — that’s where the abs really work.',
+  'neutral-pullup': 'Add a few pounds once 10 clean reps are easy — weighted pull-ups build a big back.',
+  'tower-dip': 'One of the best upper-body builders there is. Earn depth slowly and keep the shoulders down.',
 };
 
 // ---------------------------------------------------------------------------
@@ -1393,6 +1680,25 @@ const VIDEOS = {
   'dead-bug': { id: "04tJXRzQbVw", by: "OriGym", title: "How To Do Dead Bug | Exercise Demo" },
   'calf-raise': { id: "Mf9UyNi-J1s", by: "OriGym", title: "How To Do Dumbbell Calf Raise | Exercise Demo" },
   'side-plank': { id: "FyZY96V3UUs", by: "OriGym", title: "How To Do Side Bridge | Exercise Demo" },
+  // Machines & cables (verified: Black demonstrator, embeddable)
+  'leg-press': { id: "1ZE0MrEVIxI", by: "OriGym", title: "How To Do Leg Press | Exercise Demo" },
+  'leg-extension': { id: "XbAFTqhBUec", by: "OriGym", title: "How To Do Leg Extension | Exercise Demo" },
+  'leg-curl': { id: "bsTBU3hWjq0", by: "88 Fitness Training LLC", title: "How To Use Gym Equipment || Seated Leg Curl" },
+  'seated-calf': { id: "MSKwVb7svbA", by: "OriGym", title: "How To Do Calf Raise Machine | Exercise Demo" },
+  'chest-press': { id: "f_IZgKWutSU", by: "OriGym", title: "How To Do Machine Chest Press | Exercise Demo" },
+  'pec-deck': { id: "JYmszQs-mRs", by: "Wavvy Fitness", title: "How To Do A Pec Deck Fly (BEGINNER)" },
+  'machine-shoulder': { id: "SGSf_OcxZA0", by: "OriGym", title: "How To Do Machine Shoulder Press | Exercise Demo" },
+  'lat-pulldown': { id: "9tVPuc_zhec", by: "Wavvy Fitness", title: "How To Do Lat Pulldowns At Planet Fitness" },
+  'cable-row': { id: "Kk536AACROk", by: "OriGym", title: "How To Do Seated Cable Row - Handle Attachment - Neutral Grip | Exercise Demo2" },
+  'face-pull': { id: "l1N6fj1k378", by: "OriGym", title: "How To Do Face Pull | Exercise Demo" },
+  'pushdown': { id: "jzaDGoNGYfI", by: "OriGym", title: "How To Do Standing Cable Tricep Pushdown | Exercise Demo" },
+  'cable-curl': { id: "QAbv6yrg-IY", by: "OriGym", title: "How To Do ez Cable Curl | Exercise Demo" },
+  'smith-squat': { id: "opqIaBuojpw", by: "OriGym", title: "How To Do Smith Rack Squat | Exercise Demo" },
+  'hip-abduction': { id: "dPZCTvsManI", by: "OriGym", title: "How To Do Abductor Machine | Exercise Demo" },
+  'assisted-pullup': { id: "KdmioYxFPtE", by: "Wavvy Fitness", title: "How To Use The Assisted Pull Up Machine" },
+  'captains-chair': { id: "PSEQgOuibV0", by: "Stephen Matthews", title: "How to do “Dip Bar Knee Raises” - Bratha Man’s Workout Program" },
+  'neutral-pullup': { id: "ZoIjQtcfsF0", by: "Serge Jr. Training", title: "Neutral Grip Pull-Up | Demo" },
+  'tower-dip': { id: "sY7fselrLiE", by: "Andrew Alinda", title: "Dip Tutorial For Beginners | WITH PROGRESSIONS", start: 46 },
 };
 
 // ---------------------------------------------------------------------------
@@ -1409,6 +1715,120 @@ const STRESS = {
   'chin-up': ['elbow'], 'superman': ['back'], 'shoulder-tap': ['wrist'], 'bench-dip': ['shoulder'],
   'bw-squat': ['knee'], 'reverse-lunge': ['knee'], 'wall-sit': ['knee'], 'knee-raise': ['shoulder'],
   'childs-pose': ['knee'], 'cat-cow': ['wrist'], 'hip-flexor': ['knee'], 'wrist-stretch': ['wrist'],
+  'leg-press': ['knee'], 'leg-extension': ['knee'], 'smith-squat': ['knee'], 'pec-deck': ['shoulder'], 'machine-shoulder': ['shoulder'],
+  'cable-curl': ['elbow'], 'assisted-pullup': ['shoulder'], 'neutral-pullup': ['shoulder'], 'tower-dip': ['shoulder', 'elbow'],
 };
 // Equipment someone might not have (bodyweight is always available)
-const GEAR = { Dumbbell: 'Dumbbells', Barbell: 'Barbell', Bench: 'Bench', 'Pull-up bar': 'Pull-up bar', 'Low bar': 'Low bar / rings' };
+const GEAR = {
+  Dumbbell: 'Dumbbells', Barbell: 'Barbell', Bench: 'Bench', 'Pull-up bar': 'Pull-up bar', 'Low bar': 'Low bar / rings',
+  Machine: 'Machines', Cable: 'Cable station', 'Smith machine': 'Smith machine', 'Power tower': 'Power tower (dips / knee raises)',
+};
+
+// ---------------------------------------------------------------------------
+// Your plan. Where you train presets the equipment chips (you can still fine-tune them);
+// days per week picks a template. Each routine is a list of movement-pattern SLOTS; a slot is an
+// ordered list of candidate exercises (best first) and the first one that fits your gear and
+// joints wins (index.html: buildPlans). Compound slots ('c') prefer a lift not already used
+// elsewhere in the plan, so the days stay genuinely different; isolation slots ('i') may repeat.
+// ---------------------------------------------------------------------------
+const LOCATIONS = {
+  home: { name: 'Home', sub: 'Dumbbells + bench', gear: ['Dumbbell', 'Bench'] },
+  machines: { name: 'Gym · machines', sub: 'Machines, cables, Smith, dumbbells — no barbell', gear: ['Machine', 'Cable', 'Smith machine', 'Power tower', 'Dumbbell', 'Bench', 'Pull-up bar'] },
+  full: { name: 'Full gym', sub: 'Everything, barbell included', gear: Object.keys(GEAR) },
+  bw: { name: 'Bodyweight', sub: 'No equipment · pull-up bar optional', gear: ['Pull-up bar'] },
+};
+// Why each pattern is in the plan (shown under the exercise name)
+const PATTERNS = {
+  squat: 'The squat pattern: your main builder for quads and glutes.',
+  hinge: 'The hip hinge: hamstrings and glutes, the pattern that protects your lower back.',
+  single: 'One leg at a time evens out left/right strength and trains balance.',
+  quad: 'Isolates the quads with no load on your back.',
+  hamcurl: 'Bends the knee against load — hamstrings that guard your knees.',
+  calf: 'Calves and ankles for steadier walking, stairs and balance.',
+  glute: 'Glutes and hips: power for every lift and a happier lower back.',
+  hpush: 'Your main press: chest, front shoulders and triceps.',
+  incline: 'Upper chest and shoulders at a joint-friendly angle.',
+  vpush: 'Overhead strength for shoulders and triceps.',
+  fly: 'Chest isolation after the presses: big stretch, light load.',
+  hpull: 'Rowing for the mid-back balances all the pressing and builds posture.',
+  vpull: 'Lats and upper back — the pull-up muscles.',
+  rear: 'Rear shoulders and rotator cuff: shoulder-health insurance.',
+  lateral: 'Side delts for wider, stronger shoulders.',
+  biceps: 'Direct arm work for the biceps and elbow flexors.',
+  triceps: 'Triceps finish every press and lock out every push.',
+  coreflex: 'Abs that curl the pelvis up, trained after the big lifts.',
+  coreanti: 'A core that resists arching: the bracing every heavy lift needs.',
+  carry: 'Grip, traps and whole-body bracing — strength you use every day.',
+};
+// role: 'c' compound (6–10 reps free weights, 8–12 on machines), 'i' isolation (12–15). Calves and abduction run 12–20.
+const SLOTS = {
+  squat: { pat: 'squat', role: 'c', ids: ['back-squat', 'smith-squat', 'goblet-squat', 'leg-press', 'bw-squat'] },
+  squatB: { pat: 'squat', role: 'c', ids: ['goblet-squat', 'smith-squat', 'back-squat', 'leg-press', 'bw-squat'] },
+  legpress: { pat: 'squat', role: 'c', ids: ['leg-press', 'split-squat', 'goblet-squat', 'reverse-lunge', 'bw-squat'] },
+  hinge: { pat: 'hinge', role: 'c', ids: ['bb-rdl', 'db-rdl', 'hip-thrust', 'glute-bridge'] },
+  single: { pat: 'single', role: 'c', ids: ['split-squat', 'reverse-lunge'] },
+  hingeOrSingle: { pat: 'single', role: 'c', ids: ['split-squat', 'reverse-lunge', 'db-rdl', 'bb-rdl', 'glute-bridge'] },
+  quad: { pat: 'quad', role: 'i', ids: ['leg-extension', 'wall-sit'] },
+  hamcurl: { pat: 'hamcurl', role: 'i', ids: ['leg-curl', 'glute-bridge'] },
+  calf: { pat: 'calf', role: 'i', ids: ['seated-calf', 'calf-raise'] },
+  calfB: { pat: 'calf', role: 'i', ids: ['calf-raise', 'seated-calf'] },
+  glute: { pat: 'glute', role: 'g', ids: ['hip-thrust', 'hip-abduction', 'glute-bridge'] },
+  hpush: { pat: 'hpush', role: 'c', ids: ['db-bench', 'chest-press', 'push-up', 'incline-pushup'] },
+  hpushM: { pat: 'hpush', role: 'c', ids: ['chest-press', 'db-bench', 'push-up', 'incline-pushup'] },
+  incline: { pat: 'incline', role: 'c', ids: ['incline-db', 'decline-pushup', 'push-up', 'incline-pushup'] },
+  vpush: { pat: 'vpush', role: 'c', ids: ['bb-ohp', 'machine-shoulder', 'db-shoulder', 'pike-pushup'] },
+  fly: { pat: 'fly', role: 'i', ids: ['pec-deck', 'db-pullover', 'push-up', 'incline-pushup'] },
+  hpull: { pat: 'hpull', role: 'c', ids: ['bb-row', 'cable-row', 'db-row', 'cs-row', 'inverted-row', 'chin-up', 'pull-up'] },
+  hpullB: { pat: 'hpull', role: 'c', ids: ['cable-row', 'cs-row', 'db-row', 'bb-row', 'inverted-row', 'chin-up', 'pull-up'] },
+  vpull: { pat: 'vpull', role: 'c', ids: ['lat-pulldown', 'pull-up', 'assisted-pullup', 'chin-up', 'neutral-pullup', 'db-pullover', 'inverted-row'] },
+  vpullB: { pat: 'vpull', role: 'c', ids: ['assisted-pullup', 'neutral-pullup', 'chin-up', 'lat-pulldown', 'pull-up', 'db-pullover', 'inverted-row'] },
+  rear: { pat: 'rear', role: 'i', ids: ['face-pull', 'y-raise', 'superman'] },
+  lateral: { pat: 'lateral', role: 'i', ids: ['lateral-raise', 'y-raise'] },
+  biceps: { pat: 'biceps', role: 'i', ids: ['cable-curl', 'db-curl', 'chin-up'] },
+  bicepsB: { pat: 'biceps', role: 'i', ids: ['db-curl', 'cable-curl', 'chin-up'] },
+  triceps: { pat: 'triceps', role: 'i', ids: ['pushdown', 'skull-crusher', 'bench-dip', 'diamond-pushup'] },
+  tricepsB: { pat: 'triceps', role: 'i', ids: ['tower-dip', 'skull-crusher', 'pushdown', 'bench-dip', 'diamond-pushup'] },
+  coreflex: { pat: 'coreflex', role: 'i', ids: ['captains-chair', 'knee-raise', 'dead-bug'] },
+  coreanti: { pat: 'coreanti', role: 'i', ids: ['plank', 'dead-bug', 'side-plank', 'shoulder-tap'] },
+  carry: { pat: 'carry', role: 'i', ids: ['farmer-carry', 'plank'] },
+};
+// Routines per days-a-week, in rotation order. Compounds first, accessories after.
+const PLAN_TEMPLATES = {
+  2: [
+    { key: '2A', badge: 'F1', name: 'Full Body 1', focus: 'Squat · press · row', why: 'Squat, press and row heavy while you’re fresh, then shoulders and core.',
+      slots: ['squat', 'hpush', 'hpull', 'hinge', 'lateral', 'coreanti'] },
+    { key: '2B', badge: 'F2', name: 'Full Body 2', focus: 'Single-leg · incline · pull-down', why: 'The other patterns — single-leg, incline and pull-down — so two days cover everything.',
+      slots: ['hingeOrSingle', 'incline', 'vpull', 'quad', 'biceps', 'triceps'] },
+  ],
+  3: [
+    { key: '3A', badge: 'FA', name: 'Full Body A', focus: 'Squat & Press', why: 'Legs and chest lead today; a row keeps your shoulders balanced.',
+      slots: ['squat', 'hpush', 'hpullB', 'quad', 'triceps', 'coreanti'] },
+    { key: '3B', badge: 'FB', name: 'Full Body B', focus: 'Hinge & Pull', why: 'Back-of-the-body day: the hinge and pull-downs build the back that sits all day.',
+      slots: ['hinge', 'vpull', 'incline', 'hamcurl', 'biceps', 'coreflex'] },
+    { key: '3C', badge: 'FC', name: 'Full Body C', focus: 'Single-leg & Shoulders', why: 'One leg at a time plus overhead work: balance, hips and healthy shoulders.',
+      slots: ['single', 'vpush', 'hpull', 'glute', 'lateral', 'rear'] },
+  ],
+  4: [
+    { key: '4A', badge: 'U1', name: 'Upper 1', focus: 'Chest & back strength', why: 'Heavy pressing and rowing, matched set for set to keep your shoulders healthy.',
+      slots: ['hpush', 'hpull', 'incline', 'vpull', 'rear', 'triceps'] },
+    { key: '4B', badge: 'L1', name: 'Lower 1', focus: 'Quads', why: 'Quad-focused legs: the squat pattern first, then machine work that spares your back.',
+      slots: ['squat', 'legpress', 'quad', 'hamcurl', 'calf', 'coreanti'] },
+    { key: '4C', badge: 'U2', name: 'Upper 2', focus: 'Shoulders & arms', why: 'Overhead strength, wider shoulders and direct arm work.',
+      slots: ['vpush', 'vpullB', 'fly', 'lateral', 'biceps', 'tricepsB'] },
+    { key: '4D', badge: 'L2', name: 'Lower 2', focus: 'Hips & hamstrings', why: 'Hamstrings and glutes: the muscles that protect your knees and lower back.',
+      slots: ['hinge', 'single', 'hamcurl', 'glute', 'calfB', 'coreflex'] },
+  ],
+  5: [
+    { key: '5A', badge: 'Pu', name: 'Push', focus: 'Chest, shoulders, triceps', why: 'All the pushing muscles in one session, machine-guided first so you can push hard.',
+      slots: ['hpushM', 'vpush', 'fly', 'lateral', 'tricepsB', 'triceps'] },
+    { key: '5B', badge: 'Pl', name: 'Pull', focus: 'Back, rear shoulders, biceps', why: 'Every pulling angle: pull-downs, rows and rear shoulders for posture.',
+      slots: ['vpull', 'hpullB', 'hpull', 'rear', 'biceps', 'carry'] },
+    { key: '5C', badge: 'Lg', name: 'Legs', focus: 'Quads, hamstrings, calves', why: 'Leg press leads so your quads get heavy work with your back supported.',
+      slots: ['legpress', 'squatB', 'quad', 'hamcurl', 'calf', 'coreanti'] },
+    { key: '5D', badge: 'Up', name: 'Upper', focus: 'Upper chest, back, arms', why: 'A second upper day with new angles: incline first, then rows and arms.',
+      slots: ['incline', 'vpullB', 'hpush', 'rear', 'bicepsB', 'triceps'] },
+    { key: '5E', badge: 'Lo', name: 'Lower', focus: 'Hips, hamstrings, glutes', why: 'A hinge-led lower day for hamstrings, glutes and a strong lower back.',
+      slots: ['hinge', 'squat', 'hamcurl', 'glute', 'calfB', 'coreflex'] },
+  ],
+};
+const PER_SIDE = new Set(['split-squat', 'reverse-lunge', 'db-row', 'side-plank', 'dead-bug', 'shoulder-tap']);

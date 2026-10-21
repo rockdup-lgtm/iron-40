@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "iron-40",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "3460"],
+      "port": 3460
+    }
+  ]
+}

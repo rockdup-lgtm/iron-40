@@ -1,0 +1,12 @@
+import { createRequire } from 'module';
+const require = createRequire('/Users/kennethbussey/Desktop/CLAUDE PROJECTS/service-tracker/');
+const { chromium } = require('playwright');
+const b = await chromium.launch(); const p = await b.newPage({viewport:{width:430,height:932}}); p.setDefaultTimeout(5000);
+const vis=async()=>JSON.stringify(await p.evaluate(()=>[...document.querySelectorAll('button,a,input')].filter(e=>{const r=e.getBoundingClientRect();if(!r.width||r.bottom<0||r.top>932)return false;const el=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return el&&(el===e||e.contains(el))}).map(e=>(e.innerText||e.getAttribute('aria-label')||'').replace(/\s+/g,' ').slice(0,22)+(e.id?'#'+e.id:'')+JSON.stringify(e.dataset))));
+await p.goto('https://iron-40.pages.dev/', {waitUntil:'networkidle'}); await p.click('[data-m="ok"]');
+await p.click('[data-tab="today"]'); await p.click('#startBtn'); await p.waitForTimeout(500); await p.click('#wNext'); await p.waitForTimeout(800);
+await p.locator('[data-k="w"]').first().click(); await p.waitForTimeout(600);
+await p.mouse.move(226,717); for(let i=0;i<10;i++){await p.mouse.wheel(0,120); await p.waitForTimeout(80);} await p.waitForTimeout(700);
+await p.screenshot({path:'q1.png'});
+await p.click('#wsLog'); await p.waitForTimeout(1200); await p.screenshot({path:'q2.png'}); console.log('AFTERLOG',await vis());
+await b.close();

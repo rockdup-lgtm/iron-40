@@ -1,4 +1,4 @@
-const CACHE = 'iron40-v34';
+const CACHE = 'iron40-v35';
 const CORE = ['./', 'index.html', 'exercises.js', 'i18n.js', 'i18n-ui.js', 'i18n-data.js', 'manifest.json'];
 const IMAGES = ['hero', 'onboard', 'icon-192', 'icon-512', 'apple-touch-icon',
   'db-bench', 'incline-db', 'bb-ohp', 'db-shoulder', 'db-row', 'bb-row', 'cs-row', 'db-pullover',
@@ -6,6 +6,8 @@ const IMAGES = ['hero', 'onboard', 'icon-192', 'icon-512', 'apple-touch-icon',
   'push-up', 'incline-pushup', 'decline-pushup', 'diamond-pushup', 'pike-pushup', 'pull-up', 'chin-up', 'inverted-row', 'superman', 'y-raise',
   'shoulder-tap', 'bench-dip', 'bw-squat', 'reverse-lunge', 'glute-bridge', 'wall-sit', 'plank', 'dead-bug', 'knee-raise',
   'calf-raise', 'lateral-raise', 'side-plank',
+  'leg-press', 'leg-extension', 'leg-curl', 'seated-calf', 'chest-press', 'pec-deck', 'machine-shoulder', 'lat-pulldown', 'cable-row',
+  'face-pull', 'pushdown', 'cable-curl', 'smith-squat', 'hip-abduction', 'assisted-pullup', 'captains-chair', 'neutral-pullup', 'tower-dip',
   'childs-pose', 'cat-cow', 'knee-chest', 'supine-twist', 'hamstring-stretch', 'quad-stretch', 'hip-flexor', 'figure-four',
   'calf-stretch', 'cross-shoulder', 'triceps-stretch', 'doorway-chest', 'biceps-stretch', 'wrist-stretch',
 ].flatMap((n) => n.includes('icon') ? [`img/${n}.png`] : [`img/${n}.jpg`, `img/f/${n}.jpg`]); // men's and women's photos

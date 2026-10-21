@@ -1,0 +1,12 @@
+import { createRequire } from 'module';
+const require = createRequire('/Users/kennethbussey/Desktop/CLAUDE PROJECTS/service-tracker/');
+const { chromium } = require('playwright'); const fs=require('fs');
+const b = await chromium.launch(); const ctx=await b.newContext({viewport:{width:860,height:1864},deviceScaleFactor:1});
+await ctx.addInitScript(()=>{document.addEventListener('DOMContentLoaded',()=>{document.documentElement.style.zoom='2'})});
+const p=await ctx.newPage(); await p.goto('https://iron-40.pages.dev/',{waitUntil:'networkidle'}); await p.waitForTimeout(500);
+const bb=await p.locator('[data-m="ok"]').boundingBox(); console.log('ok bb',bb, await p.evaluate(()=>[innerWidth,innerHeight]));
+await p.mouse.click(bb.x+bb.width/2,bb.y+bb.height/2); await p.waitForTimeout(800);
+const cdp=await ctx.newCDPSession(p); let got=0;
+cdp.on('Page.screencastFrame',async f=>{ if(!got++) fs.writeFileSync('zt.jpg',Buffer.from(f.data,'base64')); await cdp.send('Page.screencastFrameAck',{sessionId:f.sessionId}); });
+await cdp.send('Page.startScreencast',{format:'jpeg',quality:90,maxWidth:860,maxHeight:1864}); await p.waitForTimeout(800);
+await b.close();

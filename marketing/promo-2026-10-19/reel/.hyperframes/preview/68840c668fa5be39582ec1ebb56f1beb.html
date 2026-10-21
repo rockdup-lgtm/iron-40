@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" data-resolution="portrait">
+  <head><script data-hf-gsap-fallback>
+(function(){
+  var cdnBase="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/";
+  var loaded={};
+  function loadFallback(file){
+    if(loaded[file])return loaded[file];
+    return loaded[file]=new Promise(function(ok,fail){
+      var s=document.createElement("script");
+      s.src=cdnBase+file;s.hfGsapFallback=true;s.onload=ok;s.onerror=fail;
+      document.head.appendChild(s);
+    });
+  }
+  document.addEventListener("error",function(e){
+    var t=e.target;
+    if(!t||t.tagName!=="SCRIPT"||!t.src||t.hfGsapFallback)return;
+    var m=t.src.match(/gsap[^/]*\/dist\/(.+\.js)/);
+    if(m)loadFallback(m[1]).catch(function(){
+      reportError(new Error("GSAP could not load from "+t.src+" or "+cdnBase+m[1]+", so this preview's animations will not play."));
+    });
+  },true);
+})();
+</script>
+<meta name="hyperframes-studio-preview"><script>(function(){var seen=window.__hfPreviewErrors=[];
+addEventListener("error",function(e){seen.push(e.message||String(e))});})();</script>
+<base href="/api/projects/reel/preview/"><style data-hf-scene-fonts="">@font-face{font-family:'Archivo';font-weight:500;font-style:normal;font-display:block;src:url('assets/fonts/Archivo-500.woff2') format('woff2')}
+@font-face{font-family:'Archivo';font-weight:700;font-style:normal;font-display:block;src:url('assets/fonts/Archivo-700.woff2') format('woff2')}
+@font-face{font-family:'Fraunces';font-weight:600;font-style:normal;font-display:block;src:url('assets/fonts/Fraunces-600.woff2') format('woff2')}
+@font-face{font-family:'Fraunces';font-weight:900;font-style:normal;font-display:block;src:url('assets/fonts/Fraunces-900.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Mono';font-weight:500;font-style:normal;font-display:block;src:url('assets/fonts/IBMPlexMono-500.woff2') format('woff2')}</style><style data-hyperframes-text-rendering="true">html,body,*{text-rendering:geometricPrecision}</style><script data-hf-after-fonts-fallback="">document.addEventListener("DOMContentLoaded", function () {
+  if (window.__hfAfterFontsClaimed) return;
+  var T = "text/hf-after-fonts";
+  var all = [].slice.call(document.querySelectorAll('script[type="text/hf-after-fonts"], script[type="text/hf-after-fonts+module"]'));
+  if (!all.length) return;
+  console.warn("[hyperframes] the runtime has no web-font gate; composition scripts run without waiting for fonts");
+  var late = function (el) { return el.type !== T || el.matches('[defer][src], [defer][data-hf-inlined-src]'); };
+  var queue = all.filter(function (el) { return !late(el); }).concat(all.filter(late));
+  (function next() {
+    var el = queue.shift();
+    if (!el) return;
+    var s = document.createElement("script");
+    for (var i = 0; i < el.attributes.length; i++) s.setAttribute(el.attributes[i].name, el.attributes[i].value);
+    if (el.type === T) s.removeAttribute("type"); else s.type = "module";
+    s.async = el.hasAttribute("async");
+    s.text = el.text;
+    var waits = s.type !== "module" && s.hasAttribute("src") && !s.async && !s.noModule;
+    if (waits) { s.addEventListener("load", next); s.addEventListener("error", next); }
+    el.replaceWith(s);
+    if (!waits) next();
+  })();
+});
+//# sourceURL=hyperframes://after-fonts-fallback</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1080, height=1920">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root{--ink:#141210;--ink2:#1d1a17;--ink3:#26221e;--bone:#e9e2d6;--bdim:#e9e2d6bf;--rouge:#db4216;--rlift:#ee5a28;--gold:#c2913a}
+      *{margin:0;padding:0;box-sizing:border-box}
+      html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:var(--ink)}
+      #root{position:relative;width:100%;height:100%;overflow:hidden;color:var(--bone);font-family:'Archivo',sans-serif}
+      .bg{position:absolute;inset:0;background:radial-gradient(ellipse 900px 1100px at 540px 900px,#2a1f18 0%,var(--ink) 70%)}
+      .grain{position:absolute;inset:0;opacity:.09;mix-blend-mode:overlay;pointer-events:none;
+        background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+      .clip{position:absolute;inset:0}
+      .fd{font-family:'Fraunces',serif}
+      .mono{font-family:'IBM Plex Mono',monospace;letter-spacing:.22em;text-transform:uppercase}
+      .k{font-family:'IBM Plex Mono',monospace;font-size:30px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+      .center{position:absolute;left:90px;right:90px;text-align:center}
+      .h900{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.025em;line-height:.92}
+      .h600{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.015em;line-height:1}
+      .word{display:inline-block}
+      .rule{position:absolute;height:6px;background:var(--rouge)}
+      .phone{position:absolute;left:290px;width:500px;height:1082px;border-radius:66px;padding:14px;background:#0b0a09;box-shadow:0 60px 140px #000d,0 0 0 2px #c2913a55}
+      .screen{position:relative;width:100%;height:100%;border-radius:54px;overflow:hidden;background:#fff}
+      .screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+      .ripple{position:absolute;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;border:6px solid var(--rouge);opacity:0}
+      .tile{position:absolute;width:280px;height:300px;background:var(--ink2);border:1px solid #c2913a59;box-shadow:0 30px 60px #000a}
+      .tile .L{position:absolute;left:0;right:0;top:20px;text-align:center;font-family:'Fraunces',serif;font-weight:900;font-size:190px;line-height:1;color:var(--bone)}
+      .tile .s{position:absolute;left:12px;right:12px;bottom:28px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:21px;letter-spacing:.14em;color:var(--gold)}
+      .chip{display:inline-block;border:2px solid var(--gold);padding:22px 44px}
+    </style>
+  
+<script data-hyperframes-preview-runtime="1" src="/api/runtime.js"></script>
+<meta name="hyperframes-project-signature" content="88ae0219d08228b4ca7eabd8">
+</head>
+  <body>
+    <div data-hf-id="hf-w53p" id="root" data-composition-id="main" data-start="0" data-duration="20.5" data-width="1080" data-height="1920">
+      <div data-hf-id="hf-m7dd" class="bg"></div>
+
+      <!-- S1 hook -->
+      <section data-hf-id="hf-7nvh" id="s1" class="clip" data-start="0" data-duration="2.9" data-track-index="0">
+        <div data-hf-id="hf-z7z9" id="s1a" class="center h900" style="top:700px;font-size:190px">
+          <span data-hf-id="hf-6gsy" class="word" id="w1">Lifting</span> <span data-hf-id="hf-93wy" class="word" id="w2">after</span> <span data-hf-id="hf-78mv" class="word" id="w3" style="color:var(--rouge)">40?</span>
+        </div>
+        <div data-hf-id="hf-kc51" id="s1b" class="center h600" style="top:800px;font-size:118px">Your shoulders have&#160;notes.</div>
+        <div data-hf-id="hf-fgxe" id="s1rule" class="rule" style="left:440px;width:200px;top:1180px"></div>
+      </section>
+
+      <!-- S2 tap a muscle -->
+      <section data-hf-id="hf-eeht" id="s2" class="clip" data-start="2.9" data-duration="3.4" data-track-index="0">
+        <div data-hf-id="hf-hno4" id="s2k" class="center k" style="top:250px">Iron 40</div>
+        <div data-hf-id="hf-mvd5" id="s2t1" class="center h900" style="top:310px;font-size:120px">Tap a muscle.</div>
+        <div data-hf-id="hf-ycgc" id="s2t2" class="center h900" style="top:310px;font-size:120px">See every move.</div>
+        <div data-hf-id="hf-7vk6" id="s2p" class="phone" style="top:600px">
+          <div data-hf-id="hf-cdmk" class="screen"><img loading="lazy" data-hf-preview-lazy data-hf-id="hf-ly90" id="s2i1" src="assets/s-body.png"><img loading="lazy" data-hf-preview-lazy data-hf-id="hf-l0zn" id="s2i2" src="assets/l-chest.png"></div>
+          <div data-hf-id="hf-penz" id="s2r" class="ripple" style="left:82px;top:717px"></div>
+        </div>
+      </section>
+
+      <!-- S3 six workouts -->
+      <section data-hf-id="hf-0dem" id="s3" class="clip" data-start="6.3" data-duration="3.8" data-track-index="0">
+        <div data-hf-id="hf-bwzp" id="s3k" class="center k" style="top:300px">Gym days</div>
+        <div data-hf-id="hf-t3d3" id="s3t" class="center h900" style="top:360px;font-size:140px">Six workouts.</div>
+        <div data-hf-id="hf-67ow" id="tiles"></div>
+      </section>
+
+      <!-- S4 challenges -->
+      <section data-hf-id="hf-f9j4" id="s4" class="clip" data-start="10.1" data-duration="3.6" data-track-index="0">
+        <div data-hf-id="hf-cscf" id="s4k" class="center k" style="top:250px">Push-ups · Pull-ups · Free</div>
+        <div data-hf-id="hf-pjkc" id="s4t" class="center h900" style="top:310px;font-size:118px">30-day challenges.</div>
+        <div data-hf-id="hf-3bb3" id="s4p" class="phone" style="top:650px">
+          <div data-hf-id="hf-0hv8" class="screen"><img loading="lazy" data-hf-preview-lazy data-hf-id="hf-kbae" src="assets/l-push.png"></div>
+        </div>
+        <div data-hf-id="hf-3ex9" id="s4c" class="mono" style="position:absolute;left:0;right:0;top:440px;text-align:center;font-size:110px;letter-spacing:.06em;color:var(--bone);text-shadow:0 10px 40px #000">
+          <span data-hf-id="hf-kuuu" style="font-size:44px;letter-spacing:.24em;color:var(--gold);vertical-align:middle">DAY </span><span data-hf-id="hf-hjo0" id="s4n">01</span>
+        </div>
+      </section>
+
+      <!-- S5 log + theme -->
+      <section data-hf-id="hf-gxds" id="s5" class="clip" data-start="13.7" data-duration="3.0" data-track-index="0">
+        <div data-hf-id="hf-go9s" id="s5t1" class="center h900" style="top:310px;font-size:120px">Log any workout.</div>
+        <div data-hf-id="hf-ng4r" id="s5t2" class="center h900" style="top:310px;font-size:120px">Light or dark.</div>
+        <div data-hf-id="hf-tvjz" id="s5p" class="phone" style="top:600px">
+          <div data-hf-id="hf-zay5" class="screen"><img loading="lazy" data-hf-preview-lazy data-hf-id="hf-7igd" src="assets/l-workout.png"><img loading="lazy" data-hf-preview-lazy data-hf-id="hf-tykx" id="s5d" src="assets/d-workout.png"></div>
+          <div data-hf-id="hf-sdgy" id="s5r" class="ripple" style="left:264px;top:717px"></div>
+        </div>
+      </section>
+
+      <!-- S6 end card -->
+      <section data-hf-id="hf-nhsk" id="s6" class="clip" data-start="16.7" data-duration="3.8" data-track-index="0">
+        <div data-hf-id="hf-7lpb" id="s6w" class="center h900" style="top:430px;font-size:230px">IRON <span data-hf-id="hf-1hg1" style="color:var(--rouge)">40</span></div>
+        <div data-hf-id="hf-7f7q" id="s6rule" class="rule" style="left:440px;width:200px;top:700px"></div>
+        <div data-hf-id="hf-sg7l" id="s6f" class="center h600" style="top:780px;font-size:104px">7 days free.</div>
+        <div data-hf-id="hf-qfo5" id="s6c" class="center" style="top:960px">
+          <div data-hf-id="hf-6j7l" class="k" style="font-size:26px;margin-bottom:22px">Use code</div>
+          <div data-hf-id="hf-qcwx" class="chip mono" style="font-size:76px;letter-spacing:.1em;color:var(--gold)">IRON7DAYS</div>
+        </div>
+        <div data-hf-id="hf-o6a8" id="s6u" class="center mono" style="top:1260px;font-size:40px;letter-spacing:.08em;text-transform:none;color:var(--bone)">iron-40.pages.dev</div>
+        <div data-hf-id="hf-v1on" id="s6p" class="center" style="top:1340px;font-size:34px;color:var(--bdim)">Then $7.99 once. No subscription.</div>
+      </section>
+
+      <div data-hf-id="hf-h60x" class="grain"></div>
+      <audio data-hf-id="hf-hy3w" id="music" src="assets/music.wav" data-start="0" data-duration="20.5" data-track-index="5" data-volume="1" data-end="20.5"></audio>
+    </div>
+
+    
+  <script type="text/hf-after-fonts">const T = [["A", "DUMBBELL DAY"], ["B", "BARBELL DAY"], ["C", "PRESS & PULL"], ["D", "LOWER & CORE"], ["E", "BACK & CHEST"], ["F", "ARMS & CARRIES"]];
+const tiles = document.getElementById("tiles");
+T.forEach(([L, s], i) => {
+  const d = document.createElement("div");
+  d.className = "tile";
+  d.id = "t" + i;
+  d.style.left = 90 + i % 3 * (280 + 25) + "px";
+  d.style.top = 640 + Math.floor(i / 3) * (300 + 30) + "px";
+  d.innerHTML = `<div class="L"${i === 0 ? ' style="color:var(--rouge)"' : ""}>${L}</div><div class="s">${s}</div>`;
+  tiles.appendChild(d);
+});
+const tl = gsap.timeline({ paused: true });
+const E = "power3.out";
+["#w1", "#w2", "#w3"].forEach((w, i) => tl.fromTo(w, { opacity: 0, scale: 1.35, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: "power4.out" }, 0.12 + i * 0.25));
+tl.fromTo("#s1rule", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: E }, 0.75);
+tl.to("#s1a", { opacity: 0, y: -60, duration: 0.25, ease: "power2.in" }, 1.45);
+tl.fromTo("#s1b", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 1.6);
+tl.to(["#s1b", "#s1rule"], { opacity: 0, duration: 0.2 }, 2.7);
+tl.fromTo("#s2k", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 3);
+tl.fromTo("#s2t1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 3);
+tl.fromTo("#s2p", { y: 900, rotation: 4 }, { y: 0, rotation: 0, duration: 0.8, ease: "power4.out" }, 2.95);
+tl.fromTo("#s2r", { opacity: 0.9, scale: 0.2 }, { opacity: 0, scale: 1.4, duration: 0.55, ease: "power2.out" }, 4);
+tl.fromTo("#s2i2", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 4.2);
+tl.to("#s2t1", { opacity: 0, y: -30, duration: 0.2 }, 4.45);
+tl.fromTo("#s2t2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 4.6);
+tl.to("#s2p", { scale: 1.04, duration: 1.4, ease: "none" }, 4.6);
+tl.to("#s2p", { y: 900, duration: 0.3, ease: "power2.in" }, 6);
+tl.to(["#s2t2", "#s2k"], { opacity: 0, duration: 0.2 }, 6.05);
+tl.fromTo("#s3k", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 6.35);
+tl.fromTo("#s3t", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 6.35);
+T.forEach((_, i) => tl.fromTo("#t" + i, { opacity: 0, scale: 1.5, rotation: i % 2 ? 4 : -4 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.28, ease: "back.out(2)" }, 6.5 + i * 0.5));
+tl.to("#tiles", { y: -20, duration: 3, ease: "none" }, 6.6);
+tl.to(["#tiles", "#s3t", "#s3k"], { opacity: 0, duration: 0.2 }, 9.9);
+tl.fromTo("#s4k", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 10.2);
+tl.fromTo("#s4t", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 10.15);
+tl.fromTo("#s4p", { x: 900, rotation: 6 }, { x: 0, rotation: 0, duration: 0.7, ease: "power4.out" }, 10.15);
+tl.fromTo("#s4c", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.3, ease: E }, 10.6);
+const ctr = { v: 1 };
+tl.fromTo(ctr, { v: 1 }, { v: 30, duration: 1.9, ease: "power1.inOut", onUpdate: () => {
+  document.getElementById("s4n").textContent = String(Math.round(ctr.v)).padStart(2, "0");
+} }, 10.8);
+tl.fromTo("#s4n", { color: "#e9e2d6" }, { color: "#db4216", duration: 0.2 }, 12.7);
+tl.to(["#s4p"], { x: -900, duration: 0.35, ease: "power2.in" }, 13.4);
+tl.to(["#s4c", "#s4t", "#s4k"], { opacity: 0, duration: 0.2 }, 13.45);
+tl.fromTo("#s5t1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 13.75);
+tl.fromTo("#s5p", { x: 900, rotation: 6 }, { x: 0, rotation: 0, duration: 0.6, ease: "power4.out" }, 13.7);
+tl.fromTo("#s5r", { opacity: 0.9, scale: 0.2 }, { opacity: 0, scale: 1.6, duration: 0.55, ease: "power2.out" }, 14.4);
+tl.fromTo("#s5d", { clipPath: "circle(0px at 387px 77px)" }, { clipPath: "circle(1300px at 387px 77px)", duration: 0.7, ease: "power2.inOut" }, 15.1);
+tl.to("#s5t1", { opacity: 0, y: -30, duration: 0.2 }, 15.05);
+tl.fromTo("#s5t2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 15.2);
+tl.to("#s5p", { y: 900, duration: 0.35, ease: "power2.in" }, 16.35);
+tl.to("#s5t2", { opacity: 0, duration: 0.2 }, 16.45);
+tl.fromTo("#s6w", { opacity: 0, scale: 1.25 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power4.out" }, 16.75);
+tl.fromTo("#s6rule", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: E }, 17.1);
+tl.fromTo("#s6f", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 17.3);
+tl.fromTo("#s6c", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 17.75);
+tl.fromTo("#s6u", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 18.2);
+tl.fromTo("#s6p", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 18.4);
+window.__timelines["main"] = tl;
+tl.seek(0);</script></body>
+</html>

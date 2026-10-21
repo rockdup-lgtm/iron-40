@@ -1,0 +1,10 @@
+import { createRequire } from 'module';
+const require = createRequire('/Users/kennethbussey/Desktop/CLAUDE PROJECTS/service-tracker/');
+const { chromium } = require('playwright');
+const b = await chromium.launch(); const p = await b.newPage({viewport:{width:430,height:932},deviceScaleFactor:2});
+await p.goto('https://iron-40.pages.dev/', {waitUntil:'networkidle'});
+await p.waitForTimeout(1500);
+await p.screenshot({path:'e0.png'});
+console.log(await p.evaluate(()=>document.body.innerText.slice(0,1500)));
+console.log(JSON.stringify(await p.evaluate(()=>[...document.querySelectorAll('button,a,[onclick],[data-day],[data-ex]')].slice(0,80).map(e=>({tag:e.tagName,cls:e.className,txt:(e.innerText||e.getAttribute('aria-label')||'').replace(/\s+/g,' ').slice(0,40),oc:(e.getAttribute('onclick')||'').slice(0,50),d:JSON.stringify(e.dataset)})))));
+await b.close();

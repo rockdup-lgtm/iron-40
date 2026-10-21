@@ -1,0 +1,12 @@
+import { createRequire } from 'module';
+const require = createRequire('/Users/kennethbussey/Desktop/CLAUDE PROJECTS/service-tracker/');
+const { chromium } = require('playwright');
+const b = await chromium.launch(); const p = await b.newPage({viewport:{width:430,height:932},deviceScaleFactor:1});
+await p.goto('https://iron-40.pages.dev/', {waitUntil:'networkidle'});
+await p.waitForTimeout(800);
+await p.click('[data-m="ok"]'); await p.waitForTimeout(600);
+const dump=async(n)=>{await p.screenshot({path:`x${n}.png`}); console.log('=== '+n, (await p.evaluate(()=>{const v=[...document.querySelectorAll('.sheet.open,.modal.open,[role=dialog]:not([hidden])')];return (v.length?v.map(e=>e.innerText).join('|'):document.querySelector('main')?.innerText||document.body.innerText)})).replace(/\s+/g,' ').slice(0,700));
+ console.log(JSON.stringify(await p.evaluate(()=>[...document.querySelectorAll('button,a,[data-ex],[data-day],[data-open]')].filter(e=>e.offsetParent).slice(0,40).map(e=>(e.innerText||e.getAttribute('aria-label')||'').replace(/\s+/g,' ').slice(0,25)+' '+JSON.stringify(e.dataset)))));};
+await dump(1);
+await p.click('[data-tab="today"]'); await p.waitForTimeout(700); await dump(2);
+await b.close();
