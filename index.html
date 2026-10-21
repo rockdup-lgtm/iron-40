@@ -820,6 +820,7 @@ function alternatives(id, timed) {
 const gearFits = (e) => e.equip.every((q) => q === 'Bodyweight' || gearOf().includes(q));
 const MACHINE_GEAR = ['Machine', 'Cable', 'Smith machine'];
 const PULLUPS = new Set(['pull-up', 'chin-up', 'neutral-pullup']);
+const PULL_FAMILY = new Set([...PULLUPS, 'assisted-pullup']); // one of these per routine at most
 const PUSHUPS = new Set(['push-up', 'decline-pushup', 'pike-pushup', 'diamond-pushup']);
 // sets × reps and rest for an exercise in a slot role ('c' compound, 'g' glute compound, 'i' isolation)
 function scheme(e, role) {
@@ -835,6 +836,7 @@ function scheme(e, role) {
   const machine = e.equip.some((q) => MACHINE_GEAR.includes(q));
   if (role === 'i') return { sets: 3, lo: 12, hi: 15, rest: 60 };
   if (machine || role === 'g') return { sets: 3, lo: 8, hi: 12, rest: 90 };
+  if (e.equip.includes('Dumbbell')) return { sets: 3, lo: 8, hi: 12, rest: 90 }; // dumbbell compounds are capped by the heaviest dumbbell: more reps
   return { sets: 3, lo: 6, hi: 10, rest: 120 };
 }
 // ~minutes: 5 warm-up + a minute to set up each exercise + every set's work (~40 s, or the hold) and rest
@@ -842,22 +844,37 @@ const planMins = (items) => Math.round((5 + items.reduce((m, it) => m + 1 + (it.
 function buildPlans() {
   Object.entries(PLAN_TEMPLATES).forEach(([days, tps]) => {
     const inPlan = new Set(); // compounds already used on another day of this plan
+    const count = {};         // how many routines of this plan use each exercise (accessories: 2 at most)
+    const capOk = (id) => (count[id] || 0) < 2;
     tps.forEach((tp) => {
       const used = new Set(), items = [];
+      const famOk = (id) => !(PULL_FAMILY.has(id) && [...used].some((u) => PULL_FAMILY.has(u)));
+      const add = (id, role, pat, swap) => {
+        used.add(id); if (role !== 'i') inPlan.add(id); count[id] = (count[id] || 0) + 1;
+        const e = EX_BY_ID[id];
+        items.push({ id, ...scheme(e, role), ...(PER_SIDE.has(id) ? { perSide: true } : {}), note: PATTERNS[pat], ...(swap ? { swap } : {}) });
+      };
       tp.slots.forEach((sk) => {
-        const sl = SLOTS[sk], ok = (id) => !used.has(id) && fits(EX_BY_ID[id]);
-        let id = sl.ids.find((x) => ok(x) && !(sl.role !== 'i' && inPlan.has(x))) || sl.ids.find(ok), swap = '';
+        const sl = SLOTS[sk], ok = (id) => !used.has(id) && famOk(id) && fits(EX_BY_ID[id]);
+        let id = sl.ids.find((x) => ok(x) && capOk(x) && !(sl.role !== 'i' && inPlan.has(x))) || sl.ids.find((x) => ok(x) && capOk(x))
+          || (sl.role !== 'i' ? sl.ids.find(ok) : null), swap = '';
         if (!id) { // every candidate loads a joint you protect: the closest gentler move for the same muscles, or the original with a warning
-          const base = sl.ids.find((x) => !used.has(x) && gearFits(EX_BY_ID[x]));
-          if (!base) return; // no equipment for this pattern: the routine skips it
-          const alt = alternatives(base, EX_BY_ID[base].timed).find((e) => !used.has(e.id) && !inPlan.has(e.id)) || alternatives(base, EX_BY_ID[base].timed).find((e) => !used.has(e.id));
+          const base = sl.ids.find((x) => !used.has(x) && famOk(x) && capOk(x) && gearFits(EX_BY_ID[x]));
+          if (!base) return; // no equipment for this pattern (or it's used up): the routine skips it
+          const alts = alternatives(base, EX_BY_ID[base].timed).filter((e) => !used.has(e.id) && famOk(e.id) && capOk(e.id));
+          const alt = alts.find((e) => !inPlan.has(e.id)) || alts[0];
           id = alt ? alt.id : base;
           if (alt) swap = t('Swapped from {name}: {why}', { name: EX_BY_ID[base].name, why: whyNot(EX_BY_ID[base]) });
         }
-        used.add(id); if (sl.role !== 'i') inPlan.add(id);
-        const e = EX_BY_ID[id];
-        items.push({ id, ...scheme(e, sl.role), ...(PER_SIDE.has(id) ? { perSide: true } : {}), note: PATTERNS[sl.pat], ...(swap ? { swap } : {}) });
+        add(id, sl.role, sl.pat, swap);
       });
+      // Short day (bodyweight / home gear): top up to 5 with fitting moves not already used here
+      for (const id of FILLERS[tp.kind] || []) {
+        if (items.length >= 5) break;
+        const e = EX_BY_ID[id];
+        if (!e || used.has(id) || !famOk(id) || !capOk(id) || !fits(e)) continue;
+        add(id, 'i', FILLER_PAT[id] || 'coreanti');
+      }
       PROGRAM[tp.key] = { name: tp.name, focus: tp.focus, why: tp.why, badge: tp.badge, plan: +days, mins: planMins(items), items };
     });
   });
