@@ -1840,4 +1840,66 @@ const FILLERS = {
 // The pattern (and so the "why") each filler stands in for
 const FILLER_PAT = { 'wall-sit': 'quad', 'calf-raise': 'calf', 'side-plank': 'coreanti', 'dead-bug': 'coreanti', superman: 'glute', 'glute-bridge': 'glute',
   'reverse-lunge': 'single', 'bw-squat': 'squat', 'shoulder-tap': 'coreanti', 'incline-pushup': 'hpush', 'decline-pushup': 'incline', plank: 'coreanti' };
+// Foundations: a 12-week body-part split for 3, 4 and 5 days a week. Each day is named for the muscles it trains;
+// big muscle first, then the small one that helps it. Items: [id, sets, pattern (the "why" line), role].
+// Role 'c' compound / 'i' isolation sets the phase's reps and rest (splitScheme in index.html).
+// Moves you don't have the gear for are swapped when the workout starts.
+const SPLITS = {
+  3: [
+    { key: 'F3A', fill: 'push', badge: 'CT', name: 'Chest, Triceps & Front of Legs', stretch: 'SF', why: 'Pressing day: chest first, then the front of your legs, then triceps — already warm from the presses.',
+      items: [['chest-press', 3, 'hpush', 'c'], ['incline-db', 3, 'incline', 'c'], ['leg-press', 3, 'squat', 'c'], ['leg-extension', 2, 'quad', 'i'], ['pushdown', 3, 'triceps', 'i'], ['pec-deck', 2, 'fly', 'i']] },
+    { key: 'F3B', fill: 'arms', badge: 'SB', name: 'Shoulders, Biceps & Abs', stretch: 'SU', why: 'A lighter day for the smaller muscles: shoulders from every angle, then biceps and abs.',
+      items: [['machine-shoulder', 3, 'vpush', 'c'], ['lateral-raise', 3, 'lateral', 'i'], ['face-pull', 3, 'rear', 'i'], ['cable-curl', 3, 'biceps', 'i'], ['db-curl', 2, 'biceps', 'i'], ['captains-chair', 2, 'coreflex', 'i']] },
+    { key: 'F3C', fill: 'pull', badge: 'BL', name: 'Back, Back of Legs & Calves', stretch: 'SL', why: 'Pulling day: back first, then hamstrings and calves — the muscles that hold up your posture.',
+      items: [['lat-pulldown', 3, 'vpull', 'c'], ['cable-row', 3, 'hpull', 'c'], ['db-rdl', 3, 'hinge', 'c'], ['leg-curl', 3, 'hamcurl', 'i'], ['seated-calf', 3, 'calf', 'i'], ['plank', 2, 'coreanti', 'i']] },
+  ],
+  4: [
+    { key: 'F4A', fill: 'push', badge: 'CT', name: 'Chest & Triceps', stretch: 'SU', why: 'Every pressing angle for the chest, then triceps while they’re warm.',
+      items: [['chest-press', 4, 'hpush', 'c'], ['incline-db', 3, 'incline', 'c'], ['pec-deck', 3, 'fly', 'i'], ['tower-dip', 3, 'triceps', 'c'], ['pushdown', 3, 'triceps', 'i'], ['skull-crusher', 2, 'triceps', 'i']] },
+    { key: 'F4B', fill: 'pull', badge: 'BB', name: 'Back & Biceps', stretch: 'SU', why: 'Pull from above and from the front for a wide, thick back, then biceps.',
+      items: [['lat-pulldown', 4, 'vpull', 'c'], ['cable-row', 3, 'hpull', 'c'], ['db-row', 3, 'hpull', 'c'], ['face-pull', 2, 'rear', 'i'], ['cable-curl', 3, 'biceps', 'i'], ['db-curl', 2, 'biceps', 'i']] },
+    { key: 'F4C', fill: 'legs', badge: 'Lg', name: 'Legs', stretch: 'SL', why: 'The whole lower body: quads first, then hamstrings, then calves.',
+      items: [['leg-press', 4, 'squat', 'c'], ['goblet-squat', 3, 'squat', 'c'], ['db-rdl', 3, 'hinge', 'c'], ['leg-extension', 3, 'quad', 'i'], ['leg-curl', 3, 'hamcurl', 'i'], ['seated-calf', 3, 'calf', 'i']] },
+    { key: 'F4D', fill: 'arms', badge: 'SA', name: 'Shoulders & Abs', stretch: 'SU', why: 'Pressing overhead and wider side shoulders, then a strong, braced core.',
+      items: [['machine-shoulder', 4, 'vpush', 'c'], ['lateral-raise', 4, 'lateral', 'i'], ['y-raise', 2, 'rear', 'i'], ['captains-chair', 3, 'coreflex', 'i'], ['dead-bug', 2, 'coreanti', 'i'], ['side-plank', 2, 'coreanti', 'i']] },
+  ],
+  5: [
+    { key: 'F5A', fill: 'push', badge: 'Ch', name: 'Chest', stretch: 'SU', why: 'A full chest day: machine press, upper chest, dumbbells, then a stretch-and-squeeze finish.',
+      items: [['chest-press', 4, 'hpush', 'c'], ['incline-db', 4, 'incline', 'c'], ['db-bench', 3, 'hpush', 'c'], ['pec-deck', 3, 'fly', 'i'], ['push-up', 2, 'hpush', 'i']] },
+    { key: 'F5B', fill: 'pull', badge: 'Bk', name: 'Back', stretch: 'SU', why: 'A full back day: pull-downs for width, rows for thickness, rear shoulders for posture.',
+      items: [['lat-pulldown', 4, 'vpull', 'c'], ['cable-row', 4, 'hpull', 'c'], ['cs-row', 3, 'hpull', 'c'], ['db-pullover', 2, 'vpull', 'i'], ['face-pull', 3, 'rear', 'i']] },
+    { key: 'F5C', fill: 'legs', badge: 'LF', name: 'Legs (front)', stretch: 'SL', why: 'Quad day: leg press and squats with your back supported, one leg at a time, then calves.',
+      items: [['leg-press', 4, 'squat', 'c'], ['smith-squat', 3, 'squat', 'c'], ['split-squat', 3, 'single', 'c'], ['leg-extension', 3, 'quad', 'i'], ['seated-calf', 4, 'calf', 'i']] },
+    { key: 'F5D', fill: 'arms', badge: 'SA', name: 'Shoulders & Arms', stretch: 'SU', why: 'Shoulders first while you’re fresh, then biceps and triceps back to back.',
+      items: [['machine-shoulder', 4, 'vpush', 'c'], ['lateral-raise', 4, 'lateral', 'i'], ['cable-curl', 3, 'biceps', 'i'], ['pushdown', 3, 'triceps', 'i'], ['db-curl', 2, 'biceps', 'i'], ['skull-crusher', 2, 'triceps', 'i']] },
+    { key: 'F5E', fill: 'legs', badge: 'LB', name: 'Legs (back) & Abs', stretch: 'SL', why: 'Hamstrings and glutes — the muscles that guard your knees and lower back — then abs.',
+      items: [['db-rdl', 4, 'hinge', 'c'], ['hip-thrust', 3, 'glute', 'c'], ['leg-curl', 3, 'hamcurl', 'i'], ['hip-abduction', 3, 'glute', 'i'], ['calf-raise', 3, 'calf', 'i'], ['captains-chair', 3, 'coreflex', 'i']] },
+  ],
+};
+// No gear for a split move (or it loads a joint you protect)? Try these, in order, before anything generic.
+const SPLIT_SUBS = {
+  'chest-press': ['db-bench', 'push-up', 'incline-pushup'], 'incline-db': ['decline-pushup', 'push-up'], 'db-bench': ['push-up', 'incline-pushup'],
+  'pec-deck': ['push-up', 'incline-pushup'], 'push-up': ['incline-pushup'],
+  'machine-shoulder': ['db-shoulder', 'pike-pushup'], 'lateral-raise': ['y-raise'], 'face-pull': ['y-raise', 'superman'], 'y-raise': ['superman'],
+  'lat-pulldown': ['pull-up', 'neutral-pullup', 'db-pullover', 'inverted-row'], 'db-pullover': ['inverted-row', 'superman'],
+  'cable-row': ['db-row', 'cs-row', 'inverted-row', 'superman'], 'db-row': ['cs-row', 'inverted-row', 'superman'], 'cs-row': ['db-row', 'inverted-row', 'superman'],
+  'cable-curl': ['db-curl', 'chin-up'], 'db-curl': ['chin-up'],
+  'pushdown': ['skull-crusher', 'bench-dip', 'diamond-pushup'], 'skull-crusher': ['bench-dip', 'diamond-pushup'], 'tower-dip': ['bench-dip', 'diamond-pushup'],
+  'leg-press': ['goblet-squat', 'split-squat', 'bw-squat'], 'smith-squat': ['goblet-squat', 'bw-squat'], 'split-squat': ['reverse-lunge'], 'goblet-squat': ['bw-squat'],
+  'leg-extension': ['wall-sit'], 'leg-curl': ['glute-bridge'], 'db-rdl': ['glute-bridge'], 'hip-thrust': ['glute-bridge'], 'hip-abduction': ['glute-bridge', 'side-plank'],
+  'seated-calf': ['calf-raise'], 'captains-chair': ['knee-raise', 'dead-bug'],
+};
+// If swaps leave a day with fewer than 5 moves, top it up with moves for the same muscles: [id, pattern]
+const SPLIT_FILL = {
+  push: [['decline-pushup', 'incline'], ['pike-pushup', 'vpush'], ['incline-pushup', 'hpush'], ['diamond-pushup', 'triceps'], ['shoulder-tap', 'coreanti'], ['plank', 'coreanti']],
+  pull: [['superman', 'rear'], ['y-raise', 'rear'], ['inverted-row', 'hpull'], ['dead-bug', 'coreanti'], ['side-plank', 'coreanti'], ['plank', 'coreanti']],
+  legs: [['wall-sit', 'quad'], ['reverse-lunge', 'single'], ['bw-squat', 'squat'], ['glute-bridge', 'glute'], ['calf-raise', 'calf'], ['side-plank', 'coreanti'], ['plank', 'coreanti']],
+  arms: [['pike-pushup', 'vpush'], ['y-raise', 'rear'], ['diamond-pushup', 'triceps'], ['plank', 'coreanti'], ['dead-bug', 'coreanti']],
+};
+// Three 4-week phases: [lo, hi, rest] for the first exercise and for the other compounds (isolation moves rest 60s). rir = reps to leave in the tank.
+const PHASES = [
+  { name: 'Learn', weeks: [1, 4], main: [12, 15, 90], rest: [12, 15, 90], rir: '3–4' },
+  { name: 'Build', weeks: [5, 8], main: [8, 10, 90], rest: [10, 12, 90], rir: '2' },
+  { name: 'Strength', weeks: [9, 12], main: [6, 8, 120], rest: [8, 12, 90], rir: '1–2' },
+];
 const PER_SIDE = new Set(['split-squat', 'reverse-lunge', 'db-row', 'side-plank', 'dead-bug', 'shoulder-tap']);

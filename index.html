@@ -414,6 +414,9 @@ details summary::-webkit-details-marker { display: none; }
 .effort .chip { flex: 1; justify-content: center; padding: 10px 6px; font-size: 13px; }
 .effort-help { margin-top: 6px; font-size: 11.5px; }
 .effort .chip.on { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 8px 20px -10px var(--accent); }
+.top-cancel { min-height: 40px; padding: 0 14px; font-size: 14px; flex: none; }
+.cancel-btn { color: var(--danger); min-height: 44px; font-size: 14px; }
+#nextCard .cancel-btn { margin-top: 8px; color: #ffb3bd; border-color: rgba(255,255,255,.18); background: transparent; }
 .news-card { border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
 .news-card .iconbtn { flex: none; width: 36px; height: 36px; }
 .up-hero .why { margin-top: 8px; font-size: 13.5px; line-height: 1.4; color: rgba(255,255,255,.78); }
@@ -777,7 +780,8 @@ const daysOf = () => ([2, 3, 4, 5].includes(+P().days) ? +P().days : 3);
 // Where you train; older profiles without it get one from their equipment
 const locFromGear = (g) => (g.includes('Barbell') ? 'full' : g.includes('Machine') || g.includes('Cable') ? 'machines' : g.includes('Dumbbell') ? 'home' : 'bw');
 const locOf = () => (LOCATIONS[P().loc] ? P().loc : locFromGear(P().gear || Object.keys(GEAR)));
-const planKeys = () => PLAN_TEMPLATES[daysOf()].map((tp) => tp.key);
+// 3–5 days run the Foundations body-part split; 2 days keeps the two full-body routines
+const planKeys = () => (SPLITS[daysOf()] || PLAN_TEMPLATES[daysOf()]).map((tp) => tp.key);
 const nextDay = () => { const keys = planKeys(), g = log.findLast((l) => keys.includes(l.day)); return g ? keys[(keys.indexOf(g.day) + 1) % keys.length] : keys[0]; };
 let pick = store.get('iron40_pick', null); // workout chosen on the Today screen (null = the plan rotation)
 const upNext = () => {
@@ -875,9 +879,51 @@ function buildPlans() {
         if (!e || used.has(id) || !famOk(id) || !capOk(id) || !fits(e)) continue;
         add(id, 'i', FILLER_PAT[id] || 'coreanti');
       }
-      PROGRAM[tp.key] = { name: tp.name, focus: tp.focus, why: tp.why, badge: tp.badge, plan: +days, mins: planMins(items), items };
+      // 3–5 day slot routines were replaced by the Foundations split: kept hidden so old logs keep their names
+      PROGRAM[tp.key] = { name: tp.name, focus: tp.focus, why: tp.why, badge: tp.badge, plan: +days, mins: planMins(items), items, ...(SPLITS[days] ? { hidden: true } : {}) };
     });
   });
+  buildSplits();
+}
+// ---- Foundations split: the week you're on counts only weeks you actually trained it ----
+const SPLIT_KEYS = new Set(Object.values(SPLITS).flat().map((tp) => tp.key));
+function splitWeek() { // (weekOf is declared further down, after the first buildPlans() call)
+  const monday = (dk) => { const d = new Date(dk + 'T12:00'); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return localKey(d); };
+  const now = monday(localKey(new Date()));
+  const weeks = new Set(log.filter((l) => SPLIT_KEYS.has(l.day) && monday(l.date) < now).map((l) => monday(l.date)));
+  const n = weeks.size; // finished training weeks before this one
+  return { week: (n % 12) + 1, round: Math.floor(n / 12) + 1 };
+}
+const phaseOf = (week) => PHASES.find((p) => week >= p.weeks[0] && week <= p.weeks[1]);
+function splitScheme(e, sets, role, first, week) {
+  const ph = phaseOf(week), sets2 = week <= 2 ? Math.max(2, sets - 1) : sets; // weeks 1–2: one fewer set (never under 2) while you learn the moves
+  const base = scheme(e, role); // timed holds, calves, abduction, pull-ups, dips and bodyweight moves keep their own ranges
+  if (e.timed || e.bw || ['seated-calf', 'calf-raise', 'hip-abduction'].includes(e.id)) return { ...base, sets: sets2, rir: ph.rir };
+  const [lo, hi, rest] = first ? ph.main : ph.rest;
+  return { sets: sets2, lo, hi, rest: role === 'i' ? 60 : rest, rir: ph.rir };
+}
+function buildSplits() {
+  const { week, round } = splitWeek(), ph = phaseOf(week);
+  Object.entries(SPLITS).forEach(([days, tps]) => tps.forEach((tp) => {
+    // swap moves you can't do for the hand-picked replacements; never the same move twice, at most one pull-up-type move
+    const used = new Set(), ok = (x) => !used.has(x) && fits(EX_BY_ID[x]) && !(PULLUPS.has(x) && [...used].some((u) => PULLUPS.has(u)));
+    const items = [];
+    tp.items.forEach(([id0, sets, pat, role]) => {
+      const id = ok(id0) ? id0 : (SPLIT_SUBS[id0] || []).find(ok);
+      if (!id) return; // nothing fits for this move: the day skips it
+      used.add(id);
+      const swap = id !== id0 ? t('Swapped from {name}: {why}', { name: EX_BY_ID[id0].name, why: whyNot(EX_BY_ID[id0]) }) : '';
+      items.push({ id, ...splitScheme(EX_BY_ID[id], sets, role, !items.length, week), ...(PER_SIDE.has(id) ? { perSide: true } : {}), note: PATTERNS[pat], ...(swap ? { swap } : {}) });
+    });
+    for (const [id, pat] of SPLIT_FILL[tp.fill] || []) { // too short after swaps: top up with moves for the same muscles
+      if (items.length >= 5) break;
+      if (!ok(id)) continue;
+      used.add(id); items.push({ id, ...splitScheme(EX_BY_ID[id], 2, 'i', false, week), ...(PER_SIDE.has(id) ? { perSide: true } : {}), note: PATTERNS[pat] });
+    }
+    if (items[0]) items[0].warm = true;
+    const why = round > 1 ? `${tp.why} ${t('Round {n}: same plan, heavier weights — or add a training day.', { n: round })}` : tp.why;
+    PROGRAM[tp.key] = { name: tp.name, focus: t('Week {w} of 12 · {phase}', { w: week, phase: t(ph.name) }), why, badge: tp.badge, plan: +days, split: true, stretchKey: tp.stretch, mins: planMins(items), items };
+  }));
 }
 buildPlans();
 
@@ -1024,6 +1070,7 @@ function renderToday() {
       <span class="small">${esc(t('{name} first', { name: first.name }))}</span>
     </div>
     <button class="btn btn-primary btn-block" id="startBtn">${active ? t('Resume workout') : prog.stretch ? t('Start stretching') : t('Start workout')}</button>
+    ${active ? `<button class="btn btn-ghost btn-block cancel-btn" id="cancelActive">${t('Cancel workout')}</button>` : ''}
     ${!isTrain && !active ? `<div class="note">${t('Plan: {days} — rest days help, but you can train anytime.', { days: trainDays().map((d) => DAYS[d]).join(' · ') })}</div>` : ''}
   </div>`;
 
@@ -1049,6 +1096,7 @@ function renderToday() {
   };
   // custom logging and the challenges stay reachable even while a workout is paused or in progress
   $('#focus').innerHTML = `<button class="btn btn-ghost btn-block custom-btn" id="customBtn">${license ? '' : LOCK}${store.get(DRAFT_KEY, null) ? t('Resume custom workout') : t('+ Log a custom workout')}</button>
+    ${store.get(DRAFT_KEY, null) ? `<button class="btn btn-ghost btn-block cancel-btn" id="cancelCustom">${t('Cancel custom workout')}</button>` : ''}
     <div class="small muted" style="margin:0 4px 20px">${t('Did something else? Log any exercise with its sets, reps and weight.')}</div>
     <div class="eyebrow">${t('30-day challenges')} · ${t('Free')}</div>
     <div class="tiles" style="margin-bottom:18px">${Object.keys(CHAL).map(chalTile).join('')}</div>
@@ -1066,6 +1114,10 @@ function renderToday() {
   mountMedia($('#nextCard')); mountMedia($('#exList'));
   $('#s-today').onclick = (e) => {
     if (e.target.closest('#startBtn')) return startWorkout();
+    if (e.target.closest('#cancelActive')) return confirmCancelActive();
+    if (e.target.closest('#cancelCustom')) return openModal(`<h3>${t('Discard this custom workout?')}</h3><div class="muted">${t('Nothing from it will be saved.')}</div>
+      <button class="btn btn-ghost btn-block" style="color:var(--danger)" data-m="del">${t('Cancel custom workout')}</button>
+      <button class="btn btn-primary btn-block" data-m="keep">${t('Keep it')}</button>`, (a) => { if (a === 'del') { store.del(DRAFT_KEY); renderToday(); } });
     if (e.target.closest('#customBtn')) return license ? openCustom() : openUnlock();
     const ch = e.target.closest('[data-ch]'); if (ch) return openChallenge(ch.dataset.ch);
     if (e.target.closest('[data-lock]')) return openUnlock();
@@ -1349,7 +1401,7 @@ function renderStep() {
   const prog = PROGRAM[active.day], items = itemsOf(active), total = items.length + 1, step = active.step;
   const head = `
     <div class="topbar">
-      <button class="iconbtn" id="wClose" aria-label="${t('Close')}">${ICON.close}</button>
+      <button class="btn btn-ghost top-cancel" id="wClose">${t('Cancel')}</button>
       <div class="progress"><i style="width:${Math.min(1, step / (total - 1)) * 100}%"></i></div>
       <div class="small muted" style="min-width:42px;text-align:right">${Math.min(step, total - 1)}/${total - 1}</div>
     </div>`;
@@ -1381,7 +1433,8 @@ function renderStep() {
           ${rec.note ? `<div class="small ex-why">${esc(rec.note)}</div>` : ''}
           ${rec.why ? `<div class="small swap-note">${esc(rec.why)}</div>` : ''}
           ${active.easy ? `<div class="small swap-note">${t('Easy week · 10% lighter, one fewer set')}</div>` : ''}
-          <div class="small muted">${t('{n} sets', { n: it.sets })} × ${it.lo}–${it.hi} ${unit}${it.perSide ? ' ' + t('each side') : ''} · ${t('rest {n}s', { n: it.rest })}${str ? '' : ' · ' + t('effort: 2–3 {unit} left in the tank', { unit })}</div></div>
+          <div class="small muted">${t('{n} sets', { n: it.sets })} × ${it.lo}–${it.hi} ${unit}${it.perSide ? ' ' + t('each side') : ''} · ${t('rest {n}s', { n: it.rest })}${str ? '' : ' · ' + t('effort: {n} {unit} left in the tank', { n: it.rir || '2–3', unit })}</div>
+          ${it.warm && !str ? `<div class="small ex-why">${t('Warm up first: 1 light set at about half your working weight, then 1 at about 70%.')}</div>` : ''}</div>
         <div class="media" style="aspect-ratio:16/10;display:none" id="wPhoto"><img src="${photo(ex.id)}" alt="${esc(t('{name} demonstration photo', { name: ex.name }))}" onload="this.parentElement.style.display=''" onerror="this.parentElement.remove()"><div class="inset" style="width:24%;height:52%">${MuscleMap.forExercise(ex)}</div></div>
         <div id="wStage"></div>
         ${s.text ? `<div class="hint ${s.up ? 'up' : ''}">${s.up ? '↑ ' : ''}${esc(s.text)}</div>` : ''}
@@ -1438,17 +1491,32 @@ function renderStep() {
     return;
   }
   $('#wNext').onclick = () => { active.step++; saveActive(); renderStep(); $('#workout').scrollTop = 0; };
-  $('#wClose').onclick = () => openModal(`
-    <h3>${t('Leave workout?')}</h3><div class="muted">${t('Your progress is saved — you can resume from the Today tab.')}</div>
-    <button class="btn btn-ghost btn-block" data-m="keep">${t('Keep going')}</button>
-    <button class="btn btn-ghost btn-block" data-m="pause">${esc(t('Pause & exit'))}</button>
-    <button class="btn btn-block" style="color:var(--danger)" data-m="discard">${t('Discard workout')}</button>`,
+  $('#wClose').onclick = leaveWorkout;
+}
+// Cancel menu inside any workout: keep going, save & leave (resume later), or cancel this unfinished session
+function leaveWorkout() {
+  openModal(`
+    <h3>${t('Leave this workout?')}</h3><div class="muted">${t('Save & leave keeps your sets so you can resume later. Cancel workout throws away only this unfinished session — workouts already in your log stay.')}</div>
+    <button class="btn btn-primary btn-block" data-m="keep">${t('Keep going')}</button>
+    <button class="btn btn-ghost btn-block" data-m="pause">${esc(t('Save & leave'))}</button>
+    <button class="btn btn-ghost btn-block" style="color:var(--danger)" data-m="discard">${t('Cancel workout')}</button>`,
     (a) => {
-      if (a === 'pause' || a === 'discard') {
-        if (a === 'discard') { active = null; store.del('iron40_active'); }
-        closeWorkout();
-      }
+      if (a === 'pause') closeWorkout();
+      if (a === 'discard') { dropActive(); closeWorkout(); }
     });
+}
+// throw away the unfinished session (a stretch picked from "Save & stretch" stops being up next too)
+function dropActive() {
+  if (active && pick === active.day && PROGRAM[active.day]?.stretch) { pick = null; store.del('iron40_pick'); }
+  active = null; store.del('iron40_active');
+}
+// from the Today tab: throw away a workout that's in progress
+function confirmCancelActive() {
+  openModal(`<h3>${t('Cancel this workout?')}</h3><div class="muted">${t('The sets you’ve done in this session won’t be saved. Workouts already in your log stay.')}</div>
+    <button class="btn btn-ghost btn-block" style="color:var(--danger)" data-m="del">${t('Cancel workout')}</button>
+    <button class="btn btn-primary btn-block" data-m="keep">${t('Keep it')}</button>`, (a) => {
+    if (a === 'del') { dropActive(); renderToday(); }
+  });
 }
 
 // Pick any alternative for this slot; sets reset with a fresh suggestion
@@ -1499,13 +1567,19 @@ function renderSummary(head) {
       <div class="footer-nav"><button class="btn btn-ghost" id="wPrev">${tc('nav', 'Back')}</button><button class="btn btn-primary" id="wSave">${t('Save workout')}</button></div>
     </div>`;
   $('#wPrev').onclick = () => { active.step--; saveActive(); renderStep(); };
-  $('#wClose').onclick = () => closeWorkout();
-  $('#wSave').onclick = () => {
+  $('#wClose').onclick = leaveWorkout;
+  const sk = prog.stretchKey;
+  if (sk && PROGRAM[sk] && !isLocked(sk)) {
+    $('#workoutInner .footer-nav').insertAdjacentHTML('afterend', `<button class="btn btn-ghost btn-block" id="wStretch">${esc(t('Save & stretch: {name} · ~{n} min', { name: PROGRAM[sk].chip, n: PROGRAM[sk].mins }))}</button>`);
+    $('#wStretch').onclick = () => { $('#wSave').onclick(null, true); pick = sk; store.set('iron40_pick', sk); startWorkout(); };
+  }
+  $('#wSave').onclick = (_, stay) => {
     log.push({ date: localKey(new Date()), ts: Date.now(), day: active.day, mins, ex: active.ex.map((e) => ({ id: e.id, sets: e.sets.map((s) => ({ w: +s.w || 0, r: +s.r || 0, done: s.done, ...(s.rir != null ? { rir: s.rir } : {}) })) })), ...(active.easy ? { easy: true } : {}) });
     if (active.easy) store.set('iron40_lastEasy', weekOf(localKey(new Date())));
     store.set('iron40_log', log);
     active = null; store.del('iron40_active');
     pick = null; store.del('iron40_pick');
+    if (stay) return;
     closeWorkout(); showTab('history');
   };
 }
@@ -2426,7 +2500,8 @@ function renderChallenge() {
   const k = chal, C = CHAL[k], p = chalProg(k), n = p.next, total = C.days.length, day = C.days[n];
   const strip = `<div class="ch-strip">${C.days.map((d, i) => `<i class="${d ? '' : 'off'} ${isTest(d) ? 'test' : ''} ${i < n ? 'done' : ''} ${i === n ? 'now' : ''}" aria-label="${esc(t('Day {n}', { n: i + 1 }) + (d ? isTest(d) ? ' · ' + t('test') : '' : ' · ' + t('rest')))}">${i + 1}</i>`).join('')}</div>
     <div class="ch-legend small muted"><span>${t('Dashed = rest day')}</span><span style="color:var(--gold)">${t('Gold = test day')}</span></div>`;
-  const head = `<div class="topbar"><button class="iconbtn" id="chClose" aria-label="${t('Close')}">${ICON.close}</button><div class="spacer"></div></div>`;
+  const busy = n < total && !!day && p.last !== today(); // a training day you can log right now: show a labeled Cancel
+  const head = `<div class="topbar">${busy ? `<button class="btn btn-ghost top-cancel" id="chClose">${t('Cancel')}</button>` : `<button class="iconbtn" id="chClose" aria-label="${t('Close')}">${ICON.close}</button>`}<div class="spacer"></div></div>`;
   const title = (h) => `<div><div class="small muted">${esc(t(C.name))}</div><h2 class="display" style="font-size:32px">${h}</h2></div>`;
   let body;
   if (n >= total) { // finished
@@ -2490,7 +2565,18 @@ $('#chalInner').addEventListener('input', (e) => {
 });
 $('#chalInner').addEventListener('click', (e) => {
   if (!chal) return;
-  if (e.target.closest('#chClose, #chClose2')) return closeChallenge();
+  if (e.target.closest('#chClose2')) return closeChallenge();
+  if (e.target.closest('#chClose')) {
+    const p = chalProg(chal);
+    if (!(chalCur && chalCur.res.flat().some((x) => x.done))) return closeChallenge();
+    return openModal(`<h3>${t('Leave today’s challenge?')}</h3><div class="muted">${t('Save & leave keeps today’s sets so you can finish later. Cancel clears only today’s unfinished sets — days you’ve finished stay.')}</div>
+      <button class="btn btn-primary btn-block" data-m="keep">${t('Keep going')}</button>
+      <button class="btn btn-ghost btn-block" data-m="pause">${esc(t('Save & leave'))}</button>
+      <button class="btn btn-ghost btn-block" style="color:var(--danger)" data-m="discard">${t('Cancel today’s sets')}</button>`, (a) => {
+      if (a === 'pause') closeChallenge();
+      if (a === 'discard') { delete p.cur; saveChal(chal, p); chalCur = null; closeChallenge(); }
+    });
+  }
   const dt = e.target.closest('[data-detail]'); if (dt) return openDetail(dt.dataset.detail);
   const p = chalProg(chal);
   if (e.target.closest('#chRest')) { p.done.push({ d: p.next, date: today(), rest: true, run: p.run || 1 }); p.next++; p.last = today(); saveChal(chal, p); return renderChallenge(); }
@@ -2644,7 +2730,8 @@ function openProfile(first) {
       <div class="row" style="flex-wrap:wrap"><button class="btn btn-ghost data-btn" id="dExport">${t('Save backup')}</button><button class="btn btn-ghost data-btn" id="dCsv">${t('Export CSV')}</button>
         <label class="btn btn-ghost data-btn">${t('Restore')}<input type="file" id="dImport" accept=".json,application/json" hidden></label></div>
       <div class="small" id="dMsg" style="margin-top:8px"></div></div>`}
-    <button class="btn btn-primary btn-block" data-m="ok">${first ? t("I understand — let's lift") : t('Save')}</button>`,
+    <button class="btn btn-primary btn-block" data-m="ok">${first ? t("I understand — let's lift") : t('Save')}</button>
+    ${first ? '' : `<button class="btn btn-ghost btn-block" data-m="cancel">${t('Cancel — keep my current plan')}</button>`}`,
     (a) => {
       if (a !== 'ok') return;
       try { sessionStorage.removeItem('iron40_profile_draft'); } catch {}
