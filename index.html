@@ -848,8 +848,8 @@ const planMins = (items) => Math.round((5 + items.reduce((m, it) => m + 1 + (it.
 function buildPlans() {
   Object.entries(PLAN_TEMPLATES).forEach(([days, tps]) => {
     const inPlan = new Set(); // compounds already used on another day of this plan
-    const count = {};         // how many routines of this plan use each exercise (accessories: 2 at most)
-    const capOk = (id) => (count[id] || 0) < 2;
+    const count = {};         // how many routines of this plan use each exercise (once per plan: no repeats across days)
+    const capOk = (id) => !count[id];
     tps.forEach((tp) => {
       const used = new Set(), items = [];
       const famOk = (id) => !(PULL_FAMILY.has(id) && [...used].some((u) => PULL_FAMILY.has(u)));
@@ -860,8 +860,7 @@ function buildPlans() {
       };
       tp.slots.forEach((sk) => {
         const sl = SLOTS[sk], ok = (id) => !used.has(id) && famOk(id) && fits(EX_BY_ID[id]);
-        let id = sl.ids.find((x) => ok(x) && capOk(x) && !(sl.role !== 'i' && inPlan.has(x))) || sl.ids.find((x) => ok(x) && capOk(x))
-          || (sl.role !== 'i' ? sl.ids.find(ok) : null), swap = '';
+        let id = sl.ids.find((x) => ok(x) && capOk(x) && !(sl.role !== 'i' && inPlan.has(x))) || sl.ids.find((x) => ok(x) && capOk(x)), swap = '';
         if (!id) { // every candidate loads a joint you protect: the closest gentler move for the same muscles, or the original with a warning
           const base = sl.ids.find((x) => !used.has(x) && famOk(x) && capOk(x) && gearFits(EX_BY_ID[x]));
           if (!base) return; // no equipment for this pattern (or it's used up): the routine skips it
@@ -904,26 +903,36 @@ function splitScheme(e, sets, role, first, week) {
 }
 function buildSplits() {
   const { week, round } = splitWeek(), ph = phaseOf(week);
-  Object.entries(SPLITS).forEach(([days, tps]) => tps.forEach((tp) => {
-    // swap moves you can't do for the hand-picked replacements; never the same move twice, at most one pull-up-type move
-    const used = new Set(), ok = (x) => !used.has(x) && fits(EX_BY_ID[x]) && !(PULLUPS.has(x) && [...used].some((u) => PULLUPS.has(u)));
-    const items = [];
-    tp.items.forEach(([id0, sets, pat, role]) => {
+  Object.entries(SPLITS).forEach(([days, tps]) => {
+    // A move appears once per weekly plan: a day that can't fill a slot without repeating runs one exercise shorter
+    const inPlan = new Set();
+    const days_ = tps.map((tp) => {
+      const used = new Set(), items = [];
+      const ok = (x) => !inPlan.has(x) && fits(EX_BY_ID[x]) && !(PULLUPS.has(x) && [...used].some((u) => PULLUPS.has(u)));
+      const add = (id, item) => { used.add(id); inPlan.add(id); items.push(item); };
+      return { tp, used, items, ok, add };
+    });
+    // Pass 1: every day's own moves (or their swaps) first, so an early day's top-ups can't take a later day's main lift
+    days_.forEach(({ tp, items, ok, add }) => tp.items.forEach(([id0, sets, pat, role]) => {
       const id = ok(id0) ? id0 : (SPLIT_SUBS[id0] || []).find(ok);
       if (!id) return; // nothing fits for this move: the day skips it
-      used.add(id);
       const swap = id !== id0 ? t('Swapped from {name}: {why}', { name: EX_BY_ID[id0].name, why: whyNot(EX_BY_ID[id0]) }) : '';
-      items.push({ id, ...splitScheme(EX_BY_ID[id], sets, role, !items.length, week), ...(PER_SIDE.has(id) ? { perSide: true } : {}), note: PATTERNS[pat], ...(swap ? { swap } : {}) });
+      add(id, { id, ...splitScheme(EX_BY_ID[id], sets, role, !items.length, week), ...(PER_SIDE.has(id) ? { perSide: true } : {}), note: PATTERNS[pat], ...(swap ? { swap } : {}) });
+    }));
+    // Pass 2: too short after swaps: top up with moves for the same muscles
+    days_.forEach(({ tp, items, ok, add }) => {
+      for (const [id, pat] of SPLIT_FILL[tp.fill] || []) {
+        if (items.length >= 5) break;
+        if (!ok(id)) continue;
+        add(id, { id, ...splitScheme(EX_BY_ID[id], 2, 'i', false, week), ...(PER_SIDE.has(id) ? { perSide: true } : {}), note: PATTERNS[pat] });
+      }
     });
-    for (const [id, pat] of SPLIT_FILL[tp.fill] || []) { // too short after swaps: top up with moves for the same muscles
-      if (items.length >= 5) break;
-      if (!ok(id)) continue;
-      used.add(id); items.push({ id, ...splitScheme(EX_BY_ID[id], 2, 'i', false, week), ...(PER_SIDE.has(id) ? { perSide: true } : {}), note: PATTERNS[pat] });
-    }
-    if (items[0]) items[0].warm = true;
-    const why = round > 1 ? `${tp.why} ${t('Round {n}: same plan, heavier weights — or add a training day.', { n: round })}` : tp.why;
-    PROGRAM[tp.key] = { name: tp.name, focus: t('Week {w} of 12 · {phase}', { w: week, phase: t(ph.name) }), why, badge: tp.badge, plan: +days, split: true, stretchKey: tp.stretch, mins: planMins(items), items };
-  }));
+    days_.forEach(({ tp, items }) => {
+      if (items[0]) items[0].warm = true;
+      const why = round > 1 ? `${tp.why} ${t('Round {n}: same plan, heavier weights — or add a training day.', { n: round })}` : tp.why;
+      PROGRAM[tp.key] = { name: tp.name, focus: t('Week {w} of 12 · {phase}', { w: week, phase: t(ph.name) }), why, badge: tp.badge, plan: +days, split: true, stretchKey: tp.stretch, mins: planMins(items), items };
+    });
+  });
 }
 buildPlans();
 
