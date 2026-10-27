@@ -717,7 +717,8 @@ const store = {
 let log = store.get('iron40_log', []);          // [{date, day, mins, ex:[{id, sets:[{w,r,done}]}]}]
 let active = store.get('iron40_active', null);  // in-progress workout
 let profile = store.get('iron40_profile', null); // {sex: 'm'|'f', age: '30'|'40'} — tailors photos, tips, recovery
-const P = () => profile || { sex: 'm', age: '40' };
+// Women's photos and demos are hidden for now: everyone sees the men's set, whatever an older profile saved
+const P = () => ({ age: '40', ...profile, sex: 'm' });
 // ---- $19.99 unlock: Workout A, the exercise library and profiles are free; the rest needs a license key ----
 const SHOP = { price: '$19.99', checkoutUrl: 'https://digitalrougex.lemonsqueezy.com/checkout/buy/67f0e0af-4df0-453f-9b9e-728914e781c8' }; // set checkoutUrl to the Lemon Squeezy buy link
 let license = store.get('iron40_license', null); // {key, id, at, expires?} once activated
@@ -2722,7 +2723,6 @@ function openProfile(first) {
       <div class="seg" id="daysSeg">${[2, 3, 4, 5].map((d) => `<button class="chip ${cur.days === d ? 'on' : ''}" data-days="${d}" aria-pressed="${cur.days === d}">${d}</button>`).join('')}</div>
       <div class="small muted" id="daysSub" style="margin-top:6px">${esc(planBlurb(cur.days))}</div></div>
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Appearance')}</div><div class="seg" id="themeSeg">${[['', t('System')], ['light', t('Light')], ['dark', t('Dark')]].map(([v, l]) => `<button class="chip ${(store.get('iron40_theme', null) || '') === v ? 'on' : ''}" data-theme-opt="${v}" aria-pressed="${(store.get('iron40_theme', null) || '') === v}">${l}</button>`).join('')}</div></div>
-    <div><div class="eyebrow" style="margin-bottom:8px">${t('Show me')}</div>${seg('sex', [['m', t('Men')], ['f', t('Women')]])}</div>
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Age group')}</div>${seg('age', [['30', t('30s')], ['40', '40+']])}</div>
     <div class="small muted">${t('Sets the photos, coaching tips and recovery times. You can change it anytime from the profile button.')}</div>
     <div><div class="eyebrow" style="margin-bottom:8px">${t('Joints to protect')}</div>${multi('protect', Object.entries(JOINTS))}
