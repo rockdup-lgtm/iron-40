@@ -204,6 +204,9 @@ h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
 /* ---------- muscle map ---------- */
 .musclemap { display: block; width: 100%; height: 100%; overflow: visible; }
 .musclemap .mm, .musclemap .mm-base { fill: var(--mm-base); stroke: var(--mm-line); stroke-width: .7; stroke-linejoin: round; }
+.musclemap .mm-sil { fill: color-mix(in srgb, var(--mm-base) 55%, var(--mm-line)); }
+.musclemap .mm-fib { display: none; fill: none; stroke: var(--mm-line); stroke-width: .45; stroke-linecap: round; opacity: .45; pointer-events: none; }
+.body-map .mm-fib, .recov-map .mm-fib, .detailmap .mm-fib { display: inline; }
 .recov-map .musclemap .mm, .recov-map .musclemap .mm-base, .detailmap .musclemap .mm, .detailmap .musclemap .mm-base { fill: url(#g-map); }
 .mapwrap { position: relative; }
 .bubble { position: absolute; transform: translate(-50%, -115%); padding: 4px 9px; border-radius: 999px; background: rgba(20,14,28,.75); border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
@@ -1169,8 +1172,8 @@ function renderBody() {
   map = map.replace('</style>', `#${id} .mm:not(.mm-base){cursor:pointer}${bodyPick ? `#${id} .mm-${bodyPick}{fill:var(--accent);filter:drop-shadow(0 0 4px var(--accent))}` : ''}</style>`);
   // name labels on the major groups (one side of each view)
   // [label, x, y] in map units: front view 0–100, back view 110–210
-  const LBL = [[t('Chest'), 50, 47], [t('Delts'), 88, 37], [t('Biceps'), 92, 70], [t('Abs'), 50, 80], [t('Quads'), 50, 132],
-    [t('Back'), 160, 60], [t('Triceps'), 202, 70], [t('Glutes'), 160, 110], [t('Hams'), 160, 146], [t('Calves'), 160, 192]];
+  const LBL = [[t('Chest'), 50, 47], [t('Delts'), 84, 37], [t('Biceps'), 87, 70], [t('Abs'), 50, 80], [t('Quads'), 50, 132],
+    [t('Back'), 160, 60], [t('Triceps'), 197, 70], [t('Glutes'), 160, 110], [t('Hams'), 160, 146], [t('Calves'), 160, 192]];
   const labels = LBL.map(([l, x, y]) => `<span class="body-lbl" style="left:${(x / 210) * 100}%;top:${(y / 222) * 100}%">${l}</span>`).join('');
   $('#bodyMap').innerHTML = map + labels;
   $('#bodyLegend').innerHTML = fresh ? t('Red = still recovering') : sets ? '<span class="ramp"></span> ' + t('sets vs weekly target') : '';

@@ -1651,36 +1651,62 @@ const MUSCLES = {
 const BACK_VIEW = new Set(['back', 'lowback', 'glutes', 'hams', 'triceps']);
 
 const MuscleMap = (() => {
-  const ARM_U = 'M71 58 Q79 62 78.5 78 Q76 87 71.5 87 Q68 74 69 60 Z';
-  const ARM_L = 'M71.5 89 Q80 91 80.5 105 Q79.5 118 76.5 123 L72.5 123 Q69 107 70 91 Z';
-  const DELT = 'M63 35.5 Q74 34 77.5 45 Q77 55 71.5 58.5 Q66 50 63.5 40 Z';
+  // Right half of the body, drawn once and mirrored. Several muscle heads share a group key,
+  // so a whole group lights up together. Unkeyed parts (hands, knees, feet) stay neutral.
+  const SIL = 'M50 24 L55.5 24.5 Q56.5 29.5 60 31.5 L70 33 Q79.5 34.5 81 46 Q82.5 60 82 72 Q81.5 80 80.5 88 Q83.5 100 83 112 Q82.5 120 81 124 Q81.5 134 77.5 139 Q73.5 139.5 72.5 133 L71 124 Q68.5 110 69 97 L67.5 93 Q67.5 101 68.5 108 Q71.5 128 70 148 Q69 158 66.5 165 Q68.5 178 67 194 L64.5 208 Q70 213.5 67 218.5 L53.5 218.5 Q53 212 55.5 207.5 Q54.5 190 54 177 L52.5 162 Q51.5 140 50.5 114 Z';
+  const HAND = 'M73 124.5 Q79.5 124.5 80.5 131 Q79.5 138 76 138.5 Q72.5 134 73 124.5 Z';
+  const FOOT = 'M56.5 208.5 L64.5 208.5 Q69.5 213.5 66.5 218 L54.5 218 Q53.5 212.5 56.5 208.5 Z';
+  const DELT = 'M64 34.5 Q75.5 33 79.5 42 Q81.5 51 77 60 Q73.5 56 71.5 50 Q69 42 64 34.5 Z';
   const FRONT = [
-    [null, 'M55 29 Q62 31 68 35.5 L56 36 Z'],
+    [null, 'M52.5 24.5 Q55 28.5 58.5 32.5 L56 33.5 Q52.5 30 52 24.5 Z'],
+    ['back', 'M55.5 25.5 Q58.5 30.5 66 33.5 L59.5 33.5 Q56.5 30.5 55.5 25.5 Z'],
     ['delts', DELT],
-    ['chest', 'M51 37 L63.5 37 Q70 44 69 54 Q60 60.5 51 57.5 Z'],
-    ['biceps', ARM_U], ['forearms', ARM_L],
-    [null, 'M72 124.5 Q78 125 78 131 Q76 136 73 135 Q71 130 72 124.5 Z'],
-    ['abs', 'M51 59.5 h6.5 v9 h-6.5 Z'], ['abs', 'M51 70.5 h6.5 v9 h-6.5 Z'], ['abs', 'M51 81.5 h6.5 v9.5 h-6.5 Z'],
-    ['abs', 'M59.5 59.5 Q66 61 67 72 Q66.5 87 62.5 96 L59.5 92 Z'],
-    [null, 'M51 93 L59 94 Q65 100 64.5 108 L51 112 Z'],
-    ['quads', 'M53.5 112.5 L65 107 Q71.5 121 69.5 149 Q66.5 162 61 164.5 Q55 150 53.5 130 Z'],
-    ['quads', 'M51 114 L52.5 114 Q54.5 135 57 151 L51.5 151 Z'],
-    [null, 'M57.5 166 Q61 164.5 65 166.5 Q65.5 170 61 171 Q57.5 170 57.5 166 Z'],
-    ['calves', 'M57 172.5 Q66.5 172.5 66.5 186 Q64.5 203 62 209 L58.5 209 Q55 190 57 172.5 Z'],
-    [null, 'M56.5 211 L63.5 211 Q67.5 215.5 64.5 218 L55.5 218 Z'],
+    ['chest', 'M51 36.5 L59 34.5 Q66 35.5 70.5 45 Q63 46.5 51 44.5 Z'],
+    ['chest', 'M51 46 Q61 48 70.5 46.5 Q71.5 52.5 67.5 56.5 Q59.5 60.5 51 58.5 Z'],
+    ['biceps', 'M70 56.5 Q77.5 59.5 78.5 71 Q78.5 81 74.5 87 Q70.5 84 70 74 Q69.5 64 70 56.5 Z'],
+    ['biceps', 'M78 72 Q81 77 80.5 86.5 L76.5 88 Q79 81 78 72 Z'],
+    ['forearms', 'M72.5 89 Q79.5 88 81.5 96 Q82.5 108 79.5 122 L77 123 Q77.5 111 75 101 Q73 94 72.5 89 Z'],
+    ['forearms', 'M71.5 91 Q74.5 100 75.5 112 L76 123 L73 123 Q70 109 70.5 97 Z'],
+    [null, HAND],
+    [null, 'M67 56 Q70.5 57.5 70.5 62.5 L68.5 64.5 Q66.5 60 67 56 Z'],
+    ['abs', 'M51 60 Q55.5 59 57.5 61 Q58 65 57.2 68.5 Q54 69 51 68.5 Z'], ['abs', 'M51 70 Q54.5 69.8 57.4 70.2 Q58 74.5 57.4 78.5 Q54 79 51 78.5 Z'],
+    ['abs', 'M51 80 Q54.5 79.8 57.4 80.2 Q58 84.5 57.2 89 Q54 89.4 51 89 Z'], ['abs', 'M51 90.5 Q54.5 90.3 57.3 90.8 Q57.5 101 51 107 Z'],
+    ['abs', 'M59 61 Q64.5 60.5 68.5 64 Q69 76 67 86 Q64.5 95 59.5 101 L59 93 Z'],
+    ['abs', 'M59.5 103 Q64.5 97.5 67 93.5 Q68.5 101 67.5 107 L58.5 111 L52.5 109 Z'],
+    ['quads', 'M51 112 L57.5 110.5 Q55.5 126 55 139 Q53.5 147 52.5 152 Q51 134 51 112 Z'],
+    ['quads', 'M58.5 111 Q64 106.5 67.5 111 Q67 133 62.5 155 Q59.5 151 58 140 Q56.5 124 58.5 111 Z'],
+    ['quads', 'M68.5 107.5 Q72 120 70.5 143 Q69 157 65.5 163 Q63.5 160 63 156 Q67.5 135 68.5 107.5 Z'],
+    ['quads', 'M55.5 140 Q58.5 147 61.5 157 Q59.5 163.5 55.5 162.5 Q52.5 156 53 148.5 Z'],
+    [null, 'M55.5 164 Q60 161.5 65 164.5 Q64.5 170 60 171.5 Q56 170 55.5 164 Z'],
+    ['calves', 'M61 172.5 Q65.5 173 66 182 Q64.5 196 62.5 206 L60.5 206 Q61 190 61 172.5 Z'],
+    ['calves', 'M55 172.5 Q59.5 172 60 180 Q59.5 192 57.5 200 Q55 190 54.5 180 Z'],
+    [null, FOOT],
   ];
   const BACK = [
-    ['back', 'M50.5 26 L56 27.5 Q66 32.5 69 36.5 L50.5 51 Z'],
+    ['back', 'M50 24 L55 24.5 Q57.5 30 68 34 Q62 37.5 58.5 44 Q54.5 52 50.5 62 Z'],
     ['delts', DELT],
-    ['back', 'M51 52.5 L68.5 38.5 Q71.5 50 67.5 64 Q62.5 80 54 86 L51 86 Z'],
-    ['triceps', ARM_U], ['forearms', ARM_L],
-    [null, 'M72 124.5 Q78 125 78 131 Q76 136 73 135 Q71 130 72 124.5 Z'],
-    ['lowback', 'M51 87.5 L54.5 87.5 Q62 83 64 92 L64.5 100 L51 102 Z'],
-    ['glutes', 'M51 103.5 L64.5 101.5 Q70.5 109 68.5 121 Q60 128.5 51 125 Z'],
-    ['hams', 'M52 127 Q60 129.5 68.5 123 Q70.5 141 67 158.5 Q62 166.5 58 164.5 Q53 148 52 127 Z'],
-    ['calves', 'M57 168 Q67.5 168.5 67.5 183.5 Q65.5 196 62 207 L58.5 207 Q55 190 57 168 Z'],
-    [null, 'M56.5 211 L63.5 211 Q67.5 215.5 64.5 218 L55.5 218 Z'],
+    ['back', 'M59 44.5 Q63.5 38.5 70 39.5 Q73 47.5 71.5 54.5 Q64.5 56.5 58 54.5 Z'],
+    ['back', 'M52 63 Q55.5 57 71.5 56 Q71.5 65 68.5 74 Q63.5 84 56.5 90 L55 74 Q54 67 52 63 Z'],
+    ['lowback', 'M51 65 Q53.5 65.5 54 72 Q55 84 56 99 L51 100.5 Z'],
+    ['lowback', 'M51 101.5 Q54.5 99 57 91 Q62 86 66.5 90 Q67.5 96.5 66.5 101 Z'],
+    ['triceps', 'M70.5 57 Q77.5 58.5 79.5 70 Q80 80 76.5 87.5 L73 87.5 Q72 78 72.5 70 Q71.5 63 70.5 57 Z'],
+    ['triceps', 'M70 59.5 Q72.5 70 72 87.5 L70 86.5 Q68.5 72 70 59.5 Z'],
+    ['forearms', 'M72.5 89 Q79.5 88 81.5 96 Q82.5 108 79.5 122 L77 123 Q77.5 111 75 101 Q73 94 72.5 89 Z'],
+    ['forearms', 'M71.5 91 Q74.5 100 75.5 112 L76 123 L73 123 Q70 109 70.5 97 Z'],
+    [null, HAND],
+    ['glutes', 'M57.5 102 L67 101.5 Q68.5 106 68 110.5 Q62.5 106.5 57.5 106 Z'],
+    ['glutes', 'M51 104 Q60 103.5 68 111.5 Q71 119 68 125.5 Q60 130.5 51 127.5 Z'],
+    ['hams', 'M60 129.5 Q66 128.5 68.5 126 Q70.5 142 67.5 158 Q65 163 62 162.5 Q63 146 60 129.5 Z'],
+    ['hams', 'M52 129.5 Q56 130.5 59 129.5 Q61.5 146 60.5 162.5 Q57 164 55 160 Q52 146 52 129.5 Z'],
+    [null, 'M55 163.5 L65.5 162.5 Q65 167.5 60 168.5 Q56 167.5 55 163.5 Z'],
+    ['calves', 'M60.5 168.5 Q67 168.5 67.5 180 Q67 190 63.5 195 Q61 186 60.5 168.5 Z'],
+    ['calves', 'M54.5 168.5 Q59.5 167.5 59.5 177 Q59.5 189 57.5 196.5 Q54 188 54 178 Z'],
+    ['calves', 'M57 197 Q61 193.5 64 195.5 Q63 203 62 207.5 L59 207.5 Q58 202 57 197 Z'],
+    [null, FOOT],
   ];
+  // muscle-fibre strokes, only drawn on the larger maps
+  const FIB_F = 'M52 40.5 Q61 40 69 44.5 M52 49.5 Q61 51 69.5 49 M52 55 Q60 56 67 53 M70 39 Q75 46 75.5 56 M74 37.5 Q78.5 45 78 54 M73 63 Q75 74 74 84 M75 93 Q78 106 78 120 M60.5 114 Q61.5 135 61 151 M68.5 115 Q69.5 135 66.5 158 M62.5 177 Q63 192 61.5 204 M63 64 Q65.5 76 63.5 92';
+  const FIB_B = 'M52 31 Q57 36 63 37.5 M52 42 Q56 46 58 50 M60.5 48 Q65 47.5 70.5 49 M55 64 Q63 62 70 60 M56 72 Q62 72 68 68 M57.5 82 Q61 80 65 76 M74 62 Q77 72 76.5 84 M75 93 Q78 106 78 120 M54 110 Q61 109 67 116 M53.5 119 Q60 119 67 122 M65 133 Q67 145 65 158 M56 134 Q57.5 147 57.5 160 M63.5 172 Q66 182 64 192 M57 172 Q56.5 184 56.5 194';
   // label anchor points (right side) for % bubbles
   const ANCHOR = {
     chest: [60, 47, 'f'], delts: [72, 45, 'f'], biceps: [74, 72, 'f'], forearms: [75, 105, 'f'], abs: [55, 76, 'f'],
@@ -1688,9 +1714,13 @@ const MuscleMap = (() => {
     hams: [61, 145, 'b'], triceps: [74, 72, 'b'],
   };
 
-  const head = '<ellipse cx="50" cy="14" rx="9" ry="11" class="mm-base"/><path d="M45 23 h10 v8 h-10 Z" class="mm-base"/>';
-  const view = (parts, cls) => {
-    const body = parts.map(([m, d]) => `<path d="${d}" class="mm ${m ? 'mm-' + m : 'mm-base'}" data-m="${m || ''}"/>`).join('');
+  // the shapes above are drawn wide; pull every x toward the centre line for natural proportions
+  const slim = (d) => d.replace(/(\d+(?:\.\d+)?) (\d+(?:\.\d+)?)/g, (_, x, y) => `${+(50 + (x - 50) * 0.84).toFixed(2)} ${y}`);
+  [FRONT, BACK].forEach((v) => v.forEach((p) => (p[1] = slim(p[1]))));
+  const SIL_S = slim(SIL), FIB_FS = slim(FIB_F), FIB_BS = slim(FIB_B);
+  const head = '<path d="M44.5 21 L45 28 Q50 30.5 55 28 L55.5 21 Z" class="mm-base"/><ellipse cx="50" cy="13.5" rx="8.5" ry="10.5" class="mm-base"/>';
+  const view = (parts, fib, cls) => {
+    const body = `<path d="${SIL_S}" class="mm-sil"/>` + parts.map(([m, d]) => `<path d="${d}" class="mm ${m ? 'mm-' + m : 'mm-base'}" data-m="${m || ''}"/>`).join('') + `<path d="${fib}" class="mm-fib"/>`;
     return `<g class="${cls}">${head}<g>${body}</g><g transform="translate(100 0) scale(-1 1)">${body}</g></g>`;
   };
 
@@ -1702,8 +1732,8 @@ const MuscleMap = (() => {
     const both = views === 'both';
     const w = both ? 210 : 100;
     let inner = '';
-    if (views !== 'back') inner += view(FRONT, 'front');
-    if (views !== 'front') inner += `<g transform="translate(${both ? 110 : 0} 0)">${view(BACK, 'back')}</g>`;
+    if (views !== 'back') inner += view(FRONT, FIB_FS, 'front');
+    if (views !== 'front') inner += `<g transform="translate(${both ? 110 : 0} 0)">${view(BACK, FIB_BS, 'back')}</g>`;
     const style = Object.entries(levels).filter(([, v]) => v > 0)
       .map(([m, v]) => `#${id} .mm-${m}{fill:color-mix(in srgb, var(--mus) ${Math.round(25 + v * 75)}%, var(--mm-base))}`).join('');
     return `<svg id="${id}" viewBox="0 0 ${w} 222" class="musclemap" role="img" aria-label="Muscle map"><style>${style}</style>${inner}</svg>`;
@@ -1716,6 +1746,7 @@ const MuscleMap = (() => {
     const v = views || (BACK_VIEW.has(ex.mus.p[0]) ? 'back' : 'front');
     return svg(lv, { views: v });
   }
+  for (const m in ANCHOR) ANCHOR[m][0] = 50 + (ANCHOR[m][0] - 50) * 0.84;
   return { svg, forExercise, ANCHOR };
 })();
 
