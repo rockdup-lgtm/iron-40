@@ -219,6 +219,9 @@ h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
   background: rgba(12,10,18,.72); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .stage { position: relative; border-radius: 28px; aspect-ratio: 240 / 228; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow);
   background: radial-gradient(60% 55% at 50% 45%, color-mix(in srgb, var(--accent) 14%, var(--bg-2)), var(--bg) 85%); }
+.stage.has-vid { aspect-ratio: 1; background: #d6d8da; }
+.stage.has-vid::after { display: none; }
+.stage .demo-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .stage::after { content: ''; position: absolute; left: 10%; right: 10%; bottom: 0; height: 30%; pointer-events: none;
   background: radial-gradient(50% 60% at 50% 100%, rgba(255,255,255,.06), transparent 70%); }
 .stage .phase { position: absolute; left: 14px; top: 14px; z-index: 1; padding: 7px 12px 7px 10px; border-radius: 999px; background: rgba(12,10,18,.6); border: 1px solid var(--line-strong);
@@ -743,6 +746,16 @@ const FREE_EX = new Set([...FREE_DAYS.flatMap((d) => PROGRAM[d].items.map((i) =>
 const exLocked = (id) => !license && !FREE_EX.has(id);
 const LOCK = '<svg class="icon lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 const photo = (id) => `img/${P().sex === 'f' ? 'f/' : ''}${id}.jpg`;
+// 3D demo clips (vid/<id>.mp4). Moves not listed keep the drawn animation.
+const DEMO_VIDEOS = new Set(('assisted-pullup back-squat bb-ohp bb-rdl bench-dip biceps-stretch bird-dog bw-squat cable-curl cable-row calf-stretch '
+  + 'captains-chair cat-cow chest-press childs-pose chin-up cross-shoulder cs-row db-bench db-curl db-rdl db-row db-shoulder dead-bug decline-pushup '
+  + 'diamond-pushup donkey-kick door-row doorway-chest face-pull farmer-carry figure-four glute-bridge goblet-squat hamstring-stretch hip-abduction '
+  + 'hip-flexor hip-thrust incline-db incline-pushup inverted-row knee-chest knee-pushup knee-raise lat-pulldown lateral-raise leg-curl leg-extension '
+  + 'leg-press machine-shoulder neutral-pullup pec-deck pike-pushup plank pull-up push-up pushdown quad-stretch reverse-crunch reverse-lunge '
+  + 'seated-calf shoulder-tap side-plank single-leg-bridge skull-crusher sl-rdl smith-squat snow-angel split-squat step-up superman supine-twist '
+  + 'tower-dip triceps-stretch wall-pushup wall-sit wall-slide wrist-stretch wu-swings y-raise').split(' '));
+const VIDEO_REUSE = { 'wu-squat': 'bw-squat' };
+const demoVideo = (id) => { const v = VIDEO_REUSE[id] || id; return DEMO_VIDEOS.has(v) ? `vid/${v}.mp4` : null; };
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1234,7 +1247,30 @@ function renderLibrary() {
 $('#filters').addEventListener('click', (e) => { const b = e.target.closest('[data-f]'); if (!b) return; filter = b.dataset.f; store.set('iron40_filter', filter); renderLibrary(); });
 $('#grid').addEventListener('click', (e) => { const b = e.target.closest('[data-ex]'); if (b) openDetail(b.dataset.ex); });
 
-// animated stage with phase label + play/pause + slow-mo
+// Looping 3D demo clip with the same controls as the drawn rig (play/pause, speed, seek).
+// opts: { onTime(t, cycle), onError() } — onError lets the caller fall back to the drawn animation.
+function videoDemo(stage, src, opts = {}) {
+  const v = document.createElement('video');
+  v.className = 'demo-vid';
+  v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; v.preload = 'auto';
+  v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
+  v.src = src;
+  stage.prepend(v);
+  let wanted = true; // autoplay can be refused until the user taps; keep the requested state
+  v.addEventListener('timeupdate', () => opts.onTime?.(v.currentTime, v.duration || 1));
+  v.addEventListener('error', () => { v.remove(); opts.onError?.(); }, { once: true });
+  const play = () => { wanted = true; v.play().catch(() => {}); };
+  play();
+  return {
+    play, pause() { wanted = false; v.pause(); },
+    setSpeed(s) { v.playbackRate = s; },
+    isPlaying: () => wanted,
+    seek(t) { v.currentTime = Math.min(t, (v.duration || 1) - 0.05); },
+    get cycle() { return v.duration || 1; },
+    destroy() { v.remove(); },
+  };
+}
+
 // animated stage with phase label, play/pause, slow-mo and a range-of-motion scrubber
 function mountStage(container, ex, small) {
   container.innerHTML = `<div class="stage">${small ? '' : `<div class="phase">…</div>
@@ -1246,11 +1282,23 @@ function mountStage(container, ex, small) {
     </div>`}`;
   const stage = container.firstElementChild, phase = $('.phase', stage), pp = $('[data-c=pp]', stage), range = $('.scrub input', container);
   let dragging = false;
-  const anim = IronRig.create(stage, ex, {
-    fit: !small,
-    onPhase: (l, d) => { if (phase) phase.textContent = d ? t('{label} · {n} sec', { label: l, n: d }) : l; },
-    onTime: (t, cyc) => { if (range && !dragging) range.value = Math.round((t / cyc) * 1000); },
-  });
+  const onTime = (t, cyc) => { if (range && !dragging) range.value = Math.round((t / cyc) * 1000); };
+  const drawn = () => {
+    stage.classList.remove('has-vid'); const sl = $('.scrub-labels', container); if (sl) sl.style.display = '';
+    return IronRig.create(stage, ex, {
+      fit: !small,
+      onPhase: (l, d) => { if (phase) phase.textContent = d ? t('{label} · {n} sec', { label: l, n: d }) : l; },
+      onTime,
+    });
+  };
+  const src = demoVideo(ex.id);
+  let anim;
+  if (src) {
+    // the clip's timing doesn't follow the tempo phases, so show the tempo as one line and hide the phase labels
+    stage.classList.add('has-vid'); const sl = $('.scrub-labels', container); if (sl) sl.style.display = 'none';
+    if (phase) phase.textContent = ex.tempo.map((p) => t('{label} · {n} sec', { label: p.label, n: p.dur })).join(', ');
+    anim = videoDemo(stage, src, { onTime, onError: () => { anim = drawn(); } });
+  } else anim = drawn();
   const setPlaying = (on) => { on ? anim.play() : anim.pause(); if (pp) pp.innerHTML = on ? ICON.pause : ICON.play; };
   stage.addEventListener('click', (e) => {
     const b = e.target.closest('[data-c]'); if (!b) return;

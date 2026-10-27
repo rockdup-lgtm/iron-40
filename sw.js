@@ -1,4 +1,4 @@
-const CACHE = 'iron40-v41';
+const CACHE = 'iron40-v42';
 const CORE = ['./', 'index.html', 'exercises.js', 'i18n.js', 'i18n-ui.js', 'i18n-data.js', 'manifest.json'];
 const IMAGES = ['hero', 'onboard', 'icon-192', 'icon-512', 'apple-touch-icon',
   'db-bench', 'incline-db', 'bb-ohp', 'db-shoulder', 'db-row', 'bb-row', 'cs-row', 'db-pullover',
@@ -10,6 +10,8 @@ const IMAGES = ['hero', 'onboard', 'icon-192', 'icon-512', 'apple-touch-icon',
   'face-pull', 'pushdown', 'cable-curl', 'smith-squat', 'hip-abduction', 'assisted-pullup', 'captains-chair', 'neutral-pullup', 'tower-dip',
   'childs-pose', 'cat-cow', 'knee-chest', 'supine-twist', 'hamstring-stretch', 'quad-stretch', 'hip-flexor', 'figure-four',
   'calf-stretch', 'cross-shoulder', 'triceps-stretch', 'doorway-chest', 'biceps-stretch', 'wrist-stretch',
+  'single-leg-bridge', 'sl-rdl', 'donkey-kick', 'step-up', 'wall-pushup', 'knee-pushup', 'door-row', 'snow-angel', 'wall-slide',
+  'bird-dog', 'reverse-crunch', 'wu-swings',
 ].flatMap((n) => n.includes('icon') ? [`img/${n}.png`] : [`img/${n}.jpg`, `img/f/${n}.jpg`]); // men's and women's photos
 
 // Images are optional, so add them one by one and ignore misses
@@ -22,8 +24,10 @@ self.addEventListener('activate', (e) => e.waitUntil(
 ));
 
 // Network first so updates show up; fall back to cache when offline
+// Demo videos stream straight from the network (cached range requests break playback);
+// offline, the app falls back to the drawn animation.
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
+  if (e.request.method !== 'GET' || new URL(e.request.url).pathname.includes('/vid/')) return;
   e.respondWith(
     fetch(e.request)
       .then((res) => {
