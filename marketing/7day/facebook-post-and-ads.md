@@ -72,7 +72,7 @@ Objective: **Traffic** or **Leads** → website. Audience to start: ages 30–55
 - **Media:** `ad-square-en.png`
 - **Primary text:** Most fitness apps are built for 22-year-olds. Iron 40 is built for you: 53 exercises with real form demos, smart weight progression, recovery tracking, stretching for your lower back, and a confetti-worthy celebration every time you hit a new PR. 7 days free.
 - **Headline:** Train smarter after 40
-- **Description:** $7.99 once after your trial. No subscription.
+- **Description:** $19.99 once after your trial. No subscription.
 - **Button:** Learn More
 
 ### Ad 3: Story / Reel
@@ -103,7 +103,7 @@ https://iron-40.pages.dev/api/admin/trials?key=YOUR_OWNER_KEY
 
 ## Reminder emails (automatic)
 
-- **2 days before the trial ends:** "Your Iron 40 trial ends in 2 days" with an Unlock for $7.99 button.
+- **2 days before the trial ends:** "Your Iron 40 trial ends in 2 days" with an Unlock for $19.99 button.
 - **When it ends:** "Your Iron 40 trial has ended" with the unlock button and how to activate.
 - Sent once each, in the person's language, from iron40@digitalrougex.com, with a one-click unsubscribe link.
 - Previews: `email-2-days-left.png`, `email-trial-ended-es.png`.
